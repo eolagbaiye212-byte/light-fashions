@@ -1,0 +1,489 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ tokens
+   Sampled from the Light Fashion Experience photographs and the LIGHT × NYFW poster.
+   See DESIGN.md. */
+@theme {
+  --color-night: oklch(0.138 0.006 245);
+  --color-night-2: oklch(0.189 0.01 248);
+  --color-night-3: oklch(0.25 0.012 248);
+  --color-night-ink: oklch(0.943 0.008 92);
+  --color-night-muted: oklch(0.706 0.013 248);
+  --color-night-line: oklch(0.32 0.012 248);
+  --color-day: oklch(1 0 0);
+  --color-day-ink: oklch(0.162 0.008 248);
+  --color-day-muted: oklch(0.496 0.016 248);
+  --color-day-line: oklch(0.921 0.005 258);
+  --color-tile: oklch(0.97 0.002 248);
+  --color-rod: oklch(0.792 0.121 78);
+  --color-rod-hot: oklch(0.93 0.06 88);
+  --color-signal: oklch(0.535 0.217 29);
+  --color-signal-night: oklch(0.68 0.19 29);
+
+  --text-fine: 0.8125rem;
+  --text-fine--line-height: 1.45;
+  --text-ui: 0.9375rem;
+  --text-ui--line-height: 1.4;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.55;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.5;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quint: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --breakpoint-xs: 26rem;
+}
+
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
+@theme inline {
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+  --font-serif: var(--font-frank), var(--font-frank-hebrew), "Times New Roman", Georgia, serif;
+}
+
+:root {
+  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
+  --header-h: 4rem;
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ base */
+@layer base {
+  html {
+    background: var(--color-night);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-night);
+    color: var(--color-night-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+  ::selection { background: var(--color-rod); color: var(--color-night); }
+
+  :focus-visible {
+    outline: 2px solid var(--color-rod);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+  [data-surface="day"] :focus-visible { outline-color: var(--color-day-ink); }
+
+  button:not(:disabled), [role="button"] { cursor: pointer; }
+  button:disabled { cursor: not-allowed; }
+
+  /* Taps respond immediately (no double-tap-zoom delay); pressed states come from our own styles. */
+  a, button, label, summary, select, [role="button"] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  dialog { overscroll-behavior: contain; }
+}
+
+/* Surfaces. Night is the page default; day sections carry their own colors. */
+[data-surface="day"] {
+  background: var(--color-day);
+  color: var(--color-day-ink);
+  line-height: 1.55;
+  color-scheme: light;
+}
+[data-surface="night"] {
+  background: var(--color-night);
+  color: var(--color-night-ink);
+  color-scheme: dark;
+}
+
+/* ------------------------------------------------------------------ type */
+@utility display {
+  font-stretch: 62%;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 0.88;
+  letter-spacing: -0.005em;
+}
+@utility condensed {
+  font-stretch: 75%;
+}
+@utility scripture {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: -0.005em;
+}
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+@utility muted {
+  color: var(--color-night-muted);
+  [data-surface="day"] & {
+    color: var(--color-day-muted);
+  }
+}
+/* Scarcity red: the poster red on day, lifted on night so it keeps 4.5:1. */
+@utility signal {
+  color: var(--color-signal-night);
+  [data-surface="day"] & {
+    color: var(--color-signal);
+  }
+}
+@utility hairline {
+  border-color: var(--color-night-line);
+  [data-surface="day"] & {
+    border-color: var(--color-day-line);
+  }
+}
+@utility container-x {
+  padding-inline: var(--gutter);
+  margin-inline: auto;
+  max-width: 96rem;
+  width: 100%;
+}
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
+}
+/* Text links: underline that thickens, never color-only. */
+@utility link {
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.22em;
+  transition: text-decoration-thickness 160ms var(--ease-quint);
+  &:hover { text-decoration-thickness: 2px; }
+}
+
+/* ------------------------------------------------------------------ buttons */
+@utility btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6em;
+  min-height: 3rem;
+  padding: 0 1.5rem;
+  font-size: var(--text-ui);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 999px;
+  transition: background-color 160ms var(--ease-quint), color 160ms var(--ease-quint), transform 160ms var(--ease-quint), box-shadow 200ms var(--ease-quint);
+  &:active:not(:disabled) { transform: scale(0.98); }
+}
+/* Primary on night: the light itself. */
+@utility btn-light {
+  background: var(--color-night-ink);
+  color: var(--color-night);
+  &:hover { background: white; box-shadow: 0 0 0 4px oklch(0.792 0.121 78 / 0.4); }
+}
+@utility btn-ghost {
+  box-shadow: inset 0 0 0 1px currentColor;
+  &:hover { box-shadow: inset 0 0 0 2px currentColor; }
+}
+@utility btn-ink {
+  background: var(--color-day-ink);
+  color: var(--color-day);
+  &:hover:not(:disabled) { background: oklch(0.3 0.01 248); }
+  &:disabled { background: var(--color-day-line); color: var(--color-day-muted); }
+}
+
+/* ------------------------------------------------------------------ the rod
+   The amber light bar from the runway set. Used twice: opening the hero, opening the shop. */
+.rod {
+  background: linear-gradient(90deg, transparent, var(--color-rod) 28%, var(--color-rod-hot) 50%, var(--color-rod) 72%, transparent);
+  box-shadow: 0 0 18px 2px oklch(0.792 0.121 78 / 0.55), 0 0 60px 10px oklch(0.792 0.121 78 / 0.18);
+}
+
+.hero-open .hero-rod {
+  transform-origin: top;
+  animation: rod-draw 900ms var(--ease-expo) 150ms both, rod-fade 700ms var(--ease-quint) 1500ms both;
+}
+.hero-open .hero-reveal {
+  animation: reveal-from-rod 1400ms var(--ease-expo) 650ms both;
+}
+.hero-open .hero-copy > * {
+  animation: rise 900ms var(--ease-expo) both;
+}
+.hero-open .hero-copy > *:nth-child(1) { animation-delay: 1250ms; }
+.hero-open .hero-copy > *:nth-child(2) { animation-delay: 1350ms; }
+.hero-open .hero-copy > *:nth-child(3) { animation-delay: 1450ms; }
+.hero-open .hero-copy > *:nth-child(4) { animation-delay: 1550ms; }
+
+/* Already seen this session (set by an inline script in HeroRunway before paint). */
+.opened .hero-open .hero-reveal,
+.opened .hero-open .hero-copy > * { animation: none; }
+.opened .hero-rod { display: none; }
+
+@keyframes rod-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes rod-fade { to { opacity: 0; } }
+@keyframes reveal-from-rod {
+  from { clip-path: inset(0 49.85% 0 49.85%); }
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes bump {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.3); }
+  100% { transform: scale(1); }
+}
+.bump { animation: bump 460ms var(--ease-expo); }
+
+/* ------------------------------------------------------------------ dialogs */
+dialog.drawer {
+  margin: 0 0 0 auto;
+  height: 100dvh;
+  max-height: 100dvh;
+  width: min(30rem, 100vw);
+  max-width: 100vw;
+  padding: 0;
+  border: 0;
+  background: var(--color-day);
+  color: var(--color-day-ink);
+  translate: 100% 0;
+  transition: translate 380ms var(--ease-expo), overlay 380ms allow-discrete, display 380ms allow-discrete;
+}
+dialog.drawer[open] { translate: 0 0; }
+@starting-style {
+  dialog.drawer[open] { translate: 100% 0; }
+}
+dialog.drawer::backdrop {
+  background: oklch(0.138 0.006 245 / 0);
+  transition: background 380ms var(--ease-quint), overlay 380ms allow-discrete, display 380ms allow-discrete;
+}
+dialog.drawer[open]::backdrop { background: oklch(0.138 0.006 245 / 0.62); }
+@starting-style {
+  dialog.drawer[open]::backdrop { background: oklch(0.138 0.006 245 / 0); }
+}
+
+dialog.menu {
+  margin: 0;
+  width: 100vw;
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  padding: 0;
+  border: 0;
+  background: var(--color-night);
+  color: var(--color-night-ink);
+  opacity: 0;
+  transition: opacity 260ms var(--ease-quint), overlay 260ms allow-discrete, display 260ms allow-discrete;
+}
+dialog.menu[open] { opacity: 1; }
+@starting-style {
+  dialog.menu[open] { opacity: 0; }
+}
+
+/* Exits run faster than entrances. */
+dialog.drawer:not([open]) {
+  transition-duration: 280ms;
+  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+}
+dialog.drawer[open] { transition-duration: 460ms; }
+
+/* Menu links arrive one after another when the menu opens. */
+dialog.menu[open] .menu-item {
+  animation: rise 700ms var(--ease-expo) both;
+  animation-delay: calc(80ms + var(--i, 0) * 55ms);
+}
+
+/* Packshots are shot on white; multiplying lets them sit in the tile color. */
+.packshot { mix-blend-mode: multiply; }
+
+/* Remote images settle in instead of popping. (Shown immediately without JS.) */
+img[data-fade] {
+  opacity: 0;
+  transition: opacity 700ms var(--ease-quint);
+}
+img[data-fade][data-loaded="true"] { opacity: 1; }
+
+/* Horizontal rails fade at the edge so it's clear there's more to drag to. */
+.rail-fade {
+  mask-image: linear-gradient(to right, #000 calc(100% - 7rem), transparent);
+}
+@media (max-width: 640px) {
+  .rail-fade { mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
+}
+
+/* ------------------------------------------------------------------ the light (scroll-driven)
+   Runs on the compositor where supported; LightTransition.tsx writes --beam / --white otherwise. */
+.light {
+  view-timeline: --light block;
+  --beam: 0;
+  --white: 0;
+}
+.light-beam { transform: scaleX(var(--beam)); will-change: transform; }
+.light-white { opacity: var(--white); }
+.light-amber { opacity: calc(1 - var(--white)); }
+.light-rod, .light-halo { opacity: calc(1 - var(--white)); }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .light-beam,
+    .light-white,
+    .light-amber,
+    .light-rod,
+    .light-halo {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --light;
+      animation-range: contain 0% contain 100%;
+    }
+    .light-beam { animation-name: light-beam; }
+    .light-white { animation-name: light-white; }
+    .light-amber { animation-name: light-amber; }
+    .light-rod, .light-halo { animation-name: light-rod; }
+  }
+}
+@keyframes light-beam {
+  0%, 10% { transform: scaleX(0); animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1); }
+  76%, 100% { transform: scaleX(1); }
+}
+@keyframes light-white {
+  0%, 34% { opacity: 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+  70%, 100% { opacity: 1; }
+}
+@keyframes light-amber {
+  0%, 40% { opacity: 1; }
+  72%, 100% { opacity: 0; }
+}
+@keyframes light-rod {
+  0%, 18% { opacity: 1; }
+  40%, 100% { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ scroll-linked motion
+   Compositor-only (opacity/transform), tied to scroll position rather than timers, and
+   absent entirely for reduced motion or browsers without scroll timelines. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Product tiles and list items rise into place as they enter. */
+    .rise-in {
+      animation: rise-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    /* Editorial photographs drift slightly slower than the page. */
+    .drift > * {
+      scale: 1.12;
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: cover 0% cover 100%;
+    }
+    /* Display headings lift out of a mask, like type coming up into the light. */
+    .unmask {
+      animation: unmask linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+  }
+}
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(42px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes drift {
+  from { translate: 0 -5%; }
+  to { translate: 0 5%; }
+}
+@keyframes unmask {
+  from { clip-path: inset(0 0 100% 0); transform: translateY(0.35em); }
+  to { clip-path: inset(0 0 -0.2em 0); transform: none; }
+}
+
+/* ------------------------------------------------------------------ page transitions
+   React <ViewTransition> + next/link transitionTypes. Recipes adapted from
+   vercel-labs/agent-skills · react-view-transitions. */
+:root {
+  --duration-exit: 180ms;
+  --duration-enter: 320ms;
+  --duration-move: 520ms;
+}
+::view-transition { pointer-events: none; }
+
+/* Keep the root live so the header, bag and hover states never freeze mid-transition. */
+::view-transition-old(root) { display: none; }
+::view-transition-new(root) { animation: none; }
+
+/* The header is an anchor: it never moves with the page. */
+::view-transition-group(site-header) { animation: none; z-index: 100; }
+::view-transition-old(site-header) { display: none; }
+::view-transition-new(site-header) { animation: none; }
+
+@keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes vt-slide { from { translate: var(--slide-offset) 0; } to { translate: 0 0; } }
+@keyframes vt-rise { from { translate: 0 var(--rise, 18px); } to { translate: 0 0; } }
+
+/* Lateral moves (Shop ⇄ Runway ⇄ Story): a short crossfade with a little lift. */
+::view-transition-old(.page-out) {
+  animation: var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse;
+}
+::view-transition-new(.page-in) {
+  animation:
+    var(--duration-enter) var(--ease-quint) calc(var(--duration-exit) * 0.6) both vt-fade,
+    var(--duration-move) var(--ease-expo) both vt-rise;
+}
+
+/* Going deeper (grid → product) and coming back. */
+::view-transition-old(.nav-forward) {
+  --slide-offset: -48px;
+  animation:
+    var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
+    var(--duration-move) var(--ease-expo) both vt-slide reverse;
+}
+::view-transition-new(.nav-forward) {
+  --slide-offset: 48px;
+  animation:
+    var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-expo) both vt-slide;
+}
+::view-transition-old(.nav-back) {
+  --slide-offset: 48px;
+  animation:
+    var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
+    var(--duration-move) var(--ease-expo) both vt-slide reverse;
+}
+::view-transition-new(.nav-back) {
+  --slide-offset: -48px;
+  animation:
+    var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
+    var(--duration-move) var(--ease-expo) both vt-slide;
+}
+
+/* The product photo carries over from the tile to the product page. */
+::view-transition-group(.morph) {
+  animation-duration: var(--duration-move);
+  animation-timing-function: var(--ease-expo);
+}
+::view-transition-image-pair(.morph) { animation-name: vt-via-blur; }
+@keyframes vt-via-blur { 35% { filter: blur(2px); } }
+
+/* Shop filters: tiles leave, arrive and slide to their new places. */
+::view-transition-old(.tile-out) { animation: 160ms cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse; }
+::view-transition-new(.tile-in) { animation: 300ms var(--ease-quint) 120ms both vt-fade; }
+::view-transition-group(.tile-move) {
+  animation-duration: 460ms;
+  animation-timing-function: var(--ease-expo);
+}
+
+/* ------------------------------------------------------------------ reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-rod { display: none; }
+}

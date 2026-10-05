@@ -1,0 +1,19 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "light-fashions",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "npm run dev -- --port 3010"],
+      "port": 3010,
+      "autoPort": false
+    },
+    {
+      "name": "light-fashions-prod",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": ["/c", "npm run start -- --port 3011"],
+      "port": 3011,
+      "autoPort": false
+    }
+  ]
+}
