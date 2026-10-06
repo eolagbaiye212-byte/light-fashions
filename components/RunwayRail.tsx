@@ -11,71 +11,71 @@ export type RailLook = {
   pieces: { slug: string; name: string }[];
 };
 
-/** Horizontal walk through the sixteen looks. Scroll-snap, arrow keys, buttons, and mouse drag. */
+/**
+ * Horizontal walk through the sixteen looks. Native scrolling with snap points, so touch, trackpads,
+ * shift-wheel and the keyboard (arrow keys on the focused rail) all work; mouse users can also drag.
+ * Two small paging arrows sit under the rail at the right, as on the I.STORYTELL carousels. They're a
+ * pointer shortcut and hidden from assistive tech, which already has the arrow keys.
+ */
 export function RunwayRail({ looks }: { looks: RailLook[] }) {
   const ref = useRef<HTMLOListElement>(null);
-  const [index, setIndex] = useState(0);
   const drag = useRef<{ x: number; left: number; moved: boolean } | null>(null);
+  const [edge, setEdge] = useState({ start: true, end: false });
 
-  const step = useCallback(() => {
+  const measure = useCallback(() => {
     const el = ref.current;
-    const first = el?.querySelector("li");
-    if (!el || !first) return 0;
-    const gap = parseFloat(getComputedStyle(el).columnGap || "0");
-    return first.getBoundingClientRect().width + gap;
+    if (!el) return;
+    // A pixel of slack: scrollLeft is fractional under zoom and on high-DPI screens.
+    const max = el.scrollWidth - el.clientWidth;
+    const next = { start: el.scrollLeft <= 1, end: el.scrollLeft >= max - 1 };
+    setEdge((e) => (e.start === next.start && e.end === next.end ? e : next));
   }, []);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
     let frame = 0;
-    const onScroll = () => {
+    const schedule = () => {
       cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const s = step();
-        if (s) setIndex(Math.min(looks.length - 1, Math.round(el.scrollLeft / s)));
-      });
+      frame = requestAnimationFrame(measure);
     };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [looks.length, step]);
+    measure();
+    el.addEventListener("scroll", schedule, { passive: true });
+    const ro = new ResizeObserver(schedule);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", schedule);
+      ro.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, [measure]);
 
-  const go = (dir: 1 | -1) => {
-    ref.current?.scrollBy({ left: dir * step(), behavior: "smooth" });
+  /** Scroll to an item's own offset, never a raw distance, so a step always lands on a look's edge. */
+  const stops = () => {
+    const el = ref.current;
+    const items = el ? ([...el.children] as HTMLElement[]) : [];
+    const origin = items[0]?.offsetLeft ?? 0;
+    return items.map((item) => item.offsetLeft - origin);
   };
 
-  const atEnd = index >= looks.length - 1;
+  const move = (direction: 1 | -1, byPage: boolean) => {
+    const el = ref.current;
+    if (!el) return;
+    const s = stops();
+    if (!s.length) return;
+    const stride = s[1] ?? el.clientWidth;
+    const step = byPage ? Math.max(1, Math.floor(el.clientWidth / stride)) : 1;
+    const current = s.findIndex((stop) => stop >= el.scrollLeft - 1);
+    const from = current === -1 ? s.length - 1 : current;
+    const target = Math.min(Math.max(from + direction * step, 0), s.length - 1);
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ left: s[target], behavior: reduce ? "auto" : "smooth" });
+  };
+
+  const fits = edge.start && edge.end;
 
   return (
     <div>
-      <div className="container-x flex items-center justify-between gap-6">
-        <p className="tabular text-ui" aria-live="polite">
-          <span className="sr-only">Showing look </span>
-          <span className="font-semibold">{pad(index + 1)}</span>
-          <span className="muted"> of {looks.length}</span>
-        </p>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            disabled={index === 0}
-            className="grid size-12 place-items-center rounded-full shadow-[inset_0_0_0_1px_currentColor] transition-opacity hover:shadow-[inset_0_0_0_2px_currentColor] disabled:opacity-30"
-            aria-label="Previous look"
-          >
-            <Arrow dir={-1} />
-          </button>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            disabled={atEnd}
-            className="grid size-12 place-items-center rounded-full shadow-[inset_0_0_0_1px_currentColor] transition-opacity hover:shadow-[inset_0_0_0_2px_currentColor] disabled:opacity-30"
-            aria-label="Next look"
-          >
-            <Arrow dir={1} />
-          </button>
-        </div>
-      </div>
-
       <ol
         ref={ref}
         tabIndex={0}
@@ -83,11 +83,11 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") {
             e.preventDefault();
-            go(1);
+            move(1, false);
           }
           if (e.key === "ArrowLeft") {
             e.preventDefault();
-            go(-1);
+            move(-1, false);
           }
         }}
         onPointerDown={(e) => {
@@ -112,16 +112,16 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
           drag.current = null;
           if (!d?.moved || !el) return;
           el.releasePointerCapture(e.pointerId);
-          const s = step();
-          const target = Math.round(el.scrollLeft / s) * s;
-          el.scrollTo({ left: target, behavior: "smooth" });
+          const s = stops();
+          const nearest = s.reduce((best, stop) => (Math.abs(stop - el.scrollLeft) < Math.abs(best - el.scrollLeft) ? stop : best), 0);
+          el.scrollTo({ left: nearest, behavior: "smooth" });
           setTimeout(() => (el.style.scrollSnapType = ""), 400);
         }}
         onClickCapture={(e) => {
           // A drag that ends over a link shouldn't open it.
           if (ref.current?.style.scrollSnapType === "none") e.preventDefault();
         }}
-        className="rail-fade no-scrollbar relative mt-8 flex cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-[var(--gutter)] px-[var(--gutter)] pb-4 select-none active:cursor-grabbing sm:gap-6"
+        className="rail-fade no-scrollbar relative flex cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-[var(--gutter)] px-[var(--gutter)] select-none active:cursor-grabbing sm:gap-6"
       >
         {looks.map((look) => (
           <li key={look.n} className="w-[80vw] shrink-0 snap-start xs:w-[68vw] sm:w-[44vw] lg:w-[30vw] xl:w-[24vw]">
@@ -133,14 +133,15 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
               </div>
               <span className="sr-only">Look {look.n}: open on the runway page</span>
             </Link>
-            <div className="mt-5 grid grid-cols-[auto_1fr] items-baseline gap-x-4">
-              <span className="type-h3 tabular font-light text-night-muted" aria-hidden="true">
+            {/* The number is set at the verse's own size and leading, so the two share one line and one baseline. */}
+            <div className="mt-4 grid grid-cols-[auto_1fr] items-baseline gap-x-3">
+              <span className="tabular text-[1.1875rem] leading-[1.38] font-medium text-night-muted" aria-hidden="true">
                 {pad(look.n)}
               </span>
               <div className="min-w-0">
                 <div className="line-clamp-5">{look.verse}</div>
                 {look.pieces.length > 0 && (
-                  <p className="mt-4 text-ui">
+                  <p className="mt-3 text-ui">
                     <span className="muted">Worn: </span>
                     {look.pieces.map((p, i) => (
                       <span key={p.slug}>
@@ -162,14 +163,36 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
           </Link>
         </li>
       </ol>
+
+      {!fits && (
+        <div aria-hidden="true" className="container-x mt-3 flex justify-end gap-2">
+          <RailButton onClick={() => move(-1, true)} disabled={edge.start} label="Previous looks">
+            <path d="M15 5 8 12l7 7" />
+          </RailButton>
+          <RailButton onClick={() => move(1, true)} disabled={edge.end} label="Next looks">
+            <path d="m9 5 7 7-7 7" />
+          </RailButton>
+        </div>
+      )}
     </div>
   );
 }
 
-function Arrow({ dir }: { dir: 1 | -1 }) {
+function RailButton({ onClick, disabled, label, children }: { onClick: () => void; disabled: boolean; label: string; children: ReactNode }) {
   return (
-    <svg aria-hidden="true" width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ transform: dir < 0 ? "scaleX(-1)" : undefined }}>
-      <path d="M0 7h16M10 1l6 6-6 6" />
-    </svg>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      tabIndex={-1}
+      title={label}
+      className="grid size-10 place-items-center rounded-full border border-night-muted/45 text-night-ink transition-[opacity,background-color,color] duration-200 hover:bg-night-ink hover:text-night disabled:pointer-events-none disabled:opacity-30"
+    >
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          {children}
+        </g>
+      </svg>
+    </button>
   );
 }

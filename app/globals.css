@@ -21,10 +21,15 @@
   --color-signal: oklch(0.535 0.217 29);
   --color-signal-night: oklch(0.68 0.19 29);
 
-  --text-fine: 0.8125rem;
+  /* UI text (nav, product names, prices, controls) at 16px and fine print at 14px: product details
+     read comfortably on a phone without competing with body copy. */
+  --text-fine: 0.875rem;
   --text-fine--line-height: 1.45;
-  --text-ui: 0.9375rem;
+  --text-ui: 1rem;
   --text-ui--line-height: 1.4;
+  /* Header links and controls. */
+  --text-nav: 1.125rem;
+  --text-nav--line-height: 1.35;
   --text-body: 1.0625rem;
   --text-body--line-height: 1.55;
   /* Lead copy scales with the viewport so it never crowds body text on phones. */
@@ -58,10 +63,10 @@
   --space-xs: 0.75rem;
   --space-sm: 1rem;
   --space-md: 1.5rem;
-  --space-lg: clamp(2rem, 1.6rem + 1.6vw, 3rem);
-  --space-xl: clamp(3rem, 2.2rem + 3vw, 4.5rem);
-  --space-band: clamp(3.5rem, 2.4rem + 4vw, 5.5rem);
-  --space-section: clamp(4.5rem, 2.8rem + 6vw, 8rem);
+  --space-lg: clamp(1.75rem, 1.45rem + 1.2vw, 2.5rem);
+  --space-xl: clamp(2.5rem, 1.95rem + 2.3vw, 3.75rem);
+  --space-band: clamp(3rem, 2.4rem + 2.8vw, 4.5rem);
+  --space-section: clamp(3.5rem, 2.65rem + 3.9vw, 6rem);
 
   /* The largest quote size, shared by quote-xl and the light's landing (which is measured off it). */
   --quote-xl-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
@@ -383,6 +388,36 @@ dialog.drawer:not([open]) {
 }
 dialog.drawer[open] { transition-duration: 460ms; }
 
+/* Phone filter sheet: rises from the bottom edge. */
+dialog.sheet {
+  margin: auto 0 0;
+  width: 100vw;
+  max-width: 100vw;
+  padding: 0;
+  border: 0;
+  border-radius: 1rem 1rem 0 0;
+  background: var(--color-day);
+  color: var(--color-day-ink);
+  translate: 0 100%;
+  transition: translate 420ms var(--ease-expo), overlay 420ms allow-discrete, display 420ms allow-discrete;
+}
+dialog.sheet[open] { translate: 0 0; }
+@starting-style {
+  dialog.sheet[open] { translate: 0 100%; }
+}
+dialog.sheet:not([open]) {
+  transition-duration: 260ms;
+  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
+}
+dialog.sheet::backdrop {
+  background: oklch(0.138 0.006 245 / 0);
+  transition: background 380ms var(--ease-quint), overlay 380ms allow-discrete, display 380ms allow-discrete;
+}
+dialog.sheet[open]::backdrop { background: oklch(0.138 0.006 245 / 0.5); }
+@starting-style {
+  dialog.sheet[open]::backdrop { background: oklch(0.138 0.006 245 / 0); }
+}
+
 /* Menu links arrive one after another when the menu opens. */
 dialog.menu[open] .menu-item {
   animation: rise 700ms var(--ease-expo) both;
@@ -404,17 +439,17 @@ img[data-fade] {
 }
 img[data-fade][data-loaded="true"] { opacity: 1; }
 
-/* Shop categories (below lg): the edge with more chips behind it fades out. The fade widths are
+/* Shop category tabs (below lg): the edge with more tabs behind it fades out. The fade widths are
    registered so they ease in and out as you reach either end. */
 @property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
 @media (max-width: 1023.98px) {
-  .chip-rail {
+  .tab-rail {
     mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
     transition: --fade-start 200ms var(--ease-quint), --fade-end 200ms var(--ease-quint);
   }
-  .chip-rail[data-more-start] { --fade-start: 4.5rem; }
-  .chip-rail[data-more-end] { --fade-end: 4.5rem; }
+  .tab-rail[data-more-start] { --fade-start: 4.5rem; }
+  .tab-rail[data-more-end] { --fade-end: 4.5rem; }
 }
 
 /* Horizontal rails fade at the edge so it's clear there's more to drag to. */

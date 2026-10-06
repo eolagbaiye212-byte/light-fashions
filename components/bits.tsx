@@ -56,14 +56,30 @@ export function Verse({
   line,
   cite,
   size = "md",
+  inline = false,
   className = "",
 }: {
   line: string;
   cite?: string;
   size?: "sm" | "md" | "lg";
+  /** Run the reference on after the words, in parentheses, instead of on its own line below. */
+  inline?: boolean;
   className?: string;
 }) {
   const s = { sm: "quote-sm", md: "quote-md", lg: "quote-lg" }[size];
+  if (inline) {
+    // Balanced, so a reference that doesn't fit wraps with words beside it rather than alone on a line.
+    return (
+      <figure className={`${s} ${className}`} style={{ textWrap: "balance" }}>
+        <blockquote className="inline">
+          <span aria-hidden="true">“</span>
+          {line}
+          <span aria-hidden="true">”</span>
+        </blockquote>{" "}
+        <figcaption className="muted inline">({cite ?? "Myron"})</figcaption>
+      </figure>
+    );
+  }
   return (
     <figure className={className}>
       <blockquote className={s}>

@@ -134,7 +134,7 @@ export function Header() {
             </span>
           </Link>
 
-          <nav aria-label="Main" className="hidden items-center gap-8 md:flex">
+          <nav aria-label="Main" className="hidden items-center gap-6 md:flex">
             {NAV.map((item) => {
               const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
               return (
@@ -142,7 +142,7 @@ export function Header() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? "page" : undefined}
-                  className="relative py-2 text-ui font-medium after:absolute after:inset-x-0 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-quint hover:after:scale-x-100 aria-[current=page]:after:h-0.5 aria-[current=page]:after:scale-x-100"
+                  className="relative py-2 text-nav font-medium after:absolute after:inset-x-0 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-quint hover:after:scale-x-100 aria-[current=page]:after:h-0.5 aria-[current=page]:after:scale-x-100"
                 >
                   {item.label}
                 </Link>
@@ -150,11 +150,11 @@ export function Header() {
             })}
           </nav>
 
-          <div className="flex items-center gap-1 sm:gap-3">
+          <div className="flex items-center gap-1 sm:gap-2">
             <button
               type="button"
               onClick={() => menuRef.current?.showModal()}
-              className="min-h-11 rounded-full px-3 text-ui font-medium md:hidden"
+              className="min-h-11 rounded-full px-3 text-nav font-medium md:hidden"
               aria-haspopup="dialog"
             >
               Menu
@@ -162,7 +162,7 @@ export function Header() {
             <button
               type="button"
               onClick={() => bag.open()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-ui font-medium transition-shadow duration-200 sm:px-4 sm:shadow-[inset_0_0_0_1px_currentColor] sm:hover:shadow-[inset_0_0_0_2px_currentColor]"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-nav font-medium transition-shadow duration-200 sm:px-4 sm:shadow-[inset_0_0_0_1px_currentColor] sm:hover:shadow-[inset_0_0_0_2px_currentColor]"
               aria-haspopup="dialog"
               aria-label={`Bag, ${count} ${count === 1 ? "item" : "items"}`}
             >

@@ -40,7 +40,7 @@ export default async function Home() {
         className="object-cover"
       />
     ),
-    verse: <Verse line={look.line} cite={look.cite} size="sm" />,
+    verse: <Verse line={look.line} cite={look.cite} size="sm" inline />,
     pieces: pick(look.products).map((p) => ({
       slug: p.slug,
       name: p.color ? `${p.name} (${p.color.toLowerCase()})` : p.name,
@@ -93,7 +93,7 @@ export default async function Home() {
       </section>
 
       {once.length > 0 && (
-        <section data-surface="day" aria-labelledby="once-title" className="section-y border-t border-day-line">
+        <section data-surface="day" aria-labelledby="once-title" className="band-y border-t border-day-line">
           <div className="container-x">
             <SectionHead
               id="once-title"
@@ -121,28 +121,29 @@ export default async function Home() {
         <StoryBand key={story.id} story={story} products={pick(story.products)} flip={i % 2 === 1} />
       ))}
 
-      <section data-surface="day" aria-labelledby="founder-title" className="section-y border-t border-day-line">
-        {/* Poster and words side by side on desktop (poster first, answering the text-left story band
-            above); words first on phones. */}
-        <div className="container-x grid items-center gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
-          <figure className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
-            <blockquote id="founder-title" className="quote-xl max-w-[18ch]">
+      <section data-surface="day" aria-labelledby="founder-title" className="border-t border-day-line py-[var(--space-xl)]">
+        {/* Two equal halves, each centred: the poster on one side, the words on the other (words first on
+            phones), so the section balances on its centre line. */}
+        <div className="container-x grid items-center gap-[var(--space-xl)] lg:grid-cols-2 lg:gap-8">
+          <figure className="flex flex-col items-center text-center lg:order-2">
+            <blockquote id="founder-title" className="quote-xl max-w-[16ch]">
               <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
             </blockquote>
-            <figcaption className="mt-5 max-w-[44ch] text-lead">
-              “More than just fashion.” <span className="muted">Myron, founder and designer, March 2026</span>
+            <figcaption className="mt-5 text-lead">
+              <span className="block">“More than just fashion.”</span>
+              <span className="muted mt-1 block text-ui">Myron, founder and designer, March 2026</span>
             </figcaption>
             <Link href="/story" className="btn btn-ink mt-[var(--space-lg)]">
               Read the story
             </Link>
           </figure>
-          <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
-            <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden bg-tile lg:max-w-none">
+          <div className="flex justify-center lg:order-1">
+            <div className="relative aspect-[4/5] w-full max-w-[18rem] overflow-hidden bg-tile sm:max-w-[22rem]">
               <Image
                 src={media("Dclxg2wRFYs-0").src}
                 alt="Poster for the Light Fashion Experience: September 13, 2026, 7 PM, New York City, LIGHT × NYFW"
                 fill
-                sizes="(min-width: 1024px) 30vw, 80vw"
+                sizes="(min-width: 640px) 352px, 288px"
                 className="object-cover"
               />
             </div>

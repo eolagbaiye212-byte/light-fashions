@@ -20,7 +20,7 @@ export const STORIES: Story[] = [
     title: "Jesus Lives",
     date: "2026-04-03",
     when: "Good Friday, April 3",
-    text: "In glory to the life of Christ that still lives. Chrome-printed, oversized, released on Good Friday. Spoiler: He rose again.",
+    text: "Released on Good Friday: chrome-printed, oversized tees for the Christ who still lives.",
     images: ["DaobnhQEawZ-1", "DbB4lwEnCwL-2", "DcZ3A7_kdYU-1", "DWFCOKkD8nw-2", "DaobnhQEawZ-4"],
     products: [9107472154764],
     credit: "Photographed by @kdshot_it and @mediabymarky",

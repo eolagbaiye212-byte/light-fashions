@@ -4,7 +4,6 @@ import { IgImage } from "@/components/bits";
 import { StoryBand } from "@/components/StoryBand";
 import { PageTransition } from "@/components/PageTransition";
 import { STORIES, TIMELINE } from "@/lib/stories";
-import { INSTAGRAM } from "@/lib/media";
 import { getProducts, type Product } from "@/lib/shopify";
 
 export const revalidate = 300;
@@ -47,9 +46,25 @@ export default async function StoryPage() {
                 July, and in September took sixteen looks to New York Fashion Week for its first solo show.
               </p>
             </div>
+
+            {/* Myron's words close the story, in the same column, rather than as a section of their own. */}
+            <figure className="mt-[var(--space-xl)]">
+              <blockquote className="quote-xl max-w-[18ch]">
+                <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
+              </blockquote>
+              <figcaption className="muted mt-4 text-ui">Myron, March 2026</figcaption>
+            </figure>
+            <p className="mt-[var(--space-lg)] flex items-baseline gap-4" lang="he">
+              <span className="scripture text-[3.25rem] leading-none" aria-hidden="true">
+                אור
+              </span>
+              <span className="muted text-ui" lang="en">
+                <i>Or</i>, the Hebrew word for light.
+              </span>
+            </p>
           </div>
           <div className="lg:col-span-5 lg:col-start-8">
-            <figure>
+            <figure className="lg:sticky lg:top-28">
               <div className="drift relative aspect-[4/5] overflow-hidden">
                 <IgImage id="DdFUmCnj76h-2" alt="Campaign artwork for the Light Fashion Experience: a figure dissolving into white light" fill sizes="(min-width: 1024px) 38vw, 92vw" className="object-cover" />
               </div>
@@ -57,38 +72,21 @@ export default async function StoryPage() {
             </figure>
           </div>
         </div>
-
-        <div className="container-x mt-[var(--space-xl)] grid items-end gap-[var(--space-lg)] border-t border-night-line pt-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
-          <figure className="lg:col-span-8">
-            <blockquote className="quote-xl max-w-[18ch]">
-              <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
-            </blockquote>
-            <figcaption className="muted mt-5 text-lead">Myron, March 2026</figcaption>
-          </figure>
-          <p className="lg:col-span-4" lang="he">
-            <span className="scripture block text-[clamp(4rem,3.2rem+3.4vw,6rem)] leading-none" aria-hidden="true">
-              אור
-            </span>
-            <span className="muted mt-2 block text-ui" lang="en">
-              <i>Or</i>, the Hebrew word for light.
-            </span>
-          </p>
-        </div>
       </section>
 
       <section data-surface="day" aria-labelledby="timeline-title" className="section-y">
         {/* Title on the left, the year on the right (desktop), so each line sits near its picture. */}
         <div className="container-x lg:grid lg:grid-cols-12 lg:gap-8">
-          <h2 id="timeline-title" className="type-h2 lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
+          <h2 id="timeline-title" className="type-h3 lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
             2026 so far
           </h2>
-          <ol className="head-gap border-t border-day-line lg:col-span-8 lg:mt-0">
+          <ol className="mt-[var(--space-md)] border-t border-day-line lg:col-span-8 lg:mt-0">
             {TIMELINE.map((m) => (
-              <li key={m.date} className="grid grid-cols-[5rem_1fr] items-start gap-x-5 gap-y-3 border-b border-day-line py-5 sm:grid-cols-[8rem_1fr_auto] sm:gap-x-8 sm:py-6">
-                <time dateTime={m.date} className="type-h4 tabular">
+              <li key={m.date} className="grid min-h-[4.75rem] grid-cols-[4.25rem_1fr_auto] items-center gap-x-4 border-b border-day-line py-2.5 sm:grid-cols-[6rem_1fr_auto] sm:gap-x-6">
+                <time dateTime={m.date} className="tabular text-ui font-medium">
                   {m.label}
                 </time>
-                <p className="max-w-[52ch] text-body sm:text-lead">
+                <p className="max-w-[56ch]">
                   {m.href ? (
                     <Link href={m.href} className="hover:underline">
                       {m.text}
@@ -98,8 +96,8 @@ export default async function StoryPage() {
                   )}
                 </p>
                 {m.image && (
-                  <div className="relative col-start-2 aspect-[4/5] w-24 overflow-hidden bg-tile sm:col-start-3 sm:w-28">
-                    <IgImage id={m.image} alt="" fill sizes="112px" className="object-cover" />
+                  <div className="relative col-start-3 aspect-[4/5] w-12 overflow-hidden bg-tile">
+                    <IgImage id={m.image} alt="" fill sizes="48px" className="object-cover" />
                   </div>
                 )}
               </li>
@@ -112,21 +110,6 @@ export default async function StoryPage() {
         <StoryBand key={story.id} story={story} products={pick(story.products)} flip={i % 2 === 1} />
       ))}
 
-      <section data-surface="day" aria-labelledby="credits-title" className="band-y border-t border-day-line">
-        <div className="container-x grid gap-8 lg:grid-cols-12">
-          <h2 id="credits-title" className="text-lead font-medium lg:col-span-4">
-            Photography on this site
-          </h2>
-          <p className="muted max-w-[64ch] lg:col-span-8">
-            Runway looks by @diamondrose.photos, styled by @ethannn_estinvil. Campaigns by @kdshot_it, @kemflics, @kyng.archives and
-            @mediabymarky. Show film by @lightproductions.co. Every image comes from{" "}
-            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="link text-day-ink">
-              @children_ofthelight
-            </a>
-            .
-          </p>
-        </div>
-      </section>
     </PageTransition>
   );
 }

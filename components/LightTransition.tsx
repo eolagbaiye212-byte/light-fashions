@@ -70,7 +70,7 @@ export function LightTransition() {
             <blockquote id="light-verse" className="quote-xl mx-auto max-w-[20ch]">
               For you were once darkness, but now you are light in the Lord. Walk as children of light.
             </blockquote>
-            <figcaption className="mt-6 text-ui font-medium">Ephesians 5:8</figcaption>
+            <figcaption className="type-h3 mt-5">Ephesians 5:8</figcaption>
           </figure>
         </div>
       </div>

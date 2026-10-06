@@ -75,7 +75,7 @@ export default async function RunwayPage() {
             id={`look-${look.n}`}
             data-look={look.n}
             aria-labelledby={`look-${look.n}-title`}
-            className="band-y scroll-mt-32 border-b border-night-line"
+            className="band-y scroll-mt-32"
           >
             <div className="container-x grid gap-[var(--space-lg)] lg:grid-cols-12 lg:items-center lg:gap-8">
               <div className={`min-w-0 lg:col-span-6 ${flip ? "lg:order-2 lg:col-start-7" : "lg:col-start-1"}`}>
@@ -109,7 +109,7 @@ export default async function RunwayPage() {
                   {pieces.length > 0 ? (
                     <>
                       <h3 className="muted text-ui">In the shop</h3>
-                      <ul className="mt-3 divide-y divide-night-line border-y border-night-line">
+                      <ul className="mt-3 divide-y divide-night-line border-t border-night-line">
                         {pieces.map((p) => (
                           <li key={p.id}>
                             <Link href={`/shop/${p.slug}`} className="group flex items-center gap-4 py-3">
