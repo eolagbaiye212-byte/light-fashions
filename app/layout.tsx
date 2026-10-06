@@ -7,14 +7,15 @@ import { SmoothScroll } from "@/components/SmoothScroll";
 import "lenis/dist/lenis.css";
 import "./globals.css";
 
-// Self-hosted variable fonts (OFL, see app/fonts). Archivo carries both weight and width axes;
-// the font-stretch range must be declared or browsers clamp the width axis to 100%.
-const archivo = localFont({
-  src: "./fonts/archivo-variable.woff2",
-  variable: "--font-archivo",
+// Self-hosted variable fonts (OFL, see app/fonts). Hanken Grotesk sets everything; Frank Ruhl Libre
+// is kept for quoted words only: scripture and Myron's. Each gets a metric-matched fallback so the
+// swap doesn't shift the layout.
+const hanken = localFont({
+  src: "./fonts/hanken-grotesk-variable.woff2",
+  variable: "--font-hanken",
   weight: "100 900",
   display: "swap",
-  declarations: [{ prop: "font-stretch", value: "62% 125%" }],
+  adjustFontFallback: "Arial",
 });
 
 const frank = localFont({
@@ -22,6 +23,8 @@ const frank = localFont({
   variable: "--font-frank",
   weight: "300 900",
   display: "swap",
+  preload: false,
+  adjustFontFallback: "Times New Roman",
 });
 
 const frankHebrew = localFont({
@@ -30,6 +33,7 @@ const frankHebrew = localFont({
   weight: "300 900",
   display: "swap",
   preload: false,
+  adjustFontFallback: "Times New Roman",
 });
 
 
@@ -58,7 +62,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${archivo.variable} ${frank.variable} ${frankHebrew.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${hanken.variable} ${frank.variable} ${frankHebrew.variable}`} suppressHydrationWarning>
       <body className="min-h-dvh">
         <noscript>
           <style>{`img[data-fade]{opacity:1}`}</style>

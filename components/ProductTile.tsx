@@ -11,15 +11,12 @@ export function ProductTile({
   priority,
   tone = "day",
   morph = true,
-  reveal = true,
 }: {
   product: ProductLite;
   priority?: boolean;
   tone?: "day" | "night";
   /** Name the photo for the tile → product page morph. Only one tile per product on a page. */
   morph?: boolean;
-  /** Rise into place on scroll (off inside horizontal rails). */
-  reveal?: boolean;
 }) {
   const [first, second] = product.images;
   const sizeValues = product.options[0]?.values ?? [];
@@ -42,7 +39,7 @@ export function ProductTile({
   );
 
   return (
-    <article className={`group relative ${reveal ? "rise-in" : ""}`}>
+    <article className="group relative">
       <div className="relative">
         {morph ? (
           <ViewTransition name={`product-${product.id}`} share="morph" default="none">
@@ -55,18 +52,18 @@ export function ProductTile({
       </div>
 
       <div className="mt-3 flex items-start justify-between gap-3">
-        <h3 className="text-ui font-semibold leading-snug">
+        <h3 className="text-ui leading-snug font-medium">
           <Link
             href={`/shop/${product.slug}`}
             transitionTypes={["nav-forward"]}
-            className="after:absolute after:inset-0 after:content-[''] hover:underline"
+            className="after:absolute after:inset-0 after:content-[''] hover:underline hover:underline-offset-[0.2em]"
           >
             {product.name}
           </Link>
         </h3>
         <Price price={product.price} compareAt={product.compareAt} className="shrink-0 text-ui font-semibold" />
       </div>
-      <p className="mt-0.5 flex flex-wrap items-baseline gap-x-2 text-fine">
+      <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-fine">
         {detail && product.available && <span className="muted">{detail}</span>}
         <Status scarcity={product.scarcity} available={product.available} onSale={!!product.compareAt} />
       </p>

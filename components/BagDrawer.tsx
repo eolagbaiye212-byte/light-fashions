@@ -39,7 +39,7 @@ export function BagDrawer() {
     >
       <div data-surface="day" className="flex h-full flex-col">
         <div className="flex h-16 shrink-0 items-center justify-between border-b border-day-line px-5">
-          <h2 id="bag-title" className="text-lead font-semibold">
+          <h2 id="bag-title" className="text-lead font-medium">
             Your bag <span className="muted tabular font-normal">({count})</span>
           </h2>
           <button type="button" onClick={() => bag.close()} className="min-h-11 rounded-full px-3 text-ui font-medium">
@@ -49,7 +49,7 @@ export function BagDrawer() {
 
         {state.lines.length === 0 ? (
           <div className="flex flex-1 flex-col items-start justify-center gap-5 px-5 pb-24">
-            <p className="display text-[3.25rem] text-day-ink">Nothing here yet.</p>
+            <p className="type-h2 text-day-ink">Nothing here yet.</p>
             <p className="muted max-w-[32ch]">
               The show collection, one-of-one runway pieces and Light4eva essentials are all in the shop.
             </p>
@@ -103,7 +103,7 @@ function Line({ line }: { line: BagLine }) {
       </Link>
       <div className="flex min-w-0 flex-1 flex-col">
         <div className="flex items-start justify-between gap-3">
-          <Link href={`/shop/${line.slug}`} onClick={() => bag.close()} className="font-semibold leading-snug hover:underline">
+          <Link href={`/shop/${line.slug}`} onClick={() => bag.close()} className="font-medium leading-snug hover:underline">
             {line.name}
           </Link>
           <span className="tabular shrink-0 font-semibold">{money(line.price * line.quantity)}</span>
@@ -113,7 +113,7 @@ function Line({ line }: { line: BagLine }) {
           {line.single ? (
             <span className="text-fine font-semibold signal">Only one exists</span>
           ) : (
-            <div className="inline-flex items-center rounded-full shadow-[inset_0_0_0_1px_var(--color-day-line)]">
+            <div className="inline-flex items-center rounded-full shadow-[inset_0_0_0_1px_var(--color-day-edge)]">
               <button
                 type="button"
                 onClick={() => bag.setQuantity(line.variantId, line.quantity - 1)}

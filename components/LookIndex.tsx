@@ -40,7 +40,7 @@ export function LookIndex({ count }: { count: number }) {
             <a
               href={`#look-${n}`}
               aria-current={current === n ? "true" : undefined}
-              className={`tabular grid min-h-10 min-w-11 place-items-center rounded-full px-2 text-ui font-semibold transition-colors ${current === n ? "bg-night-ink text-night" : "muted hover:text-night-ink"}`}
+              className={`tabular grid min-h-10 min-w-11 place-items-center rounded-full px-2 text-ui font-medium transition-colors ${current === n ? "bg-night-ink text-night" : "muted hover:text-night-ink"}`}
             >
               {pad(n)}
             </a>

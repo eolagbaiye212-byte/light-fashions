@@ -22,13 +22,13 @@ export default async function StoryPage() {
 
   return (
     <PageTransition>
-      <section data-surface="night" aria-labelledby="story-title" className="pt-32 pb-24 sm:pt-40">
-        <div className="container-x grid gap-14 lg:grid-cols-12">
+      <section data-surface="night" aria-labelledby="story-title" className="page-top section-b">
+        <div className="container-x grid gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-7">
-            <h1 id="story-title" className="display text-[clamp(3.8rem,1.6rem+8vw,6rem)]">
+            <h1 id="story-title" className="type-h1 max-w-[12ch]">
               Children of the Light
             </h1>
-            <div className="mt-10 max-w-[60ch] space-y-5 text-lead">
+            <div className="mt-[var(--space-lg)] max-w-[58ch] space-y-4 text-lead">
               <p>
                 LIGHT is a faith-led streetwear label designed by Myron. The clothes carry scripture openly: Jesus Lives, Jesus
                 Wept, All Hail Yeshua, Find God. The name is scripture&apos;s too: “that ye may be the children of light,” John 12:36.
@@ -48,7 +48,7 @@ export default async function StoryPage() {
               </p>
             </div>
           </div>
-          <div className="lg:col-span-5">
+          <div className="lg:col-span-5 lg:col-start-8">
             <figure>
               <div className="drift relative aspect-[4/5] overflow-hidden">
                 <IgImage id="DdFUmCnj76h-2" alt="Campaign artwork for the Light Fashion Experience: a figure dissolving into white light" fill sizes="(min-width: 1024px) 38vw, 92vw" className="object-cover" />
@@ -58,15 +58,15 @@ export default async function StoryPage() {
           </div>
         </div>
 
-        <div className="container-x mt-24 grid items-end gap-10 border-t border-night-line pt-16 lg:grid-cols-12">
+        <div className="container-x section-t mt-[var(--space-section)] grid items-end gap-[var(--space-lg)] border-t border-night-line lg:grid-cols-12 lg:gap-8">
           <figure className="lg:col-span-8">
-            <blockquote className="unmask display text-[clamp(3rem,1.2rem+6.4vw,6rem)]">
-              Light is what I call a God vision.
+            <blockquote className="quote-xl max-w-[18ch]">
+              <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
             </blockquote>
             <figcaption className="muted mt-5 text-lead">Myron, March 2026</figcaption>
           </figure>
           <p className="lg:col-span-4" lang="he">
-            <span className="scripture block text-[clamp(5rem,4rem+5vw,8rem)] leading-none" aria-hidden="true">
+            <span className="scripture block text-[clamp(4rem,3.2rem+3.4vw,6rem)] leading-none" aria-hidden="true">
               אור
             </span>
             <span className="muted mt-2 block text-ui" lang="en">
@@ -76,18 +76,18 @@ export default async function StoryPage() {
         </div>
       </section>
 
-      <section data-surface="day" aria-labelledby="timeline-title" className="py-24 sm:py-32">
+      <section data-surface="day" aria-labelledby="timeline-title" className="section-y">
         <div className="container-x">
-          <h2 id="timeline-title" className="unmask display text-[clamp(3rem,1.6rem+5.6vw,6rem)]">
+          <h2 id="timeline-title" className="type-h2">
             2026 so far
           </h2>
-          <ol className="mt-14 border-t border-day-line">
+          <ol className="head-gap border-t border-day-line">
             {TIMELINE.map((m) => (
-              <li key={m.date} className="rise-in grid grid-cols-[5.5rem_1fr] items-center gap-5 border-b border-day-line py-6 sm:grid-cols-[9rem_1fr_auto] sm:gap-8">
-                <time dateTime={m.date} className="display tabular text-[2rem] sm:text-[2.75rem]">
+              <li key={m.date} className="grid grid-cols-[5rem_1fr] items-center gap-x-5 gap-y-3 border-b border-day-line py-5 sm:grid-cols-[8rem_1fr_auto] sm:gap-x-8 sm:py-6">
+                <time dateTime={m.date} className="type-h4 tabular">
                   {m.label}
                 </time>
-                <p className="max-w-[56ch] text-lead">
+                <p className="max-w-[52ch] text-body sm:text-lead">
                   {m.href ? (
                     <Link href={m.href} className="hover:underline">
                       {m.text}
@@ -111,9 +111,9 @@ export default async function StoryPage() {
         <StoryBand key={story.id} story={story} products={pick(story.products)} flip={i % 2 === 1} />
       ))}
 
-      <section data-surface="day" aria-labelledby="credits-title" className="border-t border-day-line py-20">
+      <section data-surface="day" aria-labelledby="credits-title" className="band-y border-t border-day-line">
         <div className="container-x grid gap-8 lg:grid-cols-12">
-          <h2 id="credits-title" className="text-lead font-semibold lg:col-span-4">
+          <h2 id="credits-title" className="text-lead font-medium lg:col-span-4">
             Photography on this site
           </h2>
           <p className="muted max-w-[64ch] lg:col-span-8">

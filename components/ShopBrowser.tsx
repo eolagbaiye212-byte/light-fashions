@@ -1,15 +1,15 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Fragment, startTransition, useMemo, useOptimistic, ViewTransition, type ReactNode } from "react";
+import { Fragment, startTransition, useEffect, useMemo, useOptimistic, useRef, useState, ViewTransition, type ReactNode } from "react";
 import { CATEGORY_LABEL, type Category } from "@/lib/catalog";
 import type { ProductLite } from "@/lib/product-lite";
 import { ProductTile } from "./ProductTile";
 
 const SORTS = {
   newest: "Newest",
-  "price-asc": "Price, low to high",
-  "price-desc": "Price, high to low",
+  "price-asc": "Price, low–high",
+  "price-desc": "Price, high–low",
 } as const;
 type Sort = keyof typeof SORTS;
 
@@ -63,16 +63,16 @@ export function ShopBrowser({ products, bands }: { products: ProductLite[]; band
 
   const filtered = category || onlyOnce || inStock;
   const chip =
-    "inline-flex min-h-10 items-center gap-1.5 rounded-full px-4 text-ui font-medium transition-[box-shadow,background-color,color] duration-150";
-  const off = "shadow-[inset_0_0_0_1px_var(--color-day-line)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)]";
+    "inline-flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-full px-4 text-ui font-medium whitespace-nowrap transition-[box-shadow,background-color,color] duration-150";
+  const off = "shadow-[inset_0_0_0_1px_var(--color-day-edge)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)]";
   const on = "bg-day-ink text-day";
 
   return (
     <div>
-      <div className="flex flex-col gap-5 border-y border-day-line py-4 lg:flex-row lg:items-center lg:justify-between">
-        <div role="group" aria-label="Category" className="no-scrollbar -mx-[var(--gutter)] flex gap-2 overflow-x-auto px-[var(--gutter)] lg:mx-0 lg:flex-wrap lg:px-0">
-          <button type="button" aria-pressed={!ui.category} onClick={() => set("category", null)} className={`${chip} shrink-0 ${!ui.category ? on : off}`}>
-            Everything <span className="tabular opacity-60">{products.length}</span>
+      <div className="flex flex-col gap-3 border-y border-day-line py-3 lg:flex-row lg:items-start lg:justify-between lg:gap-8 lg:py-4">
+        <CategoryRail active={ui.category}>
+          <button type="button" aria-pressed={!ui.category} onClick={() => set("category", null)} className={`${chip} ${!ui.category ? on : off}`}>
+            Everything <span className="tabular opacity-65">{products.length}</span>
           </button>
           {(Object.keys(CATEGORY_LABEL) as Category[])
             .filter((c) => counts.get(c))
@@ -82,26 +82,26 @@ export function ShopBrowser({ products, bands }: { products: ProductLite[]; band
                 type="button"
                 aria-pressed={ui.category === c}
                 onClick={() => set("category", ui.category === c ? null : c)}
-                className={`${chip} shrink-0 ${ui.category === c ? on : off}`}
+                className={`${chip} ${ui.category === c ? on : off}`}
               >
-                {CATEGORY_LABEL[c]} <span className="tabular opacity-60">{counts.get(c)}</span>
+                {CATEGORY_LABEL[c]} <span className="tabular opacity-65">{counts.get(c)}</span>
               </button>
             ))}
-        </div>
+        </CategoryRail>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
           <button type="button" aria-pressed={ui.onlyOnce} onClick={() => set("only", ui.onlyOnce ? null : "one-of-one")} className={`${chip} ${ui.onlyOnce ? on : off}`}>
             One of one
           </button>
           <button type="button" aria-pressed={ui.inStock} onClick={() => set("stock", ui.inStock ? null : "1")} className={`${chip} ${ui.inStock ? on : off}`}>
             In stock
           </button>
-          <label className={`${chip} ${off} relative pr-9`}>
+          <label className={`${chip} ${off} relative ml-auto pr-9 has-[select:focus-visible]:outline-2 has-[select:focus-visible]:outline-offset-2 has-[select:focus-visible]:outline-day-ink lg:ml-0`}>
             <span className="sr-only">Sort by</span>
             <select
               value={ui.sort}
               onChange={(e) => set("sort", e.target.value === "newest" ? null : e.target.value)}
-              className="appearance-none bg-transparent pr-1 outline-none"
+              className="appearance-none bg-transparent pr-1 outline-none [field-sizing:content]"
             >
               {(Object.keys(SORTS) as Sort[]).map((s) => (
                 <option key={s} value={s}>
@@ -116,7 +116,7 @@ export function ShopBrowser({ products, bands }: { products: ProductLite[]; band
         </div>
       </div>
 
-      <p className="muted mt-6 text-ui" aria-live="polite">
+      <p className="muted mt-5 text-ui" aria-live="polite">
         {visible.length} {visible.length === 1 ? "piece" : "pieces"}
         {filtered && (
           <button type="button" onClick={clear} className="link ml-4 text-day-ink">
@@ -126,14 +126,14 @@ export function ShopBrowser({ products, bands }: { products: ProductLite[]; band
       </p>
 
       {visible.length === 0 ? (
-        <div className="py-24">
-          <p className="display text-[clamp(2.5rem,2rem+2vw,4rem)]">Nothing matches those filters.</p>
-          <button type="button" onClick={clear} className="btn btn-ink mt-6">
+        <div className="section-y">
+          <p className="type-h2 max-w-[14ch]">Nothing matches those filters.</p>
+          <button type="button" onClick={clear} className="btn btn-ink mt-[var(--space-md)]">
             Show everything
           </button>
         </div>
       ) : (
-        <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-5 md:grid-cols-3 xl:grid-cols-4">
+        <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 md:grid-cols-3 lg:gap-y-12 xl:grid-cols-4">
           {visible.map((p, i) => {
             const band = !filtered && (i + 1) % 8 === 0 ? bands[(i + 1) / 8 - 1] : null;
             return (
@@ -156,6 +156,108 @@ export function ShopBrowser({ products, bands }: { products: ProductLite[]; band
     </div>
   );
 }
+
+/**
+ * Categories on phones and tablets: one swipeable row that runs to the screen edge. The edge that
+ * has more chips behind it fades out and carries a button that pages the row, so it's always clear
+ * there's more and every chip can be reached by swipe or tap. The selected chip is kept in view.
+ * From lg up the row simply wraps and nothing scrolls.
+ */
+function CategoryRail({ active, children }: { active: string | null; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState({ start: false, end: false });
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    let frame = 0;
+    const measure = () => {
+      frame = 0;
+      const max = el.scrollWidth - el.clientWidth;
+      const next = { start: el.scrollLeft > 4, end: max > 4 && el.scrollLeft < max - 4 };
+      setMore((m) => (m.start === next.start && m.end === next.end ? m : next));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(measure);
+    };
+    measure();
+    el.addEventListener("scroll", schedule, { passive: true });
+    const ro = new ResizeObserver(schedule);
+    ro.observe(el);
+    return () => {
+      el.removeEventListener("scroll", schedule);
+      ro.disconnect();
+      cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  // Bring the selected chip into view (instantly on arrival, smoothly after a tap).
+  const arrived = useRef(false);
+  useEffect(() => {
+    const el = ref.current;
+    const chip = el?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!el || !chip || el.scrollWidth <= el.clientWidth) return;
+    const pad = parseFloat(getComputedStyle(el).paddingLeft) || 0;
+    const left = chip.offsetLeft - pad;
+    const right = chip.offsetLeft + chip.offsetWidth + pad - el.clientWidth;
+    const target = el.scrollLeft > left ? left : el.scrollLeft < right ? right : null;
+    if (target !== null) el.scrollTo({ left: target, behavior: arrived.current && !reducedMotion() ? "smooth" : "auto" });
+    arrived.current = true;
+  }, [active]);
+
+  const page = (dir: 1 | -1) => {
+    const el = ref.current;
+    if (!el) return;
+    el.scrollBy({ left: dir * el.clientWidth * 0.7, behavior: reducedMotion() ? "auto" : "smooth" });
+  };
+
+  const edge =
+    "absolute top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-day text-day-ink shadow-[0_0_0_1px_var(--color-day-edge),0_6px_16px_-8px_oklch(0.138_0.006_245/0.35)] transition-opacity duration-200 lg:hidden";
+
+  return (
+    <div className="relative -mx-[var(--gutter)] min-w-0 lg:mx-0">
+      <div
+        ref={ref}
+        role="group"
+        aria-label="Category"
+        data-more-start={more.start || undefined}
+        data-more-end={more.end || undefined}
+        className="chip-rail no-scrollbar relative flex snap-x snap-proximity gap-2 overflow-x-auto overscroll-x-contain scroll-px-[var(--gutter)] px-[var(--gutter)] lg:snap-none lg:flex-wrap lg:overflow-visible lg:px-0"
+      >
+        {children}
+      </div>
+      {/* Pointer shortcuts only: keyboard and screen-reader users move through the chips themselves. */}
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        onClick={() => page(-1)}
+        className={`${edge} left-2 ${more.start ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        <Chevron dir={-1} />
+      </button>
+      <button
+        type="button"
+        tabIndex={-1}
+        aria-hidden="true"
+        onClick={() => page(1)}
+        className={`${edge} right-2 ${more.end ? "opacity-100" : "pointer-events-none opacity-0"}`}
+      >
+        <Chevron dir={1} />
+      </button>
+    </div>
+  );
+}
+
+function Chevron({ dir }: { dir: 1 | -1 }) {
+  return (
+    <svg aria-hidden="true" width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ transform: dir < 0 ? "scaleX(-1)" : undefined }}>
+      <path d="M1.5 1l5 5-5 5" />
+    </svg>
+  );
+}
+
+const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 function readFilters(p: URLSearchParams) {
   const raw = p.get("sort") as Sort | null;

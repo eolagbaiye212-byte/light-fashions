@@ -1,29 +1,45 @@
+import Link from "next/link";
 import type { Product } from "@/lib/shopify";
 import type { Story } from "@/lib/stories";
-import { toLite } from "@/lib/product-lite";
-import { IgImage } from "./bits";
-import { ProductTile } from "./ProductTile";
+import { IgImage, Price, Status } from "./bits";
+import { FadeImage } from "./FadeImage";
+import { fit } from "@/lib/tile";
 
-/** One 2026 campaign: copy and pieces on one side, an uneven set of frames on the other. */
+/** One 2026 campaign: copy and the pieces on one side, an uneven set of frames on the other. */
 export function StoryBand({ story, products, flip = false }: { story: Story; products: Product[]; flip?: boolean }) {
   const [a, b, c] = story.images;
   return (
-    <section data-surface={story.surface} aria-labelledby={`story-${story.id}`} className="py-20 sm:py-28">
-      <div className="container-x grid gap-10 lg:grid-cols-12 lg:gap-8">
+    <section data-surface={story.surface} aria-labelledby={`story-${story.id}`} className="band-y border-t border-day-line">
+      <div className="container-x grid gap-[var(--space-lg)] lg:grid-cols-12 lg:gap-8">
         <div className={`lg:col-span-4 lg:self-start lg:sticky lg:top-28 ${flip ? "lg:order-2 lg:col-start-9" : ""}`}>
           <p className="muted text-ui">{story.when}</p>
-          <h2 id={`story-${story.id}`} className="unmask display mt-2 text-[clamp(2.75rem,1.8rem+3.6vw,4.75rem)]">
+          <h2 id={`story-${story.id}`} className="type-h3 mt-2">
             {story.title}
           </h2>
-          <p className="mt-5 max-w-[40ch] text-lead">{story.text}</p>
+          <p className="mt-4 max-w-[42ch] text-lead">{story.text}</p>
+
           {products.length > 0 && (
-            <div className="mt-8 grid max-w-md grid-cols-2 gap-4">
-              {products.slice(0, 2).map((p) => (
-                <ProductTile key={p.id} product={toLite(p)} tone={story.surface} morph={false} />
+            <ul className="mt-6 max-w-md divide-y divide-day-line border-y border-day-line">
+              {products.slice(0, 3).map((p) => (
+                <li key={p.id}>
+                  <Link href={`/shop/${p.slug}`} transitionTypes={["nav-forward"]} className="group flex items-center gap-4 py-3">
+                    <span className="relative aspect-[4/5] w-14 shrink-0 overflow-hidden bg-tile">
+                      {p.images[0] && <FadeImage src={p.images[0].src} alt="" fill sizes="56px" className={fit(p.images[0])} />}
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-ui font-medium leading-snug group-hover:underline">
+                        {p.name}
+                        {p.color && <span className="muted font-normal">, {p.color}</span>}
+                      </span>
+                      <Status scarcity={p.scarcity} available={p.available} onSale={!!p.compareAt} />
+                    </span>
+                    <Price price={p.price} compareAt={p.compareAt} className="shrink-0 text-ui font-semibold" />
+                  </Link>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
-          {story.credit && <p className="muted mt-8 text-fine">{story.credit}</p>}
+          {story.credit && <p className="muted mt-5 text-fine">{story.credit}</p>}
         </div>
 
         <div className={`grid grid-cols-6 gap-3 sm:gap-4 lg:col-span-8 ${flip ? "lg:order-1" : ""}`}>
@@ -33,12 +49,12 @@ export function StoryBand({ story, products, flip = false }: { story: Story; pro
             </div>
           )}
           {b && (
-            <div className="drift relative col-span-3 aspect-[4/5] overflow-hidden sm:col-span-2">
+            <div className="relative col-span-3 aspect-[4/5] overflow-hidden sm:col-span-2">
               <IgImage id={b} alt="" fill sizes="(min-width: 1024px) 21vw, 46vw" className="object-cover" />
             </div>
           )}
           {c && (
-            <div className="drift relative col-span-3 aspect-[4/5] overflow-hidden sm:col-span-2">
+            <div className="relative col-span-3 aspect-[4/5] overflow-hidden sm:col-span-2">
               <IgImage id={c} alt="" fill sizes="(min-width: 1024px) 21vw, 46vw" className="object-cover" />
             </div>
           )}

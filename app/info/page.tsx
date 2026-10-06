@@ -27,15 +27,15 @@ const SECTIONS = [
 export default function InfoPage() {
   return (
     <PageTransition>
-    <div data-surface="day" className="pt-28 pb-28">
-      <div className="container-x grid gap-12 lg:grid-cols-12">
+    <div data-surface="day" className="page-top section-b">
+      <div className="container-x grid gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
-          <h1 className="display text-[clamp(3.5rem,2rem+5vw,6rem)]">Before you order</h1>
-          <nav aria-label="On this page" className="mt-8 lg:sticky lg:top-28">
+          <h1 className="type-h1 max-w-[9ch]">Before you order</h1>
+          <nav aria-label="On this page" className="mt-[var(--space-md)] lg:sticky lg:top-28">
             <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
               {SECTIONS.map((s) => (
                 <li key={s.id}>
-                  <a href={`#${s.id}`} className="inline-flex min-h-10 items-center rounded-full px-4 text-ui font-medium shadow-[inset_0_0_0_1px_var(--color-day-line)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)] lg:px-0 lg:shadow-none lg:hover:underline lg:hover:shadow-none">
+                  <a href={`#${s.id}`} className="inline-flex min-h-10 items-center rounded-full px-4 text-ui font-medium shadow-[inset_0_0_0_1px_var(--color-day-edge)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)] lg:px-0 lg:shadow-none lg:hover:underline lg:hover:shadow-none">
                     {s.title}
                   </a>
                 </li>
@@ -44,9 +44,9 @@ export default function InfoPage() {
           </nav>
         </div>
 
-        <div className="max-w-[64ch] space-y-16 lg:col-span-7 lg:col-start-6">
+        <div className="max-w-[62ch] space-y-[var(--space-xl)] lg:col-span-7 lg:col-start-6">
           <section id="shipping" aria-labelledby="h-shipping" className="scroll-mt-28">
-            <h2 id="h-shipping" className="display text-[2.75rem]">
+            <h2 id="h-shipping" className="type-h3">
               Shipping
             </h2>
             <div className="mt-4 space-y-4">
@@ -59,7 +59,7 @@ export default function InfoPage() {
           </section>
 
           <section id="returns" aria-labelledby="h-returns" className="scroll-mt-28">
-            <h2 id="h-returns" className="display text-[2.75rem]">
+            <h2 id="h-returns" className="type-h3">
               Returns
             </h2>
             <div className="mt-4 space-y-4">
@@ -72,7 +72,7 @@ export default function InfoPage() {
           </section>
 
           <section id="sizing" aria-labelledby="h-sizing" className="scroll-mt-28">
-            <h2 id="h-sizing" className="display text-[2.75rem]">
+            <h2 id="h-sizing" className="type-h3">
               Sizing
             </h2>
             <div className="mt-4 space-y-4">
@@ -112,7 +112,7 @@ export default function InfoPage() {
           </section>
 
           <section id="payment" aria-labelledby="h-payment" className="scroll-mt-28">
-            <h2 id="h-payment" className="display text-[2.75rem]">
+            <h2 id="h-payment" className="type-h3">
               Payment
             </h2>
             <p className="mt-4">
@@ -122,7 +122,7 @@ export default function InfoPage() {
           </section>
 
           <section id="contact" aria-labelledby="h-contact" className="scroll-mt-28">
-            <h2 id="h-contact" className="display text-[2.75rem]">
+            <h2 id="h-contact" className="type-h3">
               Contact
             </h2>
             <p className="mt-4">

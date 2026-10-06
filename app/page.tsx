@@ -7,7 +7,7 @@ import { ProductTile } from "@/components/ProductTile";
 import { StoryBand } from "@/components/StoryBand";
 import { LoopVideo } from "@/components/LoopVideo";
 import { PageTransition } from "@/components/PageTransition";
-import { IgImage, Price, Verse } from "@/components/bits";
+import { IgImage, Price, SectionHead, Verse } from "@/components/bits";
 import { LOOKS } from "@/lib/looks";
 import { STORIES } from "@/lib/stories";
 import { VIDEO, media } from "@/lib/media";
@@ -53,40 +53,35 @@ export default async function Home() {
     <PageTransition>
       <HeroRunway count={products.length} />
 
-      <section id="looks" data-surface="night" aria-labelledby="looks-title" className="scroll-mt-16 pt-24 pb-16 sm:pt-32">
-        <div className="container-x grid gap-6 lg:grid-cols-12">
-          <h2 id="looks-title" className="unmask display text-[clamp(3rem,1.6rem+5.6vw,6rem)] lg:col-span-7">
-            Sixteen looks, sixteen lines
-          </h2>
-          <p className="muted max-w-[46ch] self-end text-lead lg:col-span-5">
-            Every look walked with a line beside it: scripture, or a few of Myron&apos;s own words. Open one to see every
-            angle and shop what was worn.
-          </p>
+      <section id="looks" data-surface="night" aria-labelledby="looks-title" className="section-t scroll-mt-16 pb-[var(--space-band)]">
+        <div className="container-x">
+          <SectionHead
+            id="looks-title"
+            title="Sixteen looks, sixteen lines"
+            intro={<>Every look walked with a line beside it: scripture, or a few of Myron&apos;s own words. Open one to see every angle and shop what was worn.</>}
+          />
         </div>
-        <div className="mt-14">
+        <div className="head-gap">
           <RunwayRail looks={rail} />
         </div>
       </section>
 
       <LightTransition />
 
-      <section data-surface="day" aria-labelledby="show-title" className="pt-10 pb-24 sm:pb-32">
+      <section data-surface="day" aria-labelledby="show-title" className="section-b pt-[var(--space-md)]">
         <div className="container-x">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <h2 id="show-title" className="unmask display text-[clamp(3rem,1.6rem+5.6vw,6rem)]">
-                From the show
-              </h2>
-              <p className="muted mt-4 max-w-[52ch]">
-                Released September 20, a week after the runway. Small runs, and a few pieces that exist once.
-              </p>
-            </div>
-            <Link href="/shop" className="link text-ui font-semibold">
-              Shop all {products.length} pieces
-            </Link>
-          </div>
+          <SectionHead
+            id="show-title"
+            title="From the show"
+            intro="Released September 20, a week after the runway. Small runs, and a few pieces that exist once."
+            action={
+              <Link href="/shop" className="link text-ui font-medium">
+                Shop all {products.length} pieces
+              </Link>
+            }
+          />
 
-          <div className="mt-12 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-12">
+          <div className="head-gap grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-12">
             {forgiven.length > 0 && <ForgivenFeature jackets={forgiven} />}
             {show.map((p, i) => (
               <div key={p.id} className="lg:col-span-3">
@@ -98,29 +93,27 @@ export default async function Home() {
       </section>
 
       {once.length > 0 && (
-        <section data-surface="day" aria-labelledby="once-title" className="border-t border-day-line py-24 sm:py-32">
-          <div className="container-x grid gap-6 lg:grid-cols-12">
-            <h2 id="once-title" className="unmask display text-[clamp(3rem,1.6rem+5.6vw,6rem)] lg:col-span-6">
-              Made once
-            </h2>
-            <p className="max-w-[48ch] self-end text-lead lg:col-span-6">
-              Runway garments, hand-painted denim, unreleased samples and the first tee LIGHT ever made. Each one exists
-              once. When it sells, it&apos;s gone.
-            </p>
+        <section data-surface="day" aria-labelledby="once-title" className="section-y border-t border-day-line">
+          <div className="container-x">
+            <SectionHead
+              id="once-title"
+              title="Made once"
+              intro={<>Runway garments, hand-painted denim, unreleased samples and the first tee LIGHT ever made. Each one exists once. When it sells, it&apos;s gone.</>}
+              action={
+                <Link href="/shop?only=one-of-one" className="link text-ui font-medium">
+                  See every one-of-one
+                </Link>
+              }
+            />
           </div>
-          <ul className="rail-fade no-scrollbar relative mt-12 flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] sm:gap-5">
+          <ul className="rail-fade no-scrollbar head-gap relative flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] sm:gap-5">
             {once.map((p) => (
               <li key={p.id} className="w-[64vw] shrink-0 snap-start xs:w-[46vw] sm:w-[34vw] lg:w-[22vw] xl:w-[18vw]">
-                <ProductTile product={toLite(p)} reveal={false} morph={!shown.has(p.id)} />
+                <ProductTile product={toLite(p)} morph={!shown.has(p.id)} />
               </li>
             ))}
             <li aria-hidden="true" className="w-px shrink-0" />
           </ul>
-          <div className="container-x mt-8">
-            <Link href="/shop?only=one-of-one" className="link text-ui font-semibold">
-              See every one-of-one
-            </Link>
-          </div>
         </section>
       )}
 
@@ -128,21 +121,21 @@ export default async function Home() {
         <StoryBand key={story.id} story={story} products={pick(story.products)} flip={i % 2 === 1} />
       ))}
 
-      <section data-surface="day" aria-labelledby="founder-title" className="border-t border-day-line py-24 sm:py-32">
-        <div className="container-x grid items-end gap-12 lg:grid-cols-12">
+      <section data-surface="day" aria-labelledby="founder-title" className="section-y border-t border-day-line">
+        <div className="container-x grid items-end gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
           <figure className="lg:col-span-8">
-            <blockquote id="founder-title" className="unmask display text-[clamp(3rem,1.2rem+6.4vw,6rem)]">
-              Light is what I call a God vision.
+            <blockquote id="founder-title" className="quote-xl max-w-[18ch]">
+              <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
             </blockquote>
-            <figcaption className="mt-6 max-w-[44ch] text-lead">
+            <figcaption className="mt-5 max-w-[44ch] text-lead">
               “More than just fashion.” <span className="muted">Myron, founder and designer, March 2026</span>
             </figcaption>
-            <Link href="/story" className="btn btn-ink mt-10">
+            <Link href="/story" className="btn btn-ink mt-[var(--space-lg)]">
               Read the story
             </Link>
           </figure>
           <div className="lg:col-span-4">
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-sm overflow-hidden bg-tile">
+            <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden bg-tile lg:ml-auto">
               <Image
                 src={media("Dclxg2wRFYs-0").src}
                 alt="Poster for the Light Fashion Experience: September 13, 2026, 7 PM, New York City, LIGHT × NYFW"
@@ -170,15 +163,16 @@ function ForgivenFeature({ jackets }: { jackets: Product[] }) {
           className="absolute inset-0 h-full w-full object-cover"
           controlClassName="absolute top-4 right-4 z-20 bg-night/70 text-night-ink hover:bg-night/90"
         />
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-night via-night/60 to-transparent" />
+        {/* Deep enough under the copy that the red stock line and the name hold up over the bright sky. */}
+        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-3/4 bg-[linear-gradient(to_top,var(--color-night)_0%,oklch(0.138_0.006_245/0.88)_38%,oklch(0.138_0.006_245/0.5)_66%,transparent)]" />
         <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
           <p className="signal text-ui font-semibold">Pre-release. Released one at a time.</p>
-          <h3 className="display mt-2 text-[clamp(2.75rem,1.6rem+4vw,4.5rem)]">
+          <h3 className="type-h2 mt-2">
             <Link href={`/shop/${lead.slug}`} className="after:absolute after:inset-0 after:content-['']">
               Forgiven Jacket
             </Link>
           </h3>
-          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-ui">
+          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-ui">
             <Price price={lead.price} className="text-lead font-semibold" />
             {jackets.map((j) => (
               <Link

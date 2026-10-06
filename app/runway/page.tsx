@@ -26,29 +26,30 @@ export default async function RunwayPage() {
   return (
     <PageTransition>
     <div data-surface="night">
-      <section aria-labelledby="runway-title" className="relative flex min-h-[86svh] items-end overflow-hidden">
+      <section aria-labelledby="runway-title" className="relative flex min-h-[86svh] flex-col justify-end overflow-hidden">
         <LoopVideo
           src={VIDEO.runway.src}
           poster={VIDEO.runway.poster}
           label="runway film from the Light Fashion Experience"
           className="absolute inset-0 h-full w-full object-cover"
-          controlClassName="absolute top-20 right-[var(--gutter)] z-10 bg-night/70 text-night-ink hover:bg-night/90"
+          controlClassName="absolute top-[calc(var(--header-h)+var(--space-sm))] right-[var(--gutter)] z-10 bg-night/70 text-night-ink hover:bg-night/90"
         />
         <div aria-hidden="true" className="absolute inset-0 bg-[linear-gradient(to_top,var(--color-night)_4%,oklch(0.138_0.006_245/0.7)_40%,oklch(0.138_0.006_245/0.25)_75%)]" />
-        <div className="container-x relative grid gap-10 pb-14 lg:grid-cols-12 lg:items-end">
+        {/* Top padding always clears the fixed header (and the film's play control), whatever the screen height. */}
+        <div className="container-x relative grid gap-[var(--space-lg)] pt-[calc(var(--header-h)+var(--space-xl)+2.5rem)] pb-[var(--space-lg)] lg:grid-cols-12 lg:items-end lg:gap-8">
           <div className="lg:col-span-8">
             <p className="text-ui font-medium text-night-ink/85">
               {SHOW.city}, {SHOW.date}
             </p>
-            <h1 id="runway-title" className="display mt-3 text-[clamp(3.6rem,1.4rem+9vw,6rem)]">
+            <h1 id="runway-title" className="type-hero mt-3 max-w-[12ch]">
               {SHOW.name}
             </h1>
-            <p className="mt-5 max-w-[50ch] text-lead text-night-ink/90">
+            <p className="mt-5 max-w-[46ch] text-lead text-night-ink/90">
               LIGHT&apos;s first solo show, during New York Fashion Week. Sixteen looks in running order, each with the line it walked
               with.
             </p>
           </div>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-ui lg:col-span-4">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 text-ui lg:col-span-4 lg:col-start-9">
             {SHOW.credits.map((c) => (
               <div key={c.role}>
                 <dt className="muted">{c.role}</dt>
@@ -74,9 +75,9 @@ export default async function RunwayPage() {
             id={`look-${look.n}`}
             data-look={look.n}
             aria-labelledby={`look-${look.n}-title`}
-            className="scroll-mt-32 border-b border-night-line py-16 sm:py-24"
+            className="band-y scroll-mt-32 border-b border-night-line"
           >
-            <div className="container-x grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-8">
+            <div className="container-x grid gap-[var(--space-lg)] lg:grid-cols-12 lg:items-center lg:gap-8">
               <div className={`min-w-0 lg:col-span-6 ${flip ? "lg:order-2 lg:col-start-7" : "lg:col-start-1"}`}>
                 <LookGallery
                   n={look.n}
@@ -99,12 +100,12 @@ export default async function RunwayPage() {
 
               <div className={`min-w-0 lg:col-span-5 ${flip ? "lg:order-1 lg:col-start-1" : "lg:col-start-8"}`}>
                 <h2 id={`look-${look.n}-title`} className="flex items-baseline gap-4">
-                  <span className="unmask display tabular text-[clamp(5rem,3.5rem+5vw,8.5rem)] leading-none">{pad(look.n)}</span>
+                  <span className="type-num">{pad(look.n)}</span>
                   <span className="sr-only">Look {look.n}</span>
                 </h2>
-                <Verse line={look.line} cite={look.cite} size="lg" className="mt-6" />
+                <Verse line={look.line} cite={look.cite} size="lg" className="mt-5" />
 
-                <div className="mt-10">
+                <div className="mt-[var(--space-lg)]">
                   {pieces.length > 0 ? (
                     <>
                       <h3 className="muted text-ui">In the shop</h3>
@@ -118,13 +119,13 @@ export default async function RunwayPage() {
                                 )}
                               </span>
                               <span className="min-w-0 flex-1">
-                                <span className="block font-semibold group-hover:underline">
+                                <span className="block text-ui font-medium leading-snug group-hover:underline">
                                   {p.name}
                                   {p.color && <span className="muted font-normal">, {p.color}</span>}
                                 </span>
                                 <Status scarcity={p.scarcity} available={p.available} />
                               </span>
-                              <Price price={p.price} compareAt={p.compareAt} className="font-semibold" />
+                              <Price price={p.price} compareAt={p.compareAt} className="shrink-0 text-ui font-semibold" />
                             </Link>
                           </li>
                         ))}
@@ -146,10 +147,10 @@ export default async function RunwayPage() {
         );
       })}
 
-      <section className="container-x py-24 text-center sm:py-32">
-        <p className="scripture mx-auto max-w-[22ch] text-[clamp(1.8rem,1.2rem+2vw,3rem)]">“Let your light shine.”</p>
+      <section className="container-x section-y text-center">
+        <p className="quote-xl mx-auto max-w-[22ch]">“Let your light shine.”</p>
         <p className="muted mt-3 text-ui">Matthew 5:16</p>
-        <Link href="/shop" className="btn btn-light mt-10">
+        <Link href="/shop" className="btn btn-light mt-[var(--space-lg)]">
           Shop the collection
         </Link>
       </section>

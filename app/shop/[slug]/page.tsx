@@ -61,15 +61,15 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
 
   return (
     <PageTransition>
-      <div data-surface="day" className="pt-16 lg:pt-24">
+      <div data-surface="day" className="pt-[var(--header-h)] lg:pt-[calc(var(--header-h)+var(--space-md))]">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
         <div className="lg:container-x lg:grid lg:grid-cols-12 lg:gap-10">
           <div className="lg:col-span-7">
             <ProductGallery productId={product.id} images={product.images} name={product.name} />
           </div>
 
-          <div className="container-x pt-8 pb-16 lg:col-span-5 lg:px-0 lg:pt-4">
-            <div className="lg:sticky lg:top-24">
+          <div className="container-x pt-[var(--space-md)] pb-[var(--space-xl)] lg:col-span-5 lg:px-0 lg:pt-0">
+            <div className="lg:sticky lg:top-[calc(var(--header-h)+var(--space-md))]">
               <nav aria-label="Breadcrumb" className="muted text-fine">
                 <Link href="/shop" transitionTypes={["nav-back"]} className="hover:underline">
                   Shop
@@ -80,22 +80,22 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                 </Link>
               </nav>
 
-              <Status scarcity={product.scarcity} available={product.available} onSale={!!product.compareAt} className="mt-6 block text-ui" />
-              <h1 className="display mt-2 text-[clamp(3rem,2rem+3.4vw,4.5rem)]">{product.name}</h1>
+              <Status scarcity={product.scarcity} available={product.available} onSale={!!product.compareAt} className="mt-5 block text-ui" />
+              <h1 className="type-h2 mt-2 max-w-[16ch]">{product.name}</h1>
               {product.color && <p className="mt-2 text-lead">{product.color}</p>}
-              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-4 block text-lead font-semibold" />
+              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-3 block text-lead font-semibold" />
 
               {(product.lede || intro) && (
-                <div className="mt-6 max-w-[52ch] space-y-3">
+                <div className="mt-5 max-w-[52ch] space-y-3">
                   {product.lede ? <p>{product.lede}</p> : intro?.paragraphs.map((t) => <p key={t}>{t}</p>)}
                 </div>
               )}
 
-              <div className="mt-8">
+              <div className="mt-[var(--space-lg)]">
                 <AddToBag product={toLite(product, 1)} sizeGuide />
               </div>
 
-              <div className="mt-10 divide-y divide-day-line border-y border-day-line">
+              <div className="mt-[var(--space-lg)] divide-y divide-day-line border-y border-day-line">
                 {(intro?.bullets.length ?? 0) > 0 && (
                   <Disclosure title="Details" open>
                     <ul className="list-disc space-y-1 pl-5">
@@ -154,7 +154,7 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                   </p>
                 </Disclosure>
               </div>
-              <p className="muted mt-6 text-fine">From {DROP_LABEL[product.drop]}.</p>
+              <p className="muted mt-5 text-fine">From {DROP_LABEL[product.drop]}.</p>
             </div>
           </div>
         </div>
@@ -166,11 +166,11 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
             <div className="drift relative aspect-[4/5] overflow-hidden lg:aspect-auto lg:min-h-[44rem]">
               <IgImage id={look.images[0]} alt={`Look ${look.n}. ${look.alt}`} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
             </div>
-            <div className="container-x flex flex-col justify-center gap-8 py-16 lg:max-w-[40rem] lg:px-14">
+            <div className="container-x band-y flex flex-col justify-center gap-6 lg:max-w-[40rem] lg:px-14">
               <p id={`walked-${look.n}`} className="text-ui">
-                Walked as look {look.n} at the Light Fashion Experience, New York, September 13, 2026.
+                Walked as look {look.n} at the Light Fashion Experience, New York, September&nbsp;13,&nbsp;2026.
               </p>
-              <span className="display tabular text-[clamp(5rem,4rem+4vw,8rem)] leading-none text-night-muted" aria-hidden="true">
+              <span className="type-num text-night-muted" aria-hidden="true">
                 {pad(look.n)}
               </span>
               <Verse line={look.line} cite={look.cite} size="lg" />
@@ -183,12 +183,12 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
       ))}
 
       {siblings.length > 0 && (
-        <section data-surface="day" aria-labelledby="more-title" className="py-20 sm:py-28">
+        <section data-surface="day" aria-labelledby="more-title" className="section-y border-t border-day-line">
           <div className="container-x">
-            <h2 id="more-title" className="display text-[clamp(2.5rem,1.8rem+3vw,4rem)]">
+            <h2 id="more-title" className="type-h3">
               {looks.length ? "Wear it with" : `More from ${DROP_LABEL[product.drop]}`}
             </h2>
-            <ul className="mt-10 grid grid-cols-2 gap-x-4 gap-y-12 sm:gap-x-5 lg:grid-cols-4">
+            <ul className="head-gap grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
               {siblings.map((p) => (
                 <li key={p.id}>
                   <ProductTile product={toLite(p)} />
@@ -214,7 +214,7 @@ function related(product: Product, all: Product[]) {
 function Disclosure({ title, children, open, id }: { title: string; children: React.ReactNode; open?: boolean; id?: string }) {
   return (
     <details id={id} open={open} className="group scroll-mt-24 py-1">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 font-semibold [&::-webkit-details-marker]:hidden">
+      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
         {title}
         <span aria-hidden="true" className="text-lead font-normal transition-transform duration-200 ease-quint group-open:rotate-45">
           +

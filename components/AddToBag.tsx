@@ -45,18 +45,21 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
     return s;
   });
   const [status, setStatus] = useState<"idle" | "missing" | "added">("idle");
+  // Counts attempts to add without a size, so every attempt (not just the first) leads back to the picker.
+  const [attempt, setAttempt] = useState(0);
 
   // Glide back to the choice that was skipped, then focus it for keyboard and screen-reader users.
   useEffect(() => {
-    if (status !== "missing") return;
+    if (!attempt) return;
     const target = pickerRef.current;
     if (target) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       const lenis = window.__lenis;
-      if (lenis) lenis.scrollTo(target, { offset: -120, duration: 0.9 });
-      else target.scrollIntoView({ behavior: "smooth", block: "center" });
+      if (lenis) lenis.scrollTo(target, { offset: -120, duration: reduce ? 0 : 0.9 });
+      else target.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "center" });
     }
     firstMissing.current?.focus({ preventScroll: true });
-  }, [status]);
+  }, [attempt]);
 
   useEffect(() => {
     if (status !== "added") return;
@@ -85,6 +88,7 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
   const add = () => {
     if (!variant) {
       setStatus("missing");
+      setAttempt((n) => n + 1);
       return;
     }
     if (!variant.available || singleInBag) return;
@@ -151,7 +155,7 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
                         checked
                           ? "bg-day-ink text-day"
                           : ok
-                            ? "cursor-pointer shadow-[inset_0_0_0_1px_var(--color-day-line)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)]"
+                            ? "cursor-pointer shadow-[inset_0_0_0_1px_var(--color-day-edge)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)]"
                             : "muted cursor-not-allowed line-through shadow-[inset_0_0_0_1px_var(--color-day-line)]",
                       ].join(" ")}
                     >
@@ -163,7 +167,7 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
               })}
             </div>
             {isMissing && (
-              <p id={`${groupId}-err`} className="signal mt-2 text-ui font-medium">
+              <p id={`${groupId}-err`} role="alert" className="signal mt-2 text-ui font-medium">
                 Choose a {option.name.toLowerCase()} first.
               </p>
             )}
@@ -191,12 +195,8 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
             View bag and check out
           </button>
         )}
-        <p id={`${id}-note`} className="muted text-fine" aria-live="polite">
-          {status === "missing" && missing.length
-            ? `Choose a ${missing.join(" and ")} to add this to your bag.`
-            : product.single
-              ? "Only one exists. Final sale."
-              : "Final sale. No returns or exchanges, so check the size guide."}
+        <p id={`${id}-note`} className="muted text-fine">
+          {product.single ? "Only one exists. Final sale." : "Final sale. No returns or exchanges, so check the size guide."}
         </p>
       </div>
 
@@ -212,7 +212,7 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
       >
         <div className="flex items-center gap-3">
           <div className="min-w-0 flex-1">
-            <p className="truncate text-ui font-semibold">{product.name}</p>
+            <p className="truncate text-ui font-medium">{product.name}</p>
             <p className="muted tabular text-fine">
               {money(variant?.price ?? product.price)}
               {product.options.map((o) => selected[o.name]).filter(Boolean).length > 0 &&

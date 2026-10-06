@@ -11,7 +11,7 @@ export function LookGallery({ n, frames, thumbs }: { n: number; frames: ReactNod
         {frames.map((frame, i) => (
           <div
             key={i}
-            className={`drift absolute inset-0 transition-opacity duration-500 ease-quint ${i === active ? "opacity-100" : "pointer-events-none opacity-0"}`}
+            className={`absolute inset-0 transition-opacity duration-500 ease-quint ${i === active ? "opacity-100" : "pointer-events-none opacity-0"}`}
             aria-hidden={i !== active}
           >
             {i === active || Math.abs(i - active) <= 1 ? frame : null}

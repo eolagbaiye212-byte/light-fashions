@@ -133,11 +133,11 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
               </div>
               <span className="sr-only">Look {look.n}: open on the runway page</span>
             </Link>
-            <div className="mt-5 grid grid-cols-[auto_1fr] gap-x-4">
-              <span className="display tabular text-[2.75rem] text-night-muted" aria-hidden="true">
+            <div className="mt-5 grid grid-cols-[auto_1fr] items-baseline gap-x-4">
+              <span className="type-h3 tabular font-light text-night-muted" aria-hidden="true">
                 {pad(look.n)}
               </span>
-              <div className="min-w-0 pt-1">
+              <div className="min-w-0">
                 <div className="line-clamp-5">{look.verse}</div>
                 {look.pieces.length > 0 && (
                   <p className="mt-4 text-ui">
@@ -157,7 +157,7 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
           </li>
         ))}
         <li className="flex w-[60vw] shrink-0 snap-start items-center sm:w-[32vw] lg:w-[20vw]">
-          <Link href="/runway" className="display text-[3rem] hover:text-rod" draggable={false}>
+          <Link href="/runway" className="type-h3 hover:text-rod" draggable={false}>
             The whole show
           </Link>
         </li>

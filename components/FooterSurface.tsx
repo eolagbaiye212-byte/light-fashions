@@ -7,7 +7,7 @@ export function FooterSurface({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const surface = pathname === "/runway" ? "night" : "day";
   return (
-    <footer data-surface={surface} className="relative overflow-hidden pt-20 transition-colors duration-500">
+    <footer data-surface={surface} className="relative overflow-hidden transition-colors duration-500">
       {children}
     </footer>
   );

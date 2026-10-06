@@ -14,6 +14,7 @@
   --color-day-ink: oklch(0.162 0.008 248);
   --color-day-muted: oklch(0.496 0.016 248);
   --color-day-line: oklch(0.921 0.005 258);
+  --color-day-edge: oklch(0.84 0.006 258);
   --color-tile: oklch(0.97 0.002 248);
   --color-rod: oklch(0.792 0.121 78);
   --color-rod-hot: oklch(0.93 0.06 88);
@@ -26,7 +27,8 @@
   --text-ui--line-height: 1.4;
   --text-body: 1.0625rem;
   --text-body--line-height: 1.55;
-  --text-lead: 1.25rem;
+  /* Lead copy scales with the viewport so it never crowds body text on phones. */
+  --text-lead: clamp(1.0625rem, 0.97rem + 0.42vw, 1.25rem);
   --text-lead--line-height: 1.5;
 
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
@@ -38,14 +40,28 @@
 @custom-variant can-hover (@media (hover: hover) and (pointer: fine));
 
 @theme inline {
-  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
-  --font-serif: var(--font-frank), var(--font-frank-hebrew), "Times New Roman", Georgia, serif;
+  --font-sans: var(--font-hanken), "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
+  --font-serif: var(--font-frank), var(--font-frank-hebrew), Georgia, "Times New Roman", serif;
 }
 
 :root {
   --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
   --header-h: 4rem;
   color-scheme: dark;
+
+  /* Spacing scale (4px base). Tight inside a group, generous between groups.
+     --space-lg   heading block → its content
+     --space-xl   between blocks inside one section
+     --space-band padding for stacked, related bands (stories, looks)
+     --space-section padding for a section that stands alone */
+  --space-2xs: 0.5rem;
+  --space-xs: 0.75rem;
+  --space-sm: 1rem;
+  --space-md: 1.5rem;
+  --space-lg: clamp(2rem, 1.6rem + 1.6vw, 3rem);
+  --space-xl: clamp(3rem, 2.2rem + 3vw, 4.5rem);
+  --space-band: clamp(3.5rem, 2.4rem + 4vw, 5.5rem);
+  --space-section: clamp(4.5rem, 2.8rem + 6vw, 8rem);
 }
 
 /* ------------------------------------------------------------------ base */
@@ -60,10 +76,11 @@
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: 1.62;
+    font-kerning: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3 { text-wrap: balance; }
+  h1, h2, h3, h4 { font-weight: 500; text-wrap: balance; }
   p { text-wrap: pretty; }
   ::selection { background: var(--color-rod); color: var(--color-night); }
 
@@ -98,17 +115,96 @@
   color-scheme: dark;
 }
 
-/* ------------------------------------------------------------------ type */
-@utility display {
-  font-stretch: 62%;
-  font-weight: 800;
-  text-transform: uppercase;
-  line-height: 0.88;
+/* ------------------------------------------------------------------ type
+   Hanken Grotesk, sentence case, medium weight. Hierarchy comes from size and space, not caps
+   or heaviness. Larger steps tighten their tracking and leading; smaller steps relax them.
+   Weights: 400 reading, 500 headings and labels, 600 prices, buttons and stock facts. */
+@utility type-hero {
+  font-weight: 500;
+  text-wrap: balance;
+  font-size: clamp(2.625rem, 1.75rem + 3.6vw, 4.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+}
+@utility type-h1 {
+  font-weight: 500;
+  text-wrap: balance;
+  font-size: clamp(2.25rem, 1.55rem + 2.8vw, 3.75rem);
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+}
+@utility type-h2 {
+  font-weight: 500;
+  text-wrap: balance;
+  font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.75rem);
+  line-height: 1.08;
+  letter-spacing: -0.022em;
+}
+@utility type-h3 {
+  font-weight: 500;
+  text-wrap: balance;
+  font-size: clamp(1.375rem, 1.15rem + 0.9vw, 1.875rem);
+  line-height: 1.16;
+  letter-spacing: -0.016em;
+}
+@utility type-h4 {
+  font-weight: 500;
+  text-wrap: balance;
+  font-size: clamp(1.125rem, 1.03rem + 0.35vw, 1.375rem);
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+}
+/* Look numbers: the running order, set large, light and quiet. */
+@utility type-num {
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  font-size: clamp(2.75rem, 2rem + 3vw, 4.5rem);
+  line-height: 0.9;
+  letter-spacing: -0.035em;
+}
+
+/* Quoted words, scripture or Myron's, are the only thing set in Frank Ruhl Libre. */
+@utility quote-xl {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  text-wrap: balance;
+  font-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
+  line-height: 1.14;
+  letter-spacing: -0.012em;
+}
+@utility quote-lg {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  text-wrap: balance;
+  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);
+  line-height: 1.22;
+  letter-spacing: -0.008em;
+}
+@utility quote-md {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  text-wrap: pretty;
+  font-size: clamp(1.3125rem, 1.15rem + 0.7vw, 1.75rem);
+  line-height: 1.28;
   letter-spacing: -0.005em;
 }
-@utility condensed {
-  font-stretch: 75%;
+@utility quote-sm {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  text-wrap: pretty;
+  font-size: 1.1875rem;
+  line-height: 1.38;
 }
+
+/* ------------------------------------------------------------------ spacing utilities */
+@utility section-y { padding-block: var(--space-section); }
+@utility section-t { padding-top: var(--space-section); }
+@utility section-b { padding-bottom: var(--space-section); }
+@utility band-y { padding-block: var(--space-band); }
+/* First block on a page: clears the fixed header, then breathes. */
+@utility page-top { padding-top: calc(var(--header-h) + var(--space-xl)); }
+@utility head-gap { margin-top: var(--space-lg); }
+@utility block-gap { margin-top: var(--space-xl); }
 @utility scripture {
   font-family: var(--font-serif);
   font-weight: 400;
@@ -166,7 +262,7 @@
   padding: 0 1.5rem;
   font-size: var(--text-ui);
   font-weight: 600;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.004em;
   border-radius: 999px;
   transition: background-color 160ms var(--ease-quint), color 160ms var(--ease-quint), transform 160ms var(--ease-quint), box-shadow 200ms var(--ease-quint);
   &:active:not(:disabled) { transform: scale(0.98); }
@@ -290,6 +386,11 @@ dialog.menu[open] .menu-item {
   animation-delay: calc(80ms + var(--i, 0) * 55ms);
 }
 
+/* Surface-aware brand mark: chrome on night, gunmetal on day. */
+.logo-day { display: none; }
+[data-surface="day"] .logo-day { display: block; }
+[data-surface="day"] .logo-night { display: none; }
+
 /* Packshots are shot on white; multiplying lets them sit in the tile color. */
 .packshot { mix-blend-mode: multiply; }
 
@@ -299,6 +400,19 @@ img[data-fade] {
   transition: opacity 700ms var(--ease-quint);
 }
 img[data-fade][data-loaded="true"] { opacity: 1; }
+
+/* Shop categories (below lg): the edge with more chips behind it fades out. The fade widths are
+   registered so they ease in and out as you reach either end. */
+@property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
+@media (max-width: 1023.98px) {
+  .chip-rail {
+    mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
+    transition: --fade-start 200ms var(--ease-quint), --fade-end 200ms var(--ease-quint);
+  }
+  .chip-rail[data-more-start] { --fade-start: 4.5rem; }
+  .chip-rail[data-more-end] { --fade-end: 4.5rem; }
+}
 
 /* Horizontal rails fade at the edge so it's clear there's more to drag to. */
 .rail-fade {
@@ -356,51 +470,31 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
 }
 
 /* ------------------------------------------------------------------ scroll-linked motion
-   Compositor-only (opacity/transform), tied to scroll position rather than timers, and
-   absent entirely for reduced motion or browsers without scroll timelines. */
+   One secondary layer only: large editorial photographs drift slightly slower than the page.
+   Product grids, lists and headings stay still. Compositor-only, tied to scroll position, and
+   absent for reduced motion or browsers without scroll timelines. */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
-    /* Product tiles and list items rise into place as they enter. */
-    .rise-in {
-      animation: rise-in linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 60%;
-    }
-    /* Editorial photographs drift slightly slower than the page. */
     .drift > * {
-      scale: 1.12;
+      scale: 1.06;
       animation: drift linear both;
       animation-timeline: view();
       animation-range: cover 0% cover 100%;
     }
-    /* Display headings lift out of a mask, like type coming up into the light. */
-    .unmask {
-      animation: unmask linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 30%;
-    }
   }
 }
-@keyframes rise-in {
-  from { opacity: 0; transform: translateY(42px); }
-  to { opacity: 1; transform: none; }
-}
 @keyframes drift {
-  from { translate: 0 -5%; }
-  to { translate: 0 5%; }
-}
-@keyframes unmask {
-  from { clip-path: inset(0 0 100% 0); transform: translateY(0.35em); }
-  to { clip-path: inset(0 0 -0.2em 0); transform: none; }
+  from { translate: 0 -2.5%; }
+  to { translate: 0 2.5%; }
 }
 
 /* ------------------------------------------------------------------ page transitions
    React <ViewTransition> + next/link transitionTypes. Recipes adapted from
    vercel-labs/agent-skills · react-view-transitions. */
 :root {
-  --duration-exit: 180ms;
-  --duration-enter: 320ms;
-  --duration-move: 520ms;
+  --duration-exit: 160ms;
+  --duration-enter: 280ms;
+  --duration-move: 440ms;
 }
 ::view-transition { pointer-events: none; }
 
@@ -415,9 +509,10 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
 
 @keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes vt-slide { from { translate: var(--slide-offset) 0; } to { translate: 0 0; } }
-@keyframes vt-rise { from { translate: 0 var(--rise, 18px); } to { translate: 0 0; } }
+@keyframes vt-rise { from { translate: 0 var(--rise, 8px); } to { translate: 0 0; } }
 
-/* Lateral moves (Shop ⇄ Runway ⇄ Story): a short crossfade with a little lift. */
+/* Lateral moves (Shop ⇄ Runway ⇄ Story): a short crossfade with a slight lift. Kept small so the
+   light transition stays the one big movement on the site. */
 ::view-transition-old(.page-out) {
   animation: var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse;
 }
@@ -429,25 +524,25 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
 
 /* Going deeper (grid → product) and coming back. */
 ::view-transition-old(.nav-forward) {
-  --slide-offset: -48px;
+  --slide-offset: -24px;
   animation:
     var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
     var(--duration-move) var(--ease-expo) both vt-slide reverse;
 }
 ::view-transition-new(.nav-forward) {
-  --slide-offset: 48px;
+  --slide-offset: 24px;
   animation:
     var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
     var(--duration-move) var(--ease-expo) both vt-slide;
 }
 ::view-transition-old(.nav-back) {
-  --slide-offset: 48px;
+  --slide-offset: 24px;
   animation:
     var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
     var(--duration-move) var(--ease-expo) both vt-slide reverse;
 }
 ::view-transition-new(.nav-back) {
-  --slide-offset: -48px;
+  --slide-offset: -24px;
   animation:
     var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
     var(--duration-move) var(--ease-expo) both vt-slide;

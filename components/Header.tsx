@@ -109,7 +109,29 @@ export function Header() {
       >
         <div className="container-x flex h-full items-center justify-between gap-6">
           <Link href="/" className="-my-2 shrink-0 py-2" aria-label="LIGHT, home">
-            <Image src="/brand/light-chrome.webp" alt="" width={1200} height={425} priority sizes="96px" className="h-7 w-auto sm:h-8" />
+            {/* Chrome on night; the gunmetal cut of the same mark on day, where silver washes out.
+                Both are pre-sized (3x the header height) and served as-is, so the mark never waits on
+                the image optimizer. */}
+            <span className="relative block">
+              <Image
+                src="/brand/light-chrome-mark.webp"
+                alt=""
+                width={271}
+                height={96}
+                priority
+                unoptimized
+                className="h-7 w-auto transition-opacity duration-500 ease-quint group-data-[tone=day]/h:opacity-0 sm:h-8"
+              />
+              <Image
+                src="/brand/light-chrome-day-mark.webp"
+                alt=""
+                width={271}
+                height={96}
+                priority
+                unoptimized
+                className="absolute inset-0 h-7 w-auto opacity-0 transition-opacity duration-500 ease-quint group-data-[tone=day]/h:opacity-100 sm:h-8"
+              />
+            </span>
           </Link>
 
           <nav aria-label="Main" className="hidden items-center gap-8 md:flex">
@@ -163,7 +185,7 @@ export function Header() {
       <dialog ref={menuRef} className="menu" aria-label="Menu">
         <div className="flex h-full flex-col">
           <div className="container-x flex h-16 items-center justify-between">
-            <Image src="/brand/light-chrome.webp" alt="LIGHT" width={1200} height={425} sizes="96px" className="h-7 w-auto" />
+            <Image src="/brand/light-chrome-mark.webp" alt="LIGHT" width={271} height={96} unoptimized className="h-7 w-auto" />
             <button type="button" onClick={() => menuRef.current?.close()} className="min-h-11 rounded-full px-3 text-ui font-medium">
               Close
             </button>
@@ -176,7 +198,7 @@ export function Header() {
                 onClick={() => menuRef.current?.close()}
                 aria-current={pathname === item.href ? "page" : undefined}
                 style={{ "--i": i } as React.CSSProperties}
-                className="menu-item display block py-1 text-[clamp(3rem,16vw,5rem)] aria-[current=page]:text-rod"
+                className="menu-item type-h1 block py-1.5 aria-[current=page]:text-rod"
               >
                 {item.label}
               </Link>

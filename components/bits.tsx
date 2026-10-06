@@ -49,8 +49,8 @@ export function IgImage({
 }
 
 /**
- * The line a look was built around. Scripture is set in the Bible face;
- * the designer's own words are set in the poster face.
+ * The line a look was built around: scripture, or Myron's own words. Both are quotations, so both
+ * are set in the serif; the citation says whose words they are.
  */
 export function Verse({
   line,
@@ -63,24 +63,15 @@ export function Verse({
   size?: "sm" | "md" | "lg";
   className?: string;
 }) {
-  if (!cite) {
-    const s = { sm: "text-[1.75rem]", md: "text-[clamp(2.25rem,1.6rem+2.4vw,3.75rem)]", lg: "text-[clamp(3rem,2rem+4vw,6rem)]" }[size];
-    return (
-      <figure className={className}>
-        <blockquote className={`display ${s}`}>{line}</blockquote>
-        <figcaption className="muted mt-3 text-ui">Myron</figcaption>
-      </figure>
-    );
-  }
-  const s = { sm: "text-[1.2rem]", md: "text-[clamp(1.35rem,1.1rem+0.9vw,1.85rem)]", lg: "text-[clamp(1.6rem,1.2rem+1.6vw,2.6rem)]" }[size];
+  const s = { sm: "quote-sm", md: "quote-md", lg: "quote-lg" }[size];
   return (
     <figure className={className}>
-      <blockquote className={`scripture ${s}`}>
+      <blockquote className={s}>
         <span aria-hidden="true">“</span>
         {line}
         <span aria-hidden="true">”</span>
       </blockquote>
-      <figcaption className="muted mt-3 text-ui">{cite}</figcaption>
+      <figcaption className="muted mt-3 text-ui">{cite ?? "Myron"}</figcaption>
     </figure>
   );
 }
@@ -135,4 +126,31 @@ export function Status({
 
 export function pad(n: number) {
   return String(n).padStart(2, "0");
+}
+
+/** The one way a section opens: a title, a short muted intro, an optional action on the right. */
+export function SectionHead({
+  id,
+  title,
+  intro,
+  action,
+  as: Tag = "h2",
+}: {
+  id: string;
+  title: React.ReactNode;
+  intro?: React.ReactNode;
+  action?: React.ReactNode;
+  as?: "h1" | "h2";
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
+      <div className="max-w-3xl">
+        <Tag id={id} className={Tag === "h1" ? "type-h1" : "type-h2"}>
+          {title}
+        </Tag>
+        {intro && <p className="muted mt-3 max-w-[52ch] text-lead sm:mt-4">{intro}</p>}
+      </div>
+      {action && <div className="shrink-0 pb-1.5">{action}</div>}
+    </div>
+  );
 }

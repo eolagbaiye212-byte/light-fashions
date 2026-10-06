@@ -24,7 +24,7 @@ The site is **headless on the existing Shopify store**. No API keys or app insta
 ## Design
 
 - `PRODUCT.md` covers who it's for, brand personality and principles.
-- `DESIGN.md` covers color tokens (sampled from the show photography), type (Archivo + Frank Ruhl Libre, self-hosted in `app/fonts`), layout and the motion system.
+- `DESIGN.md` covers color tokens (sampled from the show photography), type (Hanken Grotesk for everything, Frank Ruhl Libre for scripture and Myron's words; both OFL and self-hosted in `app/fonts`), layout and the motion system.
 
 Motion is built to stay smooth: Lenis wheel smoothing, React view transitions between pages (the product photo carries from grid to product page), CSS scroll-driven animations for the light transition, and full `prefers-reduced-motion` support.
 
