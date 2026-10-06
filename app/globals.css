@@ -62,6 +62,9 @@
   --space-xl: clamp(3rem, 2.2rem + 3vw, 4.5rem);
   --space-band: clamp(3.5rem, 2.4rem + 4vw, 5.5rem);
   --space-section: clamp(4.5rem, 2.8rem + 6vw, 8rem);
+
+  /* The largest quote size, shared by quote-xl and the light's landing (which is measured off it). */
+  --quote-xl-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
 }
 
 /* ------------------------------------------------------------------ base */
@@ -168,7 +171,7 @@
   font-family: var(--font-serif);
   font-weight: 400;
   text-wrap: balance;
-  font-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
+  font-size: var(--quote-xl-size);
   line-height: 1.14;
   letter-spacing: -0.012em;
 }
@@ -467,6 +470,18 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
 @keyframes light-rod {
   0%, 18% { opacity: 1; }
   40%, 100% { opacity: 0; }
+}
+
+/* The store rises into the light's white landing rather than waiting half a screen below it: the
+   section after the transition slides up over the (already white) lower half of the sticky frame.
+   The verse is centred there and always sets in about four lines of quote-xl (its width is in ch),
+   so its lower half is ~2.3x the quote size; pulling up by half the frame minus that, minus one
+   section gap, leaves the verse and the first shop heading one section gap apart at any screen
+   height. Only while the transition runs; the reduced-motion version is a normal static block. */
+@media (prefers-reduced-motion: no-preference) {
+  .after-light {
+    margin-top: min(0px, calc(-50svh + 2.3 * var(--quote-xl-size) + var(--space-section)));
+  }
 }
 
 /* ------------------------------------------------------------------ scroll-linked motion

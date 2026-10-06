@@ -58,7 +58,7 @@ export default async function StoryPage() {
           </div>
         </div>
 
-        <div className="container-x section-t mt-[var(--space-section)] grid items-end gap-[var(--space-lg)] border-t border-night-line lg:grid-cols-12 lg:gap-8">
+        <div className="container-x mt-[var(--space-xl)] grid items-end gap-[var(--space-lg)] border-t border-night-line pt-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
           <figure className="lg:col-span-8">
             <blockquote className="quote-xl max-w-[18ch]">
               <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
@@ -77,13 +77,14 @@ export default async function StoryPage() {
       </section>
 
       <section data-surface="day" aria-labelledby="timeline-title" className="section-y">
-        <div className="container-x">
-          <h2 id="timeline-title" className="type-h2">
+        {/* Title on the left, the year on the right (desktop), so each line sits near its picture. */}
+        <div className="container-x lg:grid lg:grid-cols-12 lg:gap-8">
+          <h2 id="timeline-title" className="type-h2 lg:sticky lg:top-28 lg:col-span-4 lg:self-start">
             2026 so far
           </h2>
-          <ol className="head-gap border-t border-day-line">
+          <ol className="head-gap border-t border-day-line lg:col-span-8 lg:mt-0">
             {TIMELINE.map((m) => (
-              <li key={m.date} className="grid grid-cols-[5rem_1fr] items-center gap-x-5 gap-y-3 border-b border-day-line py-5 sm:grid-cols-[8rem_1fr_auto] sm:gap-x-8 sm:py-6">
+              <li key={m.date} className="grid grid-cols-[5rem_1fr] items-start gap-x-5 gap-y-3 border-b border-day-line py-5 sm:grid-cols-[8rem_1fr_auto] sm:gap-x-8 sm:py-6">
                 <time dateTime={m.date} className="type-h4 tabular">
                   {m.label}
                 </time>

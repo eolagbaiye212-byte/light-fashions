@@ -61,9 +61,11 @@ export function ProductTile({
             {product.name}
           </Link>
         </h3>
-        <Price price={product.price} compareAt={product.compareAt} className="shrink-0 text-ui font-semibold" />
+        <Price price={product.price} compareAt={product.compareAt} className="hidden shrink-0 text-ui font-semibold sm:block" />
       </div>
+      {/* On phones the price drops to this line, so names get the tile's full width instead of wrapping beside it. */}
       <p className="mt-1 flex flex-wrap items-baseline gap-x-2 text-fine">
+        <Price price={product.price} compareAt={product.compareAt} className="text-ui font-semibold sm:hidden" />
         {detail && product.available && <span className="muted">{detail}</span>}
         <Status scarcity={product.scarcity} available={product.available} onSale={!!product.compareAt} />
       </p>

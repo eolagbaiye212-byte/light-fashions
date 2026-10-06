@@ -183,7 +183,8 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
       ))}
 
       {siblings.length > 0 && (
-        <section data-surface="day" aria-labelledby="more-title" className="section-y border-t border-day-line">
+        // A hairline only when it follows the white product area; after the black runway band the edge is enough.
+        <section data-surface="day" aria-labelledby="more-title" className={`section-y ${looks.length ? "" : "border-t border-day-line"}`}>
           <div className="container-x">
             <h2 id="more-title" className="type-h3">
               {looks.length ? "Wear it with" : `More from ${DROP_LABEL[product.drop]}`}

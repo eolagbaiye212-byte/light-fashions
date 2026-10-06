@@ -68,7 +68,7 @@ export default async function Home() {
 
       <LightTransition />
 
-      <section data-surface="day" aria-labelledby="show-title" className="section-b pt-[var(--space-md)]">
+      <section data-surface="day" aria-labelledby="show-title" className="after-light section-b relative z-10 pt-[var(--space-md)]">
         <div className="container-x">
           <SectionHead
             id="show-title"
@@ -122,8 +122,10 @@ export default async function Home() {
       ))}
 
       <section data-surface="day" aria-labelledby="founder-title" className="section-y border-t border-day-line">
-        <div className="container-x grid items-end gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
-          <figure className="lg:col-span-8">
+        {/* Poster and words side by side on desktop (poster first, answering the text-left story band
+            above); words first on phones. */}
+        <div className="container-x grid items-center gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
+          <figure className="lg:col-span-7 lg:col-start-6 lg:row-start-1">
             <blockquote id="founder-title" className="quote-xl max-w-[18ch]">
               <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
             </blockquote>
@@ -134,13 +136,13 @@ export default async function Home() {
               Read the story
             </Link>
           </figure>
-          <div className="lg:col-span-4">
-            <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden bg-tile lg:ml-auto">
+          <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
+            <div className="relative aspect-[4/5] w-full max-w-xs overflow-hidden bg-tile lg:max-w-none">
               <Image
                 src={media("Dclxg2wRFYs-0").src}
                 alt="Poster for the Light Fashion Experience: September 13, 2026, 7 PM, New York City, LIGHT × NYFW"
                 fill
-                sizes="(min-width: 1024px) 26vw, 80vw"
+                sizes="(min-width: 1024px) 30vw, 80vw"
                 className="object-cover"
               />
             </div>
