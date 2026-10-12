@@ -41,8 +41,9 @@ export function Footer() {
           {/* The mark signs off the page at a modest size: chrome on night, gunmetal on day. */}
           <Image src="/brand/light-chrome.webp" alt="LIGHT" width={1200} height={425} unoptimized className="logo-night h-auto w-[12rem] select-none sm:w-[14rem]" />
           <Image src="/brand/light-chrome-day.webp" alt="LIGHT" width={1200} height={425} unoptimized className="logo-day h-auto w-[12rem] select-none sm:w-[14rem]" />
-          <p className="quote-lg mt-[var(--space-md)] max-w-[20ch]">Walk as children of light.</p>
-          <p className="muted mt-2 text-ui">Ephesians 5:8</p>
+          <p className="quote-lg mt-[var(--space-md)] max-w-[22ch]">
+            <span aria-hidden="true">“</span>Walk as children of light.<span aria-hidden="true">”</span> (Ephesians 5:8)
+          </p>
         </div>
         <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-7 sm:grid-cols-3 md:col-span-7">
           {COLUMNS.map((col) => (

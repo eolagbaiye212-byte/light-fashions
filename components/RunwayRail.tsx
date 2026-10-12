@@ -14,8 +14,9 @@ export type RailLook = {
 /**
  * Horizontal walk through the sixteen looks. Native scrolling with snap points, so touch, trackpads,
  * shift-wheel and the keyboard (arrow keys on the focused rail) all work; mouse users can also drag.
- * Two small paging arrows sit under the rail at the right, as on the I.STORYTELL carousels. They're a
- * pointer shortcut and hidden from assistive tech, which already has the arrow keys.
+ * Carousel arrows sit over the left and right edges of the photographs, vertically centred on them,
+ * and step aside at either end. They're a pointer shortcut and hidden from assistive tech, which
+ * already has the arrow keys.
  */
 export function RunwayRail({ looks }: { looks: RailLook[] }) {
   const ref = useRef<HTMLOListElement>(null);
@@ -75,7 +76,8 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
   const fits = edge.start && edge.end;
 
   return (
-    <div>
+    // --look-w is one look's width; the arrows use it to sit at the middle of the photographs.
+    <div className="relative [--look-w:80vw] xs:[--look-w:68vw] sm:[--look-w:44vw] lg:[--look-w:30vw] xl:[--look-w:24vw]">
       <ol
         ref={ref}
         tabIndex={0}
@@ -124,7 +126,7 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
         className="rail-fade no-scrollbar relative flex cursor-grab snap-x snap-mandatory gap-4 overflow-x-auto overscroll-x-contain scroll-px-[var(--gutter)] px-[var(--gutter)] select-none active:cursor-grabbing sm:gap-6"
       >
         {looks.map((look) => (
-          <li key={look.n} className="w-[80vw] shrink-0 snap-start xs:w-[68vw] sm:w-[44vw] lg:w-[30vw] xl:w-[24vw]">
+          <li key={look.n} className="w-[var(--look-w)] shrink-0 snap-start">
             <Link href={`/runway#look-${look.n}`} className="group block" draggable={false}>
               <div className="relative aspect-[1584/2048] overflow-hidden bg-night-2">
                 <div className="absolute inset-0 transition-transform duration-700 ease-expo group-hover:scale-[1.03]">
@@ -165,11 +167,11 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
       </ol>
 
       {!fits && (
-        <div aria-hidden="true" className="container-x mt-3 flex justify-end gap-2">
-          <RailButton onClick={() => move(-1, true)} disabled={edge.start} label="Previous looks">
+        <div aria-hidden="true">
+          <RailButton onClick={() => move(-1, true)} hidden={edge.start} label="Previous looks" className="left-[calc(var(--gutter)+0.75rem)]">
             <path d="M15 5 8 12l7 7" />
           </RailButton>
-          <RailButton onClick={() => move(1, true)} disabled={edge.end} label="Next looks">
+          <RailButton onClick={() => move(1, true)} hidden={edge.end} label="Next looks" className="right-[calc(var(--gutter)+0.75rem)]">
             <path d="m9 5 7 7-7 7" />
           </RailButton>
         </div>
@@ -178,17 +180,34 @@ export function RunwayRail({ looks }: { looks: RailLook[] }) {
   );
 }
 
-function RailButton({ onClick, disabled, label, children }: { onClick: () => void; disabled: boolean; label: string; children: ReactNode }) {
+function RailButton({
+  onClick,
+  hidden,
+  label,
+  className,
+  children,
+}: {
+  onClick: () => void;
+  hidden: boolean;
+  label: string;
+  className: string;
+  children: ReactNode;
+}) {
   return (
     <button
       type="button"
       onClick={onClick}
-      disabled={disabled}
       tabIndex={-1}
       title={label}
-      className="grid size-10 place-items-center rounded-full border border-night-muted/45 text-night-ink transition-[opacity,background-color,color] duration-200 hover:bg-night-ink hover:text-night disabled:pointer-events-none disabled:opacity-30"
+      // Centred on the photographs: half of one look's height (its width x 2048/1584, halved).
+      className={[
+        "absolute top-[calc(var(--look-w)*0.6465)] z-10 grid size-10 -translate-y-1/2 place-items-center rounded-full sm:size-11",
+        "bg-night-ink/90 text-night shadow-[0_8px_24px_-10px_oklch(0_0_0/0.7)] transition-[opacity,background-color] duration-200 hover:bg-white",
+        hidden ? "pointer-events-none opacity-0" : "opacity-100",
+        className,
+      ].join(" ")}
     >
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <g stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           {children}
         </g>

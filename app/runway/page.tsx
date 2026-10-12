@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PageTransition } from "@/components/PageTransition";
+import Image from "next/image";
 import Link from "next/link";
 import { LookGallery } from "@/components/LookGallery";
 import { LookIndex } from "@/components/LookIndex";
@@ -147,12 +148,35 @@ export default async function RunwayPage() {
         );
       })}
 
-      <section className="container-x section-y text-center">
-        <p className="quote-xl mx-auto max-w-[22ch]">“Let your light shine.”</p>
-        <p className="muted mt-3 text-ui">Matthew 5:16</p>
-        <Link href="/shop" className="btn btn-light mt-[var(--space-lg)]">
-          Shop the collection
-        </Link>
+      {/* The close: the set after the show, a Bible at the foot of the amber bar (generated from the real
+          set; see DESIGN.md). The words sit in the dark wall above it. */}
+      <section aria-labelledby="runway-close" className="relative isolate flex min-h-[88svh] items-start justify-center overflow-hidden md:min-h-[80svh]">
+        <Image
+          src="/media/light/runway-bible-tall.webp"
+          alt="A worn Bible lying closed on the runway floor at the foot of the amber light bar"
+          fill
+          sizes="100vw"
+          quality={80}
+          className="-z-10 object-cover object-bottom md:hidden"
+        />
+        <Image
+          src="/media/light/runway-bible-wide.webp"
+          alt="A worn Bible lying closed on the runway floor at the foot of the amber light bar"
+          fill
+          sizes="100vw"
+          quality={80}
+          className="-z-10 hidden object-cover md:block"
+        />
+        <div aria-hidden="true" className="absolute inset-x-0 top-0 -z-10 h-1/2 bg-gradient-to-b from-night via-night/70 to-transparent" />
+        <div className="container-x pt-[var(--space-section)] text-center">
+          {/* Offset from the bar so it doesn't cut through the words. */}
+          <p id="runway-close" className="quote-xl relative mx-auto max-w-[22ch] [text-shadow:0_0_24px_oklch(0.138_0.006_245/0.9),0_0_6px_oklch(0.138_0.006_245/0.8)]">
+            <span aria-hidden="true">“</span>Let your light shine.<span aria-hidden="true">”</span> (Matthew 5:16)
+          </p>
+          <Link href="/shop" className="btn btn-light mt-[var(--space-lg)]">
+            Shop the collection
+          </Link>
+        </div>
       </section>
     </div>
     </PageTransition>

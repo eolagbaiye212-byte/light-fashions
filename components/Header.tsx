@@ -191,7 +191,7 @@ export function Header() {
             </button>
           </div>
           <nav aria-label="Main" className="container-x flex flex-1 flex-col justify-center gap-2 pb-16">
-            {[{ href: "/", label: "Home" }, ...NAV, { href: "/info", label: "Shipping & sizing" }].map((item, i) => (
+            {[{ href: "/", label: "Home" }, ...NAV].map((item, i) => (
               <Link
                 key={item.href}
                 href={item.href}

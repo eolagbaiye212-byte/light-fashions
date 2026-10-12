@@ -55,6 +55,8 @@ npm start
 
 Photos and video in `public/media` come from @children_ofthelight posts published after February 13, 2026. `scripts/build-media.mjs` converts the raw pull (`_source/`, not committed) into WebP images, blur placeholders (`lib/media.generated.json`) and trimmed, muted video loops.
 
+The darkness-to-light transition and the /runway close use a small set of images generated with Higgsfield from the real runway set (no garments generated or altered). Originals are in `_source/generated/`, web versions in `public/media/light/`. See DESIGN.md, Generated imagery.
+
 ## Deploy
 
 Import the repo into [Vercel](https://vercel.com/new) as a Next.js project. No configuration is required. To launch on lightfashions.com, point the domain at Vercel and move Shopify's primary domain to a subdomain (for example `shop.lightfashions.com`); checkout keeps working through the `myshopify.com` domain.

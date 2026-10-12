@@ -68,7 +68,7 @@
   --space-band: clamp(3rem, 2.4rem + 2.8vw, 4.5rem);
   --space-section: clamp(3.5rem, 2.65rem + 3.9vw, 6rem);
 
-  /* The largest quote size, shared by quote-xl and the light's landing (which is measured off it). */
+  /* The largest quote size. */
   --quote-xl-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
 }
 
@@ -461,22 +461,58 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
 }
 
 /* ------------------------------------------------------------------ the light (scroll-driven)
-   Runs on the compositor where supported; LightTransition.tsx writes --beam / --white otherwise. */
+   Staged on the runway set (generated photographic plates of the real set; see DESIGN.md).
+     1. Dark: the black ribbed wall comes up faintly around the single amber bar.
+     2. Warm: the bar swells and dissolves into its light, which warms the ribs; the verse reads here.
+     3. Revealed: the light finds a figure standing in it (the campaign image), which settles.
+     4. White: a feathered beam opens from the bar, the figure dissolves into white, the store rises.
+   Curves ease in and out and phases overlap, so it reads as one continuous exposure. The beam is
+   `screen`-blended (it brightens the photograph rather than painting over it) and feathered (no hard
+   edge). The verse only ever sits over the dark and amber set, on a soft pool of shade.
+   Runs from the scroll timeline where supported; LightTransition.tsx writes the same values into the
+   custom properties below otherwise. */
 .light {
   view-timeline: --light block;
+  --plate: 0;
+  --warm: 0;
+  --figure: 0;
+  --figure-scale: 1.04;
+  --verse: 1;
   --beam: 0;
   --white: 0;
+  --rod: 1;
+  --rod-scale: 1;
+  --halo-scale: 1;
 }
-.light-beam { transform: scaleX(var(--beam)); will-change: transform; }
+.light-plate { opacity: var(--plate); }
+.light-warm { opacity: var(--warm); }
+.light-figure { opacity: var(--figure); scale: var(--figure-scale); }
+.light-verse { opacity: var(--verse); }
+.light-beam {
+  transform: scaleX(var(--beam));
+  mask-image: linear-gradient(90deg, transparent, #000 20%, #000 80%, transparent);
+  mix-blend-mode: screen;
+  will-change: transform;
+}
+.light-glow { opacity: 0.36; }
 .light-white { opacity: var(--white); }
-.light-amber { opacity: calc(1 - var(--white)); }
-.light-rod, .light-halo { opacity: calc(1 - var(--white)); }
+.light-rod { opacity: var(--rod); scale: var(--rod-scale) 1; }
+.light-halo { opacity: var(--rod); scale: var(--halo-scale) 1; }
+/* Reduced motion: the warm set behind the verse, then the figure as a still. */
+.light[data-static] .light-warm,
+.light[data-static] .light-verse { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .light-figure-still { display: block; }
+}
 
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
+    .light-plate,
+    .light-warm,
+    .light-figure,
+    .light-verse,
     .light-beam,
     .light-white,
-    .light-amber,
     .light-rod,
     .light-halo {
       animation-timing-function: linear;
@@ -484,39 +520,57 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
       animation-timeline: --light;
       animation-range: contain 0% contain 100%;
     }
+    .light-plate { animation-name: light-plate; }
+    .light-warm { animation-name: light-warm; }
+    .light-figure { animation-name: light-figure; }
+    .light-verse { animation-name: light-verse; }
     .light-beam { animation-name: light-beam; }
     .light-white { animation-name: light-white; }
-    .light-amber { animation-name: light-amber; }
-    .light-rod, .light-halo { animation-name: light-rod; }
+    .light-rod { animation-name: light-rod; }
+    .light-halo { animation-name: light-halo; }
   }
+}
+/* Keep these in step with the fallback in LightTransition.tsx. */
+@keyframes light-plate {
+  0% { opacity: 0; animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); }
+  8%, 100% { opacity: 1; }
+}
+@keyframes light-warm {
+  0%, 5% { opacity: 0; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  24%, 100% { opacity: 1; }
+}
+@keyframes light-verse {
+  0%, 22% { opacity: 1; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  28%, 100% { opacity: 0; }
+}
+/* The figure comes up in the light and settles, the way an eye adjusts. */
+@keyframes light-figure {
+  0%, 28% { opacity: 0; scale: 1.04; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  42% { opacity: 1; scale: 1.016; animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); }
+  50%, 100% { opacity: 1; scale: 1; }
 }
 @keyframes light-beam {
-  0%, 10% { transform: scaleX(0); animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1); }
-  76%, 100% { transform: scaleX(1); }
+  0%, 50% { transform: scaleX(0.002); animation-timing-function: cubic-bezier(0.5, 0, 0.25, 1); }
+  88%, 100% { transform: scaleX(2); }
 }
 @keyframes light-white {
-  0%, 34% { opacity: 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-  70%, 100% { opacity: 1; }
-}
-@keyframes light-amber {
-  0%, 40% { opacity: 1; }
-  72%, 100% { opacity: 0; }
+  0%, 54% { opacity: 0; animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1); }
+  86%, 100% { opacity: 1; }
 }
 @keyframes light-rod {
-  0%, 18% { opacity: 1; }
-  40%, 100% { opacity: 0; }
+  0%, 4% { opacity: 1; scale: 1 1; animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); }
+  22%, 100% { opacity: 0; scale: 8 1; }
+}
+@keyframes light-halo {
+  0%, 3% { opacity: 1; scale: 1 1; animation-timing-function: cubic-bezier(0.33, 0, 0.2, 1); }
+  26%, 100% { opacity: 0; scale: 3 1; }
 }
 
-/* The store rises into the light's white landing rather than waiting half a screen below it: the
-   section after the transition slides up over the (already white) lower half of the sticky frame.
-   The verse is centred there and always sets in about four lines of quote-xl (its width is in ch),
-   so its lower half is ~2.3x the quote size; pulling up by half the frame minus that, minus one
-   section gap, leaves the verse and the first shop heading one section gap apart at any screen
-   height. Only while the transition runs; the reduced-motion version is a normal static block. */
+/* The store rises into the white: the section after the transition slides up over the last stretch
+   of the (by then white) sticky frame, so the shop arrives as the white completes rather than half a
+   screen later. Only while the transition runs. */
 @media (prefers-reduced-motion: no-preference) {
-  .after-light {
-    margin-top: min(0px, calc(-50svh + 2.3 * var(--quote-xl-size) + var(--space-section)));
-  }
+  .after-light { margin-top: -18svh; }
 }
 
 /* ------------------------------------------------------------------ scroll-linked motion

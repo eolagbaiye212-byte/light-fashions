@@ -78,7 +78,7 @@ The type is the calm counterpart to the chrome mark and the runway photographs: 
 | Layer | How | Where |
 |---|---|---|
 | Smooth wheel scroll | Lenis (`components/SmoothScroll.tsx`), mouse/trackpad only, paused while any dialog is open | everywhere |
-| The light | CSS scroll-driven timeline (`.light-*`), rAF fallback writes `--beam`/`--white` | home |
+| The light | Staged on the runway set (generated plates of the real set). Dark set comes up around the amber bar → the bar swells and warms the ribs, the verse reads on a pool of shade and fades → the light reveals a figure standing in it (the campaign image), which settles → a feathered, `screen`-blended beam whites everything out and the store rises into it. CSS scroll timeline (`.light-*`), rAF fallback writes the same curves. Reduced motion: the warm set behind the verse, then the figure as a still | home |
 | Page transitions | React `<ViewTransition>` via `components/PageTransition.tsx`; lateral = crossfade + 8px lift, `nav-forward`/`nav-back` = 24px slide | every page |
 | Product morph | named `product-{id}` view transition from tile photo to the product gallery's first photo | tiles → product page |
 | Filter reflow | per-tile `<ViewTransition>` + `startTransition(router.replace)`; chips use `useOptimistic` | /shop |
@@ -88,6 +88,17 @@ The type is the calm counterpart to the chrome mark and the runway photographs: 
 
 - `prefers-reduced-motion`: no autoplay video, no hero opening, static light, no scroll-linked motion, no smooth scroll, instant view transitions.
 - Never animate on more than one axis of attention at once: the rod moments are the only page-level choreography.
+
+## Generated imagery
+A small set, all generated with Higgsfield (Nano Banana 2.1, 4K) from the real runway set: the black ribbed wall, pale floor and single amber bar, using look 8's show photograph as the set reference, then the approved set plate as the reference for the rest. No real garment is generated or altered: the campaign figure is a back-lit silhouette with no logo, print or construction detail, and products only ever appear in their real photography.
+
+| Use | Web files (`public/media/light/`) | Original (`_source/generated/`, local, uncommitted) |
+|---|---|---|
+| Transition: the dark and warm set | `set-{dark,warm}-{wide,tall}.webp` | `light-set-amber-bar-a.png` → `light-set-{dark,warm}-grade.png` (two grades of the same pixels, bar centred) |
+| Transition: the figure the light reveals | `campaign-figure-{wide,tall}.webp` | `campaign-figure-in-light-b.png` (cropped so its bar sits where the set's does) |
+| /runway close: a Bible at the foot of the bar, under "Let your light shine" | `runway-bible-{wide,tall}.webp` | `runway-still-life-bible-a.png` |
+
+Rejected variants are kept beside the originals: `light-set-amber-bar-b` (brown slats, not the real set), `campaign-figure-in-light-a` (white wall, loses the set), `runway-still-life-bible-b` (too close, bar off to the side). Each web image has a 2880w wide version (md+) and a 1200w portrait crop for phones, 40–150 KB.
 
 ## Components
 Header (text links, theme follows the surface underneath), Bag drawer (native `<dialog>`), Size picker (radio group, sold-out sizes struck and disabled; adding without a size shows one error beside the sizes, announced as an alert, and every attempt scrolls back and focuses the first available size), Shop filters (categories are a row of text tabs, the selected one underlined; below lg the row scrolls to the screen edge with an edge fade and a paging button, the selected tab kept in view. Below them sit square-edged controls in the boohoo manner: on md+ the One of one and In stock checkboxes, the piece count and Sort; on phones a split Filter | Sort bar, where Filter opens a bottom sheet (`dialog.sheet`) whose button shows the live count. No pills, no hairline band. Filters and sort live in the URL), Runway rail (scroll-snap, arrow keys, mouse drag; two small round paging arrows under the rail at the right, as on I.STORYTELL. Each look's number is set at the verse's own size so the two share a baseline), Look index on /runway (plain numbers on night, the current one marked by a short sliding rod line; no hairlines or filled pills), Light transition (sticky, scroll-progress driven), Product tile (image swap to runway shot on hover, quick-add sizes on hover/focus; name 500, price 600; on phones the price drops under the name so names get the tile's full width), Verse (serif quote + citation, for scripture and Myron's words alike).

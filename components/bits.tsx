@@ -49,45 +49,36 @@ export function IgImage({
 }
 
 /**
- * The line a look was built around: scripture, or Myron's own words. Both are quotations, so both
- * are set in the serif; the citation says whose words they are.
+ * The line a look was built around: scripture, or Myron's own words, set in the serif. Scripture's
+ * reference runs on after the words in parentheses, in exactly the same face, size and colour, so
+ * it reads as part of the verse. Myron's lines stand on their own, unattributed.
  */
 export function Verse({
   line,
   cite,
   size = "md",
-  inline = false,
   className = "",
 }: {
   line: string;
   cite?: string;
   size?: "sm" | "md" | "lg";
-  /** Run the reference on after the words, in parentheses, instead of on its own line below. */
-  inline?: boolean;
   className?: string;
 }) {
   const s = { sm: "quote-sm", md: "quote-md", lg: "quote-lg" }[size];
-  if (inline) {
-    // Balanced, so a reference that doesn't fit wraps with words beside it rather than alone on a line.
-    return (
-      <figure className={`${s} ${className}`} style={{ textWrap: "balance" }}>
-        <blockquote className="inline">
-          <span aria-hidden="true">“</span>
-          {line}
-          <span aria-hidden="true">”</span>
-        </blockquote>{" "}
-        <figcaption className="muted inline">({cite ?? "Myron"})</figcaption>
-      </figure>
-    );
-  }
+  // Balanced, so a reference that doesn't fit wraps with words beside it rather than alone on a line.
   return (
-    <figure className={className}>
-      <blockquote className={s}>
+    <figure className={`${s} ${className}`} style={{ textWrap: "balance" }}>
+      <blockquote className="inline">
         <span aria-hidden="true">“</span>
         {line}
         <span aria-hidden="true">”</span>
       </blockquote>
-      <figcaption className="muted mt-3 text-ui">{cite ?? "Myron"}</figcaption>
+      {cite && (
+        <>
+          {" "}
+          <figcaption className="inline">({cite})</figcaption>
+        </>
+      )}
     </figure>
   );
 }
