@@ -3,14 +3,13 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, ViewTransition } from "react";
 import type { ProductImage } from "@/lib/shopify";
+import { fit } from "@/lib/tile";
 import { FadeImage } from "./FadeImage";
-import { TILE_SIZES, fit } from "@/lib/tile";
 
 /**
- * One list, two layouts: a swipeable strip on phones, a two-column stack on desktop.
- * The first photo is the landing spot for the tile → product morph. Underneath it sits the
- * tile-sized image (already cached from the grid), so the morph lands on a real picture and the
- * full-size one fades in over it.
+ * One list, two layouts: a swipeable full-bleed strip with a 1/4 counter on phones, a vertical
+ * stack on desktop. The first photo is where the grid's photo lands (shared element), so there is
+ * only ever one element with that name. Any photo opens full screen.
  */
 export function ProductGallery({ productId, images, name }: { productId: number; images: ProductImage[]; name: string }) {
   const strip = useRef<HTMLUListElement>(null);
@@ -30,45 +29,37 @@ export function ProductGallery({ productId, images, name }: { productId: number;
     if (zoom !== null && viewer.current && !viewer.current.open) viewer.current.showModal();
   }, [zoom]);
 
-  const wide = (i: number) => i === 0 || (images.length % 2 === 0 && i === images.length - 1 && images.length > 2);
-
   return (
     <>
       <div className="relative">
         <ul
           ref={strip}
-          aria-label={`${name} photos`}
-          className="no-scrollbar relative flex snap-x snap-mandatory overflow-x-auto bg-tile lg:grid lg:snap-none lg:grid-cols-2 lg:gap-2 lg:overflow-visible lg:bg-transparent"
+          aria-label={`${name}, photos`}
+          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto md:flex-col md:gap-px md:overflow-visible md:bg-grey"
         >
           {images.map((img, i) => {
-            const tile = (
-              <div className="relative aspect-[4/5] bg-tile">
-                {i === 0 && <Image src={img.src} alt="" fill sizes={TILE_SIZES} quality={80} priority className={fit(img)} aria-hidden="true" />}
+            const frame = (
+              <div className="relative aspect-[3/4] bg-paper">
                 <FadeImage
                   src={img.src}
-                  alt={img.alt}
+                  alt={img.alt || `${name}, photo ${i + 1}`}
                   fill
-                  sizes={wide(i) ? "(min-width: 1024px) 58vw, 100vw" : "(min-width: 1024px) 29vw, 100vw"}
-                  priority={i === 0}
+                  sizes="(min-width: 768px) 58vw, 100vw"
+                  preload={i === 0}
                   quality={80}
                   className={fit(img)}
                 />
               </div>
             );
             return (
-              <li key={img.src} className={`w-full shrink-0 snap-center lg:w-auto ${wide(i) ? "lg:col-span-2" : ""}`}>
-                <button
-                  type="button"
-                  onClick={() => setZoom(i)}
-                  className="block w-full cursor-zoom-in"
-                  aria-label={`Open photo ${i + 1} of ${images.length} full screen`}
-                >
+              <li key={img.src} className="w-full shrink-0 snap-center">
+                <button type="button" onClick={() => setZoom(i)} className="block w-full cursor-zoom-in" aria-label={`Open photo ${i + 1} of ${images.length} full screen`}>
                   {i === 0 ? (
                     <ViewTransition name={`product-${productId}`} share="morph" default="none">
-                      {tile}
+                      {frame}
                     </ViewTransition>
                   ) : (
-                    tile
+                    frame
                   )}
                 </button>
               </li>
@@ -76,8 +67,8 @@ export function ProductGallery({ productId, images, name }: { productId: number;
           })}
         </ul>
         {images.length > 1 && (
-          <p className="tabular absolute right-3 bottom-3 rounded-full bg-day/90 px-3 py-1 text-fine font-semibold lg:hidden" aria-hidden="true">
-            {index + 1} / {images.length}
+          <p className="t-meta pointer-events-none absolute bottom-3 left-[var(--edge)] bg-paper px-1.5 md:hidden" aria-hidden="true">
+            {index + 1}/{images.length}
           </p>
         )}
       </div>
@@ -85,22 +76,28 @@ export function ProductGallery({ productId, images, name }: { productId: number;
       <dialog
         ref={viewer}
         onClose={() => setZoom(null)}
-        onClick={() => viewer.current?.close()}
-        className="m-0 h-dvh max-h-dvh w-screen max-w-[100vw] bg-day p-0 backdrop:bg-night/80"
+        className="menu"
         aria-label={`${name}, full screen photo`}
       >
         {zoom !== null && (
-          <div className="relative h-full w-full">
-            <FadeImage key={zoom} src={images[zoom].src} alt={images[zoom].alt} fill sizes="100vw" quality={80} className="object-contain" />
-            <button type="button" autoFocus onClick={() => viewer.current?.close()} className="btn absolute top-4 right-4 bg-day-ink text-day">
-              Close
-            </button>
+          <div className="flex h-full flex-col">
+            <div className="px-edge flex h-[var(--header)] items-center justify-between border-b border-ink">
+              <p className="t-meta">
+                {zoom + 1}/{images.length}
+              </p>
+              <button type="button" autoFocus onClick={() => viewer.current?.close()} className="t-label -mr-2 px-2 py-3">
+                Close
+              </button>
+            </div>
+            <div className="relative flex-1">
+              <Image key={zoom} src={images[zoom].src} alt={images[zoom].alt || name} fill sizes="100vw" quality={80} className="object-contain" />
+            </div>
             {images.length > 1 && (
-              <div className="absolute inset-x-0 bottom-6 flex justify-center gap-2" onClick={(e) => e.stopPropagation()}>
-                <button type="button" className="btn bg-day-ink text-day" onClick={() => setZoom((zoom - 1 + images.length) % images.length)}>
+              <div className="grid grid-cols-2 border-t border-ink">
+                <button type="button" className="t-label min-h-12 border-r border-ink" onClick={() => setZoom((zoom - 1 + images.length) % images.length)}>
                   Previous
                 </button>
-                <button type="button" className="btn bg-day-ink text-day" onClick={() => setZoom((zoom + 1) % images.length)}>
+                <button type="button" className="t-label min-h-12" onClick={() => setZoom((zoom + 1) % images.length)}>
                   Next
                 </button>
               </div>

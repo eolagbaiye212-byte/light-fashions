@@ -1,24 +1,25 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, ViewTransition, type ReactNode } from "react";
+import { startTransition, useEffect, useMemo, useOptimistic, useRef, useState, ViewTransition } from "react";
 import { CATEGORY_LABEL, type Category } from "@/lib/catalog";
 import type { ProductLite } from "@/lib/product-lite";
-import { ProductTile } from "./ProductTile";
+import { cellSizes } from "@/lib/tile";
+import { ProductCell } from "./ProductCell";
 
 const SORTS = {
   newest: "Newest",
-  "price-asc": "Lowest price",
-  "price-desc": "Highest price",
+  "price-asc": "Price: low to high",
+  "price-desc": "Price: high to low",
 } as const;
 type Sort = keyof typeof SORTS;
 
+/** Scarcity values that count as "one of one" in the filter (unchanged from the previous build). */
 const ONCE = new Set(["one-of-one", "only-two", "sample", "first"]);
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "2XL", "3XL", "4XL"];
 
-/** The square-edged control used for filters and sort: a thin outline, darkening on hover. */
-const boxShape = "inline-flex min-h-11 items-center gap-2.5 rounded-[4px] px-3.5 text-ui transition-shadow duration-150";
-const boxEdge = "shadow-[inset_0_0_0_1px_var(--color-day-edge)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)]";
-const box = `${boxShape} ${boxEdge}`;
+type Density = { mobile: 1 | 2; desktop: 2 | 4 };
+const DENSITY_KEY = "light.grid.v1";
 
 export function ShopBrowser({ products }: { products: ProductLite[] }) {
   const params = useSearchParams();
@@ -27,135 +28,217 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
   const sheet = useRef<HTMLDialogElement>(null);
 
   // The grid follows the committed URL (so it can animate); the controls follow an optimistic copy
-  // so a tapped control responds instantly while the grid transitions.
+  // so a tap responds at once while the grid transitions.
   const committed = params.toString();
   const [pendingQs, setPendingQs] = useOptimistic(committed);
-  const { category, onlyOnce, inStock, sort } = readFilters(new URLSearchParams(committed));
+  const f = readFilters(new URLSearchParams(committed));
   const ui = readFilters(new URLSearchParams(pendingQs));
 
   const go = (qs: string) =>
-    // Inside a transition, so tiles animate out, in and into their new places.
     startTransition(() => {
       setPendingQs(qs);
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
     });
-  const set = (key: string, value: string | null) => {
+  const update = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(pendingQs);
-    if (value === null) next.delete(key);
-    else next.set(key, value);
+    for (const [k, v] of Object.entries(changes)) {
+      if (v === null) next.delete(k);
+      else next.set(k, v);
+    }
     go(next.toString());
   };
-  const clear = () => go("");
+
+  // Grid density is a viewing preference, kept per browser.
+  const [density, setDensity] = useState<Density>({ mobile: 2, desktop: 4 });
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem(DENSITY_KEY) ?? "null") as Density | null;
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restoring a saved preference after hydration
+      if (saved && [1, 2].includes(saved.mobile) && [2, 4].includes(saved.desktop)) setDensity(saved);
+    } catch {}
+  }, []);
+  const setView = (d: Density) => {
+    setDensity(d);
+    try {
+      localStorage.setItem(DENSITY_KEY, JSON.stringify(d));
+    } catch {}
+  };
 
   const categories = useMemo(() => {
     const present = new Set(products.map((p) => p.category));
     return (Object.keys(CATEGORY_LABEL) as Category[]).filter((c) => present.has(c));
   }, [products]);
 
+  const sizes = useMemo(() => {
+    const all = new Set<string>();
+    for (const p of products) {
+      const i = p.options.findIndex((o) => /size/i.test(o.name));
+      if (i >= 0) p.options[i].values.forEach((v) => all.add(v));
+    }
+    const rank = (v: string) => {
+      const k = SIZE_ORDER.indexOf(v.toUpperCase());
+      return k >= 0 ? k : /^\d/.test(v) ? 100 + parseFloat(v) : 1000;
+    };
+    return [...all].sort((a, b) => rank(a) - rank(b) || a.localeCompare(b));
+  }, [products]);
+
   const visible = useMemo(() => {
-    const list = products.filter(
-      (p) =>
-        (!category || p.category === category) &&
-        (!onlyOnce || (p.scarcity && ONCE.has(p.scarcity))) &&
-        (!inStock || p.available),
-    );
+    const list = products.filter((p) => {
+      if (f.category && p.category !== f.category) return false;
+      if (f.onlyOnce && !(p.scarcity && ONCE.has(p.scarcity))) return false;
+      if (f.inStock && !p.available) return false;
+      if (f.size) {
+        const i = p.options.findIndex((o) => /size/i.test(o.name));
+        if (i < 0 || !p.variants.some((v) => v.available && v.options[i] === f.size)) return false;
+      }
+      return true;
+    });
     const byStock = (a: ProductLite, b: ProductLite) => Number(b.available) - Number(a.available);
-    if (sort === "price-asc") list.sort((a, b) => byStock(a, b) || a.price - b.price);
-    else if (sort === "price-desc") list.sort((a, b) => byStock(a, b) || b.price - a.price);
+    if (f.sort === "price-asc") list.sort((a, b) => byStock(a, b) || a.price - b.price);
+    else if (f.sort === "price-desc") list.sort((a, b) => byStock(a, b) || b.price - a.price);
     else list.sort((a, b) => byStock(a, b) || b.publishedAt.localeCompare(a.publishedAt));
     return list;
-  }, [products, category, onlyOnce, inStock, sort]);
+  }, [products, f.category, f.onlyOnce, f.inStock, f.size, f.sort]);
 
-  const filtered = category || onlyOnce || inStock;
-  const activeFilters = Number(ui.onlyOnce) + Number(ui.inStock);
-  const toggles = [
-    { key: "only", label: "One of one", on: ui.onlyOnce, value: "one-of-one" },
-    { key: "stock", label: "In stock", on: ui.inStock, value: "1" },
-  ];
-  const count = `${visible.length} ${visible.length === 1 ? "piece" : "pieces"}`;
+  const filtered = Boolean(f.category || f.onlyOnce || f.inStock || f.size);
+  const sheetFilters = Number(Boolean(ui.size)) + Number(ui.inStock);
+  const count = `${visible.length} ${visible.length === 1 ? "item" : "items"}`;
+
+  const tabs = (
+    <div role="group" aria-label="Category" className="flex flex-wrap gap-x-5 gap-y-1">
+      <Tab on={!ui.category && !ui.onlyOnce} onClick={() => update({ category: null, only: null })}>
+        Everything
+      </Tab>
+      {categories.map((c) => (
+        <Tab key={c} on={ui.category === c} onClick={() => update({ category: ui.category === c ? null : c, only: null })}>
+          {CATEGORY_LABEL[c]}
+        </Tab>
+      ))}
+      <Tab on={ui.onlyOnce} onClick={() => update({ only: ui.onlyOnce ? null : "one-of-one", category: null })}>
+        One of one
+      </Tab>
+    </div>
+  );
+
+  const sort = (
+    <label className="t-label relative flex min-h-11 items-center gap-2">
+      <span className="sr-only">Sort by</span>
+      <select
+        value={ui.sort}
+        onChange={(e) => update({ sort: e.target.value === "newest" ? null : e.target.value })}
+        className="t-label cursor-pointer appearance-none bg-transparent pr-5 [field-sizing:content] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+      >
+        {(Object.keys(SORTS) as Sort[]).map((s) => (
+          <option key={s} value={s}>
+            {s === "newest" ? "Sort: Newest" : `Sort: ${SORTS[s]}`}
+          </option>
+        ))}
+      </select>
+      <span aria-hidden="true" className="pointer-events-none absolute right-0">
+        ↓
+      </span>
+    </label>
+  );
+
+  const view = (which: "mobile" | "desktop", options: number[], className: string) => (
+    <div role="group" aria-label="Columns" className={`t-meta items-center gap-2 ${className}`}>
+      <span className="text-grey" aria-hidden="true">
+        View
+      </span>
+      {options.map((n) => (
+        <button
+          key={n}
+          type="button"
+          aria-pressed={density[which] === n}
+          aria-label={`${n} ${n === 1 ? "column" : "columns"}`}
+          onClick={() => setView({ ...density, [which]: n } as Density)}
+          className="min-h-11 min-w-6 aria-pressed:underline aria-pressed:decoration-2 aria-pressed:underline-offset-4"
+        >
+          {n}
+        </button>
+      ))}
+    </div>
+  );
+
+  const mobileCols = density.mobile === 1 ? "grid-cols-1" : "grid-cols-2";
+  const desktopCols = density.desktop === 2 ? "md:grid-cols-2" : "md:grid-cols-3 lg:grid-cols-4";
 
   return (
     <div>
-      <CategoryTabs active={ui.category}>
-        <Tab on={!ui.category} onClick={() => set("category", null)}>
-          Everything
-        </Tab>
-        {categories.map((c) => (
-          <Tab key={c} on={ui.category === c} onClick={() => set("category", ui.category === c ? null : c)}>
-            {CATEGORY_LABEL[c]}
-          </Tab>
-        ))}
-      </CategoryTabs>
+      {/* Phones: categories wrap above the sticky bar, every one visible. */}
+      <div className="px-edge pb-3 md:hidden">{tabs}</div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2 md:mt-4">
-        {/* Phones: one Filter button that opens a sheet. */}
-        <button
-          type="button"
-          onClick={() => sheet.current?.showModal()}
-          aria-haspopup="dialog"
-          className={`${box} flex-1 justify-between md:hidden`}
-        >
-          <span>
-            Filter{activeFilters > 0 && <span className="font-semibold"> ({activeFilters})</span>}
-          </span>
-          <SlidersIcon />
-        </button>
+      <div className="sticky top-header z-20 border-y border-ink bg-paper">
+        <div className="px-edge flex min-h-12 flex-wrap items-center gap-x-6">
+          <div className="hidden flex-1 md:block">{tabs}</div>
 
-        {/* Larger screens: the toggles sit in the bar. */}
-        <div role="group" aria-label="Filter" className="hidden gap-2 md:flex">
-          {toggles.map((t) => (
-            <Toggle key={t.key} label={t.label} on={t.on} onChange={() => set(t.key, t.on ? null : t.value)} className={boxShape} />
-          ))}
+          {/* Phones: one FILTER button opens a sheet with size and stock. */}
+          <button type="button" onClick={() => sheet.current?.showModal()} aria-haspopup="dialog" className="t-label min-h-11 md:hidden">
+            Filter{sheetFilters > 0 && ` (${sheetFilters})`}
+          </button>
+
+          {/* Desktop: size and stock sit in the bar. */}
+          <label className="t-label relative hidden min-h-11 items-center md:flex">
+            <span className="sr-only">Size</span>
+            <select
+              value={ui.size ?? ""}
+              onChange={(e) => update({ size: e.target.value || null })}
+              className="t-label cursor-pointer appearance-none bg-transparent pr-5 [field-sizing:content] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            >
+              <option value="">Size: All</option>
+              {sizes.map((s) => (
+                <option key={s} value={s}>
+                  Size: {s}
+                </option>
+              ))}
+            </select>
+            <span aria-hidden="true" className="pointer-events-none absolute right-0">
+              ↓
+            </span>
+          </label>
+          <Check label="In stock" on={ui.inStock} onChange={() => update({ stock: ui.inStock ? null : "1" })} className="hidden md:flex" />
+
+          <div className="ml-auto flex items-center gap-6 md:ml-0">
+            {sort}
+            {view("mobile", [1, 2], "flex md:hidden")}
+            {view("desktop", [2, 4], "hidden md:flex")}
+          </div>
         </div>
+      </div>
 
-        <p className="order-last w-full pt-2 text-ui md:order-none md:ml-auto md:w-auto md:pt-0 md:pr-2" aria-live="polite">
-          <span className="muted">{count}</span>
-          {filtered && (
-            <button type="button" onClick={clear} className="link ml-3">
-              Clear filters
-            </button>
-          )}
+      <div className="px-edge flex min-h-11 items-center gap-5">
+        <p className="t-meta" aria-live="polite">
+          {count}
         </p>
-
-        <label className={`${box} relative flex-1 pr-10 has-[select:focus-visible]:outline-2 has-[select:focus-visible]:outline-offset-2 has-[select:focus-visible]:outline-day-ink md:flex-none`}>
-          <span className="sr-only">Sort by</span>
-          <select
-            value={ui.sort}
-            onChange={(e) => set("sort", e.target.value === "newest" ? null : e.target.value)}
-            className="w-full appearance-none bg-transparent outline-none md:w-auto md:[field-sizing:content]"
-          >
-            {(Object.keys(SORTS) as Sort[]).map((s) => (
-              <option key={s} value={s}>
-                {SORTS[s]}
-              </option>
-            ))}
-          </select>
-          <svg aria-hidden="true" className="pointer-events-none absolute right-3.5" width="12" height="7" viewBox="0 0 12 7" fill="none" stroke="currentColor" strokeWidth="1.5">
-            <path d="M1 1l5 5 5-5" />
-          </svg>
-        </label>
+        {filtered && (
+          <button type="button" onClick={() => go(ui.sort !== "newest" ? `sort=${ui.sort}` : "")} className="t-meta link">
+            Clear filters
+          </button>
+        )}
       </div>
 
       {visible.length === 0 ? (
-        <div className="section-y">
-          <p className="type-h2 max-w-[18ch]">Nothing matches those filters.</p>
-          <button type="button" onClick={clear} className="btn btn-ink mt-[var(--space-md)]">
+        <div className="px-edge border-t border-grey py-24">
+          <p className="t-label">Nothing matches these filters.</p>
+          <button type="button" onClick={() => go("")} className="btn btn-ink mt-6">
             Show everything
           </button>
         </div>
       ) : (
-        <ul className="mt-[var(--space-md)] grid grid-cols-2 gap-x-4 gap-y-9 sm:gap-x-5 md:grid-cols-3 lg:gap-y-11 xl:grid-cols-4">
-          {visible.map((p, i) => (
-            <ViewTransition key={p.id} enter="tile-in" exit="tile-out" update="tile-move" default="none">
-              <li>
-                <ProductTile product={p} priority={i < 4} />
-              </li>
-            </ViewTransition>
-          ))}
-        </ul>
+        <div className="overflow-hidden border-t border-grey">
+          <ul className={`-mr-px grid ${mobileCols} ${desktopCols}`}>
+            {visible.map((p, i) => (
+              <ViewTransition key={p.id} enter="cell-in" exit="cell-out" update="cell-move" default="none">
+                <li className="border-r border-b border-grey">
+                  <ProductCell product={p} priority={i < 4} sizes={cellSizes(density)} />
+                </li>
+              </ViewTransition>
+            ))}
+          </ul>
+        </div>
       )}
 
-      {/* The phone filter sheet. Filters apply as you tap, so the button just shows the result. */}
+      {/* The phone filter sheet. Filters apply as you tap; the button shows the result. */}
       <dialog
         ref={sheet}
         className="sheet"
@@ -164,199 +247,82 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
           if (e.target === e.currentTarget) sheet.current?.close();
         }}
       >
-        <div data-surface="day" className="px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-          <div className="flex items-center justify-between">
-            <h2 id="filter-title" className="text-lead font-medium">
-              Filter
-            </h2>
-            <button type="button" onClick={() => sheet.current?.close()} className="min-h-11 rounded-full px-3 text-ui font-medium">
-              Close
-            </button>
-          </div>
-          <div role="group" aria-label="Filter" className="mt-3 grid gap-2">
-            {toggles.map((t) => (
-              <Toggle key={t.key} label={t.label} on={t.on} onChange={() => set(t.key, t.on ? null : t.value)} className={`${boxShape} min-h-12 w-full`} />
+        <div className="flex items-center justify-between border-b border-ink px-4">
+          <h2 id="filter-title" className="t-label py-4">
+            Filter
+          </h2>
+          <button type="button" onClick={() => sheet.current?.close()} className="t-label -mr-2 px-2 py-4">
+            Close
+          </button>
+        </div>
+        <div className="px-4 py-5">
+          <h3 className="t-meta text-grey">Size</h3>
+          <div role="group" aria-label="Size" className="mt-3 flex flex-wrap gap-2">
+            {sizes.map((s) => (
+              <button
+                key={s}
+                type="button"
+                aria-pressed={ui.size === s}
+                onClick={() => update({ size: ui.size === s ? null : s })}
+                className="t-meta grid min-h-12 min-w-12 place-items-center border border-grey px-3 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+              >
+                {s}
+              </button>
             ))}
           </div>
-          <div className="mt-5 flex items-center gap-4">
-            {activeFilters > 0 && (
-              <button
-                type="button"
-                onClick={() => {
-                  const next = new URLSearchParams(pendingQs);
-                  next.delete("only");
-                  next.delete("stock");
-                  go(next.toString());
-                }}
-                className="link text-ui"
-              >
-                Clear
-              </button>
-            )}
-            <button type="button" onClick={() => sheet.current?.close()} className="btn btn-ink ml-auto flex-1">
-              Show {count}
+          <h3 className="t-meta mt-6 text-grey">Availability</h3>
+          <Check label="In stock only" on={ui.inStock} onChange={() => update({ stock: ui.inStock ? null : "1" })} className="mt-1 flex" />
+        </div>
+        <div className="flex gap-2 border-t border-ink p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          {sheetFilters > 0 && (
+            <button type="button" onClick={() => update({ size: null, stock: null })} className="btn btn-line">
+              Clear
             </button>
-          </div>
+          )}
+          <button type="button" onClick={() => sheet.current?.close()} className="btn btn-ink flex-1">
+            Show {count}
+          </button>
         </div>
       </dialog>
     </div>
   );
 }
 
-/** A filter that's on or off: an outlined box with a check square. A real checkbox underneath. */
-function Toggle({ label, on, onChange, className }: { label: string; on: boolean; onChange: () => void; className: string }) {
-  return (
-    <label
-      className={`${className} cursor-pointer select-none has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-day-ink ${on ? "shadow-[inset_0_0_0_1px_var(--color-day-ink)]" : boxEdge}`}
-    >
-      <input type="checkbox" checked={on} onChange={onChange} className="sr-only" />
-      <span
-        aria-hidden="true"
-        className={`grid size-[1.125rem] shrink-0 place-items-center rounded-[3px] border-[1.5px] border-day-ink transition-colors duration-150 ${on ? "bg-day-ink text-day" : "text-transparent"}`}
-      >
-        <svg width="10" height="8" viewBox="0 0 10 8" fill="none" stroke="currentColor" strokeWidth="1.8">
-          <path d="M1 4l2.6 2.6L9 1" />
-        </svg>
-      </span>
-      {label}
-    </label>
-  );
-}
-
-function Tab({ on, onClick, children }: { on: boolean; onClick: () => void; children: ReactNode }) {
+function Tab({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className={[
-        "relative inline-flex min-h-11 shrink-0 snap-start items-center text-ui whitespace-nowrap",
-        "after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:bg-day-ink after:transition-transform after:duration-300 after:ease-quint",
-        on ? "font-medium after:scale-x-100" : "after:scale-x-0 hover:after:scale-x-100 hover:after:h-px",
-      ].join(" ")}
+      className="t-label min-h-10 whitespace-nowrap underline-offset-[5px] md:min-h-11 hover:underline aria-pressed:underline aria-pressed:decoration-2"
     >
       {children}
     </button>
   );
 }
 
-/**
- * Categories as a row of text tabs. On phones and tablets the row scrolls and runs to the screen
- * edge; whichever edge has more tabs behind it fades and carries a button that pages the row, and
- * the selected tab is kept in view. From lg up everything fits on one line.
- */
-function CategoryTabs({ active, children }: { active: string | null; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [more, setMore] = useState({ start: false, end: false });
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    let frame = 0;
-    const measure = () => {
-      frame = 0;
-      const max = el.scrollWidth - el.clientWidth;
-      const next = { start: el.scrollLeft > 4, end: max > 4 && el.scrollLeft < max - 4 };
-      setMore((m) => (m.start === next.start && m.end === next.end ? m : next));
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(measure);
-    };
-    measure();
-    el.addEventListener("scroll", schedule, { passive: true });
-    const ro = new ResizeObserver(schedule);
-    ro.observe(el);
-    return () => {
-      el.removeEventListener("scroll", schedule);
-      ro.disconnect();
-      cancelAnimationFrame(frame);
-    };
-  }, []);
-
-  // Bring the selected tab into view (instantly on arrival, smoothly after a tap).
-  const arrived = useRef(false);
-  useEffect(() => {
-    const el = ref.current;
-    const tab = el?.querySelector<HTMLElement>('[aria-pressed="true"]');
-    if (!el || !tab || el.scrollWidth <= el.clientWidth) return;
-    const pad = parseFloat(getComputedStyle(el).paddingLeft) || 0;
-    const left = tab.offsetLeft - pad;
-    const right = tab.offsetLeft + tab.offsetWidth + pad - el.clientWidth;
-    const target = el.scrollLeft > left ? left : el.scrollLeft < right ? right : null;
-    if (target !== null) el.scrollTo({ left: target, behavior: arrived.current && !reducedMotion() ? "smooth" : "auto" });
-    arrived.current = true;
-  }, [active]);
-
-  const page = (dir: 1 | -1) => {
-    const el = ref.current;
-    if (!el) return;
-    el.scrollBy({ left: dir * el.clientWidth * 0.7, behavior: reducedMotion() ? "auto" : "smooth" });
-  };
-
-  const edge =
-    "absolute top-1/2 z-10 grid size-9 -translate-y-1/2 place-items-center rounded-full bg-day text-day-ink shadow-[0_0_0_1px_var(--color-day-edge),0_6px_16px_-8px_oklch(0.138_0.006_245/0.35)] transition-opacity duration-200 lg:hidden";
-
+/** A real checkbox, drawn as a square. */
+function Check({ label, on, onChange, className }: { label: string; on: boolean; onChange: () => void; className: string }) {
   return (
-    <div className="relative -mx-[var(--gutter)] min-w-0 lg:mx-0">
-      <div
-        ref={ref}
-        role="group"
-        aria-label="Category"
-        data-more-start={more.start || undefined}
-        data-more-end={more.end || undefined}
-        className="tab-rail no-scrollbar relative flex snap-x snap-proximity gap-6 overflow-x-auto overscroll-x-contain scroll-px-[var(--gutter)] px-[var(--gutter)] lg:snap-none lg:flex-wrap lg:gap-x-7 lg:overflow-visible lg:px-0"
-      >
-        {children}
-      </div>
-      {/* Pointer shortcuts only: keyboard and screen-reader users move through the tabs themselves. */}
-      <button
-        type="button"
-        tabIndex={-1}
-        aria-hidden="true"
-        onClick={() => page(-1)}
-        className={`${edge} left-2 ${more.start ? "opacity-100" : "pointer-events-none opacity-0"}`}
-      >
-        <Chevron dir={-1} />
-      </button>
-      <button
-        type="button"
-        tabIndex={-1}
-        aria-hidden="true"
-        onClick={() => page(1)}
-        className={`${edge} right-2 ${more.end ? "opacity-100" : "pointer-events-none opacity-0"}`}
-      >
-        <Chevron dir={1} />
-      </button>
-    </div>
+    <label className={`t-label min-h-11 cursor-pointer items-center gap-2 select-none has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2 has-[input:focus-visible]:outline-ink ${className}`}>
+      <input type="checkbox" checked={on} onChange={onChange} className="sr-only" />
+      <span aria-hidden="true" className={`grid size-3.5 place-items-center border border-ink ${on ? "bg-ink" : ""}`}>
+        {on && <span className="block size-1.5 bg-paper" />}
+      </span>
+      {label}
+    </label>
   );
 }
 
-function Chevron({ dir }: { dir: 1 | -1 }) {
-  return (
-    <svg aria-hidden="true" width="8" height="12" viewBox="0 0 8 12" fill="none" stroke="currentColor" strokeWidth="1.6" style={{ transform: dir < 0 ? "scaleX(-1)" : undefined }}>
-      <path d="M1.5 1l5 5-5 5" />
-    </svg>
-  );
-}
-
-function SlidersIcon() {
-  return (
-    <svg aria-hidden="true" width="18" height="14" viewBox="0 0 18 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
-      <path d="M1 3h9M14 3h3M1 11h3M8 11h9" />
-      <circle cx="12" cy="3" r="2" />
-      <circle cx="6" cy="11" r="2" />
-    </svg>
-  );
-}
-
-const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
+/** Reads the URL, ignoring anything that isn't a real option (e.g. ?sort=toString). */
 function readFilters(p: URLSearchParams) {
-  const raw = p.get("sort") as Sort | null;
+  const raw = p.get("sort");
+  const cat = p.get("category");
   return {
-    category: (p.get("category") as Category | null) ?? null,
+    category: cat && Object.hasOwn(CATEGORY_LABEL, cat) ? (cat as Category) : null,
     onlyOnce: p.get("only") === "one-of-one",
     inStock: p.get("stock") === "1",
-    sort: (raw && raw in SORTS ? raw : "newest") as Sort,
+    size: p.get("size"),
+    sort: (raw && Object.hasOwn(SORTS, raw) ? raw : "newest") as Sort,
   };
 }

@@ -269,7 +269,8 @@ function decode(s: string) {
 }
 
 const POLICY = [
-  /^_{3,}$/,
+  // Dividers made of underscores, with or without spaces ("___", "_ ____").
+  /^(?=(?:[^_]*_){3})[_\s]+$/,
   /exchanges|returns|final sale|double[- ]check|prior to placing/i,
   /^\*?\s*items are (pre-?made|hand-?crafted)/i,
   /will sell out/i,
@@ -318,23 +319,26 @@ function parseDescription(html: string, title: string) {
       shipping = m[1].toLowerCase() === "soon" ? "Ships soon" : "Ships immediately";
       if (l.replace(/[^a-z]/gi, "").length < 30) return false;
     }
-    return !POLICY.some((re) => re.test(l));
+    // Lines from <li> start with "• "; match policy wording against the text after the bullet.
+    const body = l.replace(/^[•-]\s*/, "");
+    return !POLICY.some((re) => re.test(body));
   });
 
   const sections: DescriptionSection[] = [{ paragraphs: [], bullets: [] }];
   for (let line of lines) {
-    const heading = HEADINGS.find(([re]) => re.test(line));
+    const body = line.replace(/^[•-]\s*/, "");
+    const heading = HEADINGS.find(([re]) => re.test(body));
     if (heading) {
       sections.push({ heading: heading[1], paragraphs: [], bullets: [] });
       continue;
     }
-    const inline = line.match(/^(care|details|fit)\s*[:–-]\s*(.+)$/i);
+    const inline = body.match(/^(care|details|fit)\s*[:–-]\s*(.+)$/i);
     if (inline) {
       const name = HEADINGS.find(([re]) => re.test(inline[1]))?.[1] ?? "Care";
       sections.push({ heading: name, paragraphs: [inline[2]], bullets: [] });
       continue;
     }
-    const wash = line.match(/^washing instructions\s*-\s*(.*)$/i);
+    const wash = body.match(/^washing instructions\s*-\s*(.*)$/i);
     if (wash) {
       sections.push({ heading: "Care", paragraphs: [wash[1]], bullets: [] });
       continue;

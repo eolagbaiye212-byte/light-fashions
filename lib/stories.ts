@@ -78,7 +78,7 @@ export const TIMELINE: Milestone[] = [
   { date: "2026-04-03", label: "Apr 3", text: "Jesus Lives tees release on Good Friday.", image: "DWpYn2lj0Yf-0" },
   { date: "2026-06-04", label: "Jun 4", text: "Children of the Light, shot in studio white.", image: "DZLeRuQFFSn-4" },
   { date: "2026-06-27", label: "Jun 27", text: "Light Resurgence: the Jesus Wept scarf tee in the garden.", image: "DaHD4q5jWT--3" },
-  { date: "2026-07-03", label: "Jul 3", text: "Light4eva summer collection: skull caps, women's tees, reflective bags.", image: "DaJvqbyEe0Y-0" },
+  { date: "2026-07-03", label: "Jul 3", text: "Light4eva summer collection: skull caps, women's tees, reflective bags.", image: "DaJvqbyEe0Y-2" },
   { date: "2026-08-28", label: "Aug 28", text: "LIGHT announces its first solo show during New York Fashion Week, with a pop-up shop.", image: "Dclxg2wRFYs-0" },
   { date: "2026-09-13", label: "Sep 13", text: "The Light Fashion Experience. Sixteen looks, New York.", href: "/runway" },
   { date: "2026-09-20", label: "Sep 20", text: "The show collection is released.", href: "/shop" },

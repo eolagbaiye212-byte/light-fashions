@@ -32,7 +32,7 @@ export const LOOKS: Look[] = [
   {
     n: 2,
     post: "DdXhh9lGzsf",
-    images: range("DdXhh9lGzsf", 5, 0),
+    images: range("DdXhh9lGzsf", 5, 2),
     line: "In Him we have redemption through His blood, the forgiveness of sins…",
     cite: "Ephesians 1:7",
     products: [10566276710540, 10566318129292],
@@ -50,7 +50,7 @@ export const LOOKS: Look[] = [
   {
     n: 4,
     post: "DdaQAi9kbXW",
-    images: range("DdaQAi9kbXW", 3, 0),
+    images: range("DdaQAi9kbXW", 3, 1),
     line: "The Lord is my light and my salvation—whom shall I fear? The Lord is the stronghold of my life—of whom shall I be afraid?",
     cite: "Psalm 27:1",
     products: [],
@@ -59,7 +59,7 @@ export const LOOKS: Look[] = [
   {
     n: 5,
     post: "Ddb20OUEfhm",
-    images: range("Ddb20OUEfhm", 6, 1),
+    images: range("Ddb20OUEfhm", 6, 0),
     line: "We will have a house in heaven, an eternal body made for us by God himself… We grow weary in our present bodies, and we long to put on our heavenly bodies like new clothing.",
     cite: "2 Corinthians 5:1–2",
     products: [10565502697612, 9535045107852, 9162324377740],
@@ -68,7 +68,7 @@ export const LOOKS: Look[] = [
   {
     n: 6,
     post: "DdcwKpCm1eo",
-    images: range("DdcwKpCm1eo", 4, 0),
+    images: range("DdcwKpCm1eo", 4, 1),
     line: "4EVA LIGHT",
     products: [],
     alt: "Model in a pink LIGHT tee and draped pink shawl, pearls at the neck",
@@ -76,7 +76,7 @@ export const LOOKS: Look[] = [
   {
     n: 7,
     post: "DdedB0Kkfih",
-    images: range("DdedB0Kkfih", 5, 0),
+    images: range("DdedB0Kkfih", 5, 1),
     line: "While ye have light, believe in the light, that ye may be the children of light.",
     cite: "John 12:36",
     products: [8387385819276],
@@ -85,7 +85,7 @@ export const LOOKS: Look[] = [
   {
     n: 8,
     post: "DdemsCSkaNw",
-    images: range("DdemsCSkaNw", 5, 0),
+    images: range("DdemsCSkaNw", 5, 1),
     line: "This light not chrome",
     products: [8120992235660],
     alt: "Model in the distressed grey Light × P.G jacket with olive cargo pants",
@@ -93,7 +93,7 @@ export const LOOKS: Look[] = [
   {
     n: 9,
     post: "Dde0ZWNEULl",
-    images: range("Dde0ZWNEULl", 4, 1),
+    images: range("Dde0ZWNEULl", 4, 0),
     line: "But He was wounded for our transgressions, He was bruised for our iniquities; the chastisement for our peace was upon Him, and by His stripes we are healed.",
     cite: "Isaiah 53:5",
     products: [10564169695372],
@@ -111,7 +111,7 @@ export const LOOKS: Look[] = [
   {
     n: 11,
     post: "DdfP7kZkcwP",
-    images: range("DdfP7kZkcwP", 4, 1),
+    images: range("DdfP7kZkcwP", 4, 0),
     line: "And if Christ be not risen, then our preaching is vain, and your faith is also vain.",
     cite: "1 Corinthians 15:14",
     products: [9107472154764],
@@ -120,7 +120,7 @@ export const LOOKS: Look[] = [
   {
     n: 12,
     post: "Ddg9ywokdFD",
-    images: range("Ddg9ywokdFD", 5, 1),
+    images: range("Ddg9ywokdFD", 5, 2),
     line: "I take the garments they wore in the days of Jesus and I put it in ours",
     products: [10564044259468],
     alt: "Model in the white Women's Red Cross Garment with flared sleeves and a long black skirt",
@@ -128,7 +128,7 @@ export const LOOKS: Look[] = [
   {
     n: 13,
     post: "DdhRn_OCYr0",
-    images: range("DdhRn_OCYr0", 4, 0),
+    images: range("DdhRn_OCYr0", 4, 2),
     line: "Light everyday",
     products: [],
     alt: "Model in a cream hoodie with pale blue lettering and wide grey jeans",
@@ -136,7 +136,7 @@ export const LOOKS: Look[] = [
   {
     n: 14,
     post: "DdhZLZpm-U5",
-    images: range("DdhZLZpm-U5", 5, 1),
+    images: range("DdhZLZpm-U5", 5, 2),
     line: "Iced out my chains, He took the chains off of us",
     products: [10565033230476],
     alt: "Model in the cream Light Chain Tee with its printed silver chains and crosses",
@@ -153,7 +153,7 @@ export const LOOKS: Look[] = [
   {
     n: 16,
     post: "Ddh1xvnG7AR",
-    images: range("Ddh1xvnG7AR", 5, 4),
+    images: range("Ddh1xvnG7AR", 5, 0),
     line: "Let your light shine",
     cite: "Matthew 5:16",
     products: [10565178097804],

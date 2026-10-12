@@ -13,200 +13,106 @@ const NAV = [
   { href: "/story", label: "Story" },
 ];
 
-/**
- * Keeps the header in step with the page under it without re-rendering on scroll:
- * - data-tone: the surface (night/day) directly beneath the header
- * - data-raised: scrolled away from the top
- * - data-hidden: tucked away while scrolling down, back as soon as you scroll up
- * Also publishes --header-offset so sticky bars can sit right under it.
- */
-function useHeaderState(ref: React.RefObject<HTMLElement | null>, pathname: string) {
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const root = document.documentElement;
-    let frame = 0;
-    let lastY = window.scrollY;
-    let travel = 0;
-
-    const read = () => {
-      frame = 0;
-      const y = window.scrollY;
-      const hit = document.elementsFromPoint(window.innerWidth / 2, 65).find((n) => !n.closest("[data-header]"));
-      const tone = hit?.closest<HTMLElement>("[data-surface]")?.dataset.surface === "day" ? "day" : "night";
-      if (el.dataset.tone !== tone) el.dataset.tone = tone;
-      el.dataset.raised = String(y > 8);
-
-      // Hide after a deliberate downward scroll; reveal on any upward scroll.
-      const dy = y - lastY;
-      travel = Math.sign(dy) === Math.sign(travel) ? travel + dy : dy;
-      lastY = y;
-      const menuOpen = !!document.querySelector("dialog[open]");
-      let hidden = el.dataset.hidden === "true";
-      if (y < 160 || menuOpen) hidden = false;
-      else if (travel > 48) hidden = true;
-      else if (travel < -12) hidden = false;
-      if (String(hidden) !== el.dataset.hidden) {
-        el.dataset.hidden = String(hidden);
-        root.style.setProperty("--header-offset", hidden ? "0px" : "4rem");
-      }
-    };
-    const schedule = () => {
-      if (!frame) frame = requestAnimationFrame(read);
-    };
-
-    el.dataset.hidden = "false";
-    root.style.setProperty("--header-offset", "4rem");
-    read();
-    // A route change starts under the view-transition overlay, which hides the new page from
-    // hit-testing. Read again once the transition has settled.
-    const settle = [450, 900].map((ms) => window.setTimeout(schedule, ms));
-    window.addEventListener("scroll", schedule, { passive: true });
-    window.addEventListener("resize", schedule);
-    window.addEventListener("surfacechange", schedule);
-    return () => {
-      window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
-      window.removeEventListener("surfacechange", schedule);
-      settle.forEach(clearTimeout);
-      cancelAnimationFrame(frame);
-    };
-  }, [ref, pathname]);
+function Mark() {
+  return (
+    <Image
+      src="/brand/light-mark-black-96.webp"
+      alt="LIGHT"
+      width={276}
+      height={96}
+      preload
+      unoptimized
+      className="h-5 w-auto"
+    />
+  );
 }
 
+/** Fixed, white, 48px. Phone: MENU, mark, BAG. Desktop: mark and nav on the left, BAG on the right. */
 export function Header() {
   const pathname = usePathname();
-  const headerRef = useRef<HTMLElement>(null);
   const menuRef = useRef<HTMLDialogElement>(null);
-  const state = useBag();
-  const count = bagCount(state);
-  useHeaderState(headerRef, pathname);
+  const count = bagCount(useBag());
 
   // Close the menu whenever the route changes.
   useEffect(() => {
     menuRef.current?.close();
   }, [pathname]);
 
+  const isActive = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+
   return (
     <>
       <header
-        ref={headerRef}
-        data-header
-        data-tone="night"
         style={{ viewTransitionName: "site-header" }}
-        className={[
-          "group/h fixed inset-x-0 top-0 z-30 h-16 text-night-ink",
-          "transition-[translate,background-color,color,box-shadow] duration-500 ease-expo",
-          "data-[hidden=true]:-translate-y-full",
-          // night, at the top of the page: a soft scrim lets the photograph through
-          "before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-[linear-gradient(to_bottom,oklch(0.138_0.006_245/0.72),transparent)] before:transition-opacity before:duration-500",
-          "data-[raised=true]:before:opacity-0 data-[tone=day]:before:opacity-0",
-          // night, scrolled: solid enough to read over anything
-          "data-[raised=true]:bg-night/94 data-[raised=true]:shadow-[0_1px_0_var(--color-night-line)]",
-          // day
-          "data-[tone=day]:bg-day! data-[tone=day]:text-day-ink data-[tone=day]:shadow-[0_1px_0_var(--color-day-line)]",
-        ].join(" ")}
+        className="fixed inset-x-0 top-0 z-30 h-[var(--header)] border-b border-ink bg-paper"
       >
-        <div className="container-x flex h-full items-center justify-between gap-6">
-          <Link href="/" className="-my-2 shrink-0 py-2" aria-label="LIGHT, home">
-            {/* Chrome on night; the gunmetal cut of the same mark on day, where silver washes out.
-                Both are pre-sized (3x the header height) and served as-is, so the mark never waits on
-                the image optimizer. */}
-            <span className="relative block">
-              <Image
-                src="/brand/light-chrome-mark.webp"
-                alt=""
-                width={271}
-                height={96}
-                priority
-                unoptimized
-                className="h-7 w-auto transition-opacity duration-500 ease-quint group-data-[tone=day]/h:opacity-0 sm:h-8"
-              />
-              <Image
-                src="/brand/light-chrome-day-mark.webp"
-                alt=""
-                width={271}
-                height={96}
-                priority
-                unoptimized
-                className="absolute inset-0 h-7 w-auto opacity-0 transition-opacity duration-500 ease-quint group-data-[tone=day]/h:opacity-100 sm:h-8"
-              />
-            </span>
+        <div className="px-edge grid h-full grid-cols-[1fr_auto_1fr] items-center md:flex md:gap-10">
+          <button
+            type="button"
+            onClick={() => menuRef.current?.showModal()}
+            aria-haspopup="dialog"
+            className="t-label -ml-2 justify-self-start px-2 py-3 md:hidden"
+          >
+            Menu
+          </button>
+          <Link href="/" aria-label="LIGHT, home" className="-my-2 justify-self-center py-2">
+            <Mark />
           </Link>
-
           <nav aria-label="Main" className="hidden items-center gap-6 md:flex">
-            {NAV.map((item) => {
-              const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={active ? "page" : undefined}
-                  className="relative py-2 text-nav font-medium after:absolute after:inset-x-0 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-quint hover:after:scale-x-100 aria-[current=page]:after:h-0.5 aria-[current=page]:after:scale-x-100"
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              type="button"
-              onClick={() => menuRef.current?.showModal()}
-              className="min-h-11 rounded-full px-3 text-nav font-medium md:hidden"
-              aria-haspopup="dialog"
-            >
-              Menu
-            </button>
-            <button
-              type="button"
-              onClick={() => bag.open()}
-              className="inline-flex min-h-11 items-center gap-2 rounded-full px-3 text-nav font-medium transition-shadow duration-200 sm:px-4 sm:shadow-[inset_0_0_0_1px_currentColor] sm:hover:shadow-[inset_0_0_0_2px_currentColor]"
-              aria-haspopup="dialog"
-              aria-label={`Bag, ${count} ${count === 1 ? "item" : "items"}`}
-            >
-              Bag
-              <span
-                key={state.adds}
-                className={[
-                  "tabular inline-grid min-w-6 place-items-center rounded-full px-1.5 text-fine font-semibold transition-colors duration-300",
-                  count > 0 ? "bg-rod text-night group-data-[tone=day]/h:bg-day-ink group-data-[tone=day]/h:text-day" : "opacity-60",
-                  state.adds > 0 ? "bump" : "",
-                ].join(" ")}
+            {NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={isActive(item.href) ? "page" : undefined}
+                className="t-label py-3 underline-offset-[5px] hover:underline aria-[current=page]:underline aria-[current=page]:decoration-2"
               >
-                {count}
-              </span>
-            </button>
-          </div>
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+          <button
+            type="button"
+            onClick={() => bag.open()}
+            aria-haspopup="dialog"
+            className="t-label -mr-2 justify-self-end px-2 py-3 md:ml-auto"
+          >
+            Bag <span className="t-meta align-baseline text-[0.75rem]">({count})</span>
+          </button>
         </div>
       </header>
 
       <dialog ref={menuRef} className="menu" aria-label="Menu">
         <div className="flex h-full flex-col">
-          <div className="container-x flex h-16 items-center justify-between">
-            <Image src="/brand/light-chrome-mark.webp" alt="LIGHT" width={271} height={96} unoptimized className="h-7 w-auto" />
-            <button type="button" onClick={() => menuRef.current?.close()} className="min-h-11 rounded-full px-3 text-ui font-medium">
+          <div className="px-edge grid h-[var(--header)] grid-cols-[1fr_auto_1fr] items-center border-b border-ink">
+            <span aria-hidden="true" />
+            <Link href="/" onClick={() => menuRef.current?.close()} aria-label="LIGHT, home" className="-my-2 py-2">
+              <Mark />
+            </Link>
+            <button type="button" onClick={() => menuRef.current?.close()} className="t-label -mr-2 justify-self-end px-2 py-3">
               Close
             </button>
           </div>
-          <nav aria-label="Main" className="container-x flex flex-1 flex-col justify-center gap-2 pb-16">
-            {[{ href: "/", label: "Home" }, ...NAV].map((item, i) => (
+          <nav aria-label="Main" className="px-edge flex flex-1 flex-col gap-1 pt-12">
+            {[{ href: "/", label: "Home" }, ...NAV].map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => menuRef.current?.close()}
                 aria-current={pathname === item.href ? "page" : undefined}
-                style={{ "--i": i } as React.CSSProperties}
-                className="menu-item type-h1 block py-1.5 aria-[current=page]:text-rod"
+                className="t-menu py-2 aria-[current=page]:underline aria-[current=page]:decoration-[3px] aria-[current=page]:underline-offset-[6px]"
               >
                 {item.label}
               </Link>
             ))}
-            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="link mt-8 text-lead">
-              @children_ofthelight on Instagram
-            </a>
           </nav>
+          <div className="px-edge flex justify-between border-t border-ink py-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="t-label link">
+              Instagram
+            </a>
+            <button type="button" onClick={() => { menuRef.current?.close(); bag.open(); }} className="t-label">
+              Bag <span className="t-meta text-[0.75rem]">({count})</span>
+            </button>
+          </div>
         </div>
       </dialog>
     </>

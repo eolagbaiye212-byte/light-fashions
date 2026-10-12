@@ -12,7 +12,8 @@ export function media(id: string): Media {
 }
 
 export const VIDEO = {
-  runway: { src: "/media/video/runway.mp4", poster: "/media/video/runway-poster.webp", w: 1280, h: 720 },
+  // The poster is the film's own first frame, so nothing jumps when playback starts.
+  runway: { src: "/media/video/runway.mp4", poster: "/media/video/runway-first-frame.webp", w: 1280, h: 724 },
   forgiven: { src: "/media/video/forgiven.mp4", poster: "/media/video/forgiven-poster.webp", w: 1280, h: 720 },
 } as const;
 
