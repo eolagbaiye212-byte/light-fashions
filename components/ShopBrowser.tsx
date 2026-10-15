@@ -161,16 +161,31 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
   );
 
   const mobileCols = density.mobile === 1 ? "grid-cols-1" : "grid-cols-2";
-  const desktopCols = density.desktop === 2 ? "md:grid-cols-2" : "md:grid-cols-3 lg:grid-cols-4";
+  const desktopCols = density.desktop === 2 ? "md:grid-cols-2" : "md:grid-cols-4";
+  // Letter sizes and waist sizes are different scales; keep them apart wherever they're listed.
+  const letterSizes = sizes.filter((s) => !/^\d/.test(s));
+  const waistSizes = sizes.filter((s) => /^\d/.test(s));
 
   return (
     <div>
-      {/* Phones: categories wrap above the sticky bar, every one visible. */}
-      <div className="px-edge pb-3 md:hidden">{tabs}</div>
+      <div className="px-edge flex min-h-11 items-baseline justify-between gap-6 pt-1">
+        <h1 className="t-label">Shop</h1>
+        <p className="t-meta flex items-baseline gap-4" aria-live="polite">
+          {filtered && (
+            <button type="button" onClick={() => go(ui.sort !== "newest" ? `sort=${ui.sort}` : "")} className="t-meta link">
+              Clear filters
+            </button>
+          )}
+          <span>{count}</span>
+        </p>
+      </div>
 
-      <div className="sticky top-header z-20 border-y border-ink bg-paper">
+      {/* Below large screens, categories wrap in their own row (every one visible) and only the controls stick. */}
+      <div className="px-edge pb-2 lg:hidden">{tabs}</div>
+
+      <div className="sticky top-[calc(var(--header)-1px)] z-20 border-y border-ink bg-paper">
         <div className="px-edge flex min-h-12 flex-wrap items-center gap-x-6">
-          <div className="hidden flex-1 md:block">{tabs}</div>
+          <div className="hidden flex-1 lg:block">{tabs}</div>
 
           {/* Phones: one FILTER button opens a sheet with size and stock. */}
           <button type="button" onClick={() => sheet.current?.showModal()} aria-haspopup="dialog" className="t-label min-h-11 md:hidden">
@@ -186,11 +201,22 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
               className="t-label cursor-pointer appearance-none bg-transparent pr-5 [field-sizing:content] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
             >
               <option value="">Size: All</option>
-              {sizes.map((s) => (
-                <option key={s} value={s}>
-                  Size: {s}
-                </option>
-              ))}
+              <optgroup label="Size">
+                {letterSizes.map((s) => (
+                  <option key={s} value={s}>
+                    Size: {s}
+                  </option>
+                ))}
+              </optgroup>
+              {waistSizes.length > 0 && (
+                <optgroup label="Waist">
+                  {waistSizes.map((s) => (
+                    <option key={s} value={s}>
+                      Waist: {s}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
             <span aria-hidden="true" className="pointer-events-none absolute right-0">
               ↓
@@ -204,17 +230,6 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
             {view("desktop", [2, 4], "hidden md:flex")}
           </div>
         </div>
-      </div>
-
-      <div className="px-edge flex min-h-11 items-center gap-5">
-        <p className="t-meta" aria-live="polite">
-          {count}
-        </p>
-        {filtered && (
-          <button type="button" onClick={() => go(ui.sort !== "newest" ? `sort=${ui.sort}` : "")} className="t-meta link">
-            Clear filters
-          </button>
-        )}
       </div>
 
       {visible.length === 0 ? (
@@ -257,20 +272,29 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
           </button>
         </div>
         <div className="px-4 py-5">
-          <h3 className="t-meta text-grey">Size</h3>
-          <div role="group" aria-label="Size" className="mt-3 flex flex-wrap gap-2">
-            {sizes.map((s) => (
-              <button
-                key={s}
-                type="button"
-                aria-pressed={ui.size === s}
-                onClick={() => update({ size: ui.size === s ? null : s })}
-                className="t-meta grid min-h-12 min-w-12 place-items-center border border-grey px-3 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
-              >
-                {s}
-              </button>
+          {[
+            { title: "Size", values: letterSizes },
+            { title: "Waist", values: waistSizes },
+          ]
+            .filter((g) => g.values.length > 0)
+            .map((g, gi) => (
+              <div key={g.title} className={gi > 0 ? "mt-5" : ""}>
+                <h3 className="t-meta text-grey">{g.title}</h3>
+                <div role="group" aria-label={g.title} className="mt-3 flex flex-wrap gap-2">
+                  {g.values.map((s) => (
+                    <button
+                      key={s}
+                      type="button"
+                      aria-pressed={ui.size === s}
+                      onClick={() => update({ size: ui.size === s ? null : s })}
+                      className="t-meta grid min-h-12 min-w-12 place-items-center border border-grey px-3 aria-pressed:border-ink aria-pressed:bg-ink aria-pressed:text-paper"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              </div>
             ))}
-          </div>
           <h3 className="t-meta mt-6 text-grey">Availability</h3>
           <Check label="In stock only" on={ui.inStock} onChange={() => update({ stock: ui.inStock ? null : "1" })} className="mt-1 flex" />
         </div>
@@ -295,7 +319,7 @@ function Tab({ on, onClick, children }: { on: boolean; onClick: () => void; chil
       type="button"
       aria-pressed={on}
       onClick={onClick}
-      className="t-label min-h-10 whitespace-nowrap underline-offset-[5px] md:min-h-11 hover:underline aria-pressed:underline aria-pressed:decoration-2"
+      className="t-label min-h-9 whitespace-nowrap underline-offset-[5px] lg:min-h-11 hover:underline aria-pressed:underline aria-pressed:decoration-2"
     >
       {children}
     </button>

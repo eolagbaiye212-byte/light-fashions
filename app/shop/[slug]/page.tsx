@@ -102,9 +102,9 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                 </Link>
               </nav>
 
-              <h1 className="t-label mt-6 text-[0.875rem]">{product.name}</h1>
+              <h1 className="t-label mt-6 text-[0.8125rem]">{product.name}</h1>
               {product.color && <p className="t-meta mt-1 text-grey">{product.color}</p>}
-              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-2 block text-[0.875rem]" />
+              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-2 block text-[0.8125rem]" />
               <Tag scarcity={product.scarcity} available={product.available} className="mt-2 block" />
 
               {(product.lede || intro?.paragraphs.length) && (
@@ -115,9 +115,9 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
 
               <div className="mt-8">
                 {colors.length > 1 && (
-                  <nav aria-label="Colour" className="mb-6">
+                  <nav aria-label="Color" className="mb-6">
                     <p className="t-meta">
-                      Colour<span className="text-grey">: {product.color}</span>
+                      Color<span className="text-grey">: {product.color}</span>
                     </p>
                     <ul className="mt-3 flex flex-wrap gap-1.5">
                       {colors.map((c) => (
@@ -147,33 +147,35 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
               </div>
 
               <div className="mt-10 border-b border-grey">
-                <Accordion title="Details" open>
-                  {(intro?.bullets.length ?? 0) > 0 && (
-                    <ul className="list-disc space-y-1 pl-4">
-                      {intro!.bullets.map((b) => (
-                        <li key={b}>{b}</li>
-                      ))}
-                    </ul>
-                  )}
-                  {rest.map((s, i) => (
-                    <div key={`${s.heading}-${i}`} className="mt-4 first:mt-0">
-                      {s.heading !== "Details" && <h3 className="t-meta text-grey">{s.heading}</h3>}
-                      {s.paragraphs.map((t) => (
-                        <p key={t} className="mt-1">
-                          {t}
-                        </p>
-                      ))}
-                      {s.bullets.length > 0 && (
-                        <ul className="mt-1 list-disc space-y-1 pl-4">
-                          {s.bullets.map((b) => (
-                            <li key={b}>{b}</li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  ))}
-                  <p className="t-meta mt-4 text-grey">From {DROP_LABEL[product.drop]}</p>
-                </Accordion>
+                {((intro?.bullets.length ?? 0) > 0 || rest.length > 0) && (
+                  <Accordion title="Details" open>
+                    {(intro?.bullets.length ?? 0) > 0 && (
+                      <ul className="list-disc space-y-1 pl-4">
+                        {intro!.bullets.map((b) => (
+                          <li key={b}>{b}</li>
+                        ))}
+                      </ul>
+                    )}
+                    {rest.map((s, i) => (
+                      <div key={`${s.heading}-${i}`} className="mt-4 first:mt-0">
+                        {s.heading !== "Details" && <h3 className="t-meta text-grey">{s.heading}</h3>}
+                        {s.paragraphs.map((t) => (
+                          <p key={t} className="mt-1">
+                            {t}
+                          </p>
+                        ))}
+                        {s.bullets.length > 0 && (
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {s.bullets.map((b) => (
+                              <li key={b}>{b}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                    <p className="t-meta mt-4 text-grey">From {DROP_LABEL[product.drop]}</p>
+                  </Accordion>
+                )}
                 <Accordion title="Size & fit" id="size-guide">
                   {sizeGuide ? (
                     <>
@@ -234,7 +236,7 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
         <section aria-labelledby="more-title" className="border-t border-ink pt-2">
           <SectionBar id="more-title" title={looks.length ? "Wear it with" : `More from ${DROP_LABEL[product.drop]}`} />
           <div className="overflow-hidden border-t border-grey">
-            <ul className="-mr-px grid grid-cols-2 lg:grid-cols-4">
+            <ul className="-mr-px grid grid-cols-2 md:grid-cols-4">
               {siblings.map((p) => (
                 <li key={p.id} className="border-r border-b border-grey">
                   <ProductCell product={toLite(p)} />

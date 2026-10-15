@@ -36,11 +36,11 @@ export default async function RunwayPage() {
           <p className="t-body max-w-[48ch] md:col-span-5">
             LIGHT&apos;s first solo show, during New York Fashion Week. Sixteen looks in running order, each with the line it walked with.
           </p>
-          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 md:col-span-6 md:col-start-7 md:grid-cols-4">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-4 md:col-span-6 md:col-start-7">
             {SHOW.credits.map((c) => (
-              <div key={c.role}>
+              <div key={c.role} className="min-w-0">
                 <dt className="t-meta text-grey">{c.role}</dt>
-                <dd className="t-label mt-1">
+                <dd className="t-label mt-1 [overflow-wrap:anywhere]">
                   <a href={`https://www.instagram.com/${c.handle}/`} target="_blank" rel="noreferrer" className="hover:underline">
                     {c.who ?? `@${c.handle}`}
                   </a>
@@ -51,8 +51,8 @@ export default async function RunwayPage() {
         </div>
       </section>
 
-      <nav aria-label="Looks" className="sticky top-header z-20 border-y border-ink bg-paper">
-        <ol className="no-scrollbar px-edge flex overflow-x-auto">
+      <nav aria-label="Looks" className="z-20 border-y border-ink bg-paper md:sticky md:top-[calc(var(--header)-1px)]">
+        <ol className="px-edge grid grid-cols-8 md:flex">
           {LOOKS.map((look) => (
             <li key={look.n}>
               <a href={`#look-${look.n}`} className="t-meta grid min-h-11 min-w-10 place-items-center px-1 hover:underline">
@@ -70,7 +70,7 @@ export default async function RunwayPage() {
             key={look.n}
             id={`look-${look.n}`}
             aria-labelledby={`look-${look.n}-title`}
-            className="scroll-mt-[calc(var(--header)+2.75rem)] border-b border-ink md:grid md:min-h-[calc(100svh-var(--header)-2.75rem)] md:grid-cols-2"
+            className="border-b border-ink md:scroll-mt-[2.75rem] md:grid md:min-h-[calc(100svh-var(--header)-2.75rem)] md:grid-cols-2"
           >
             <Frames
               label={`Look ${look.n}, ${look.images.length} photos`}

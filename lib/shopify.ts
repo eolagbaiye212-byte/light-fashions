@@ -37,8 +37,10 @@ export type ProductImage = {
   alt: string;
   /** How the photo fills a 3:4 frame: cropped to fill, or whole with its own backdrop filling the rest. */
   fit: "cover" | "contain";
-  /** CSS background matching the photo's backdrop, when it isn't plain white. */
+  /** CSS background matching the photo's backdrop, when it isn't white. */
   backdrop?: string;
+  /** Brightness that lifts an off-white backdrop to pure white. */
+  whiten?: number;
 };
 export type Variant = {
   id: number;
@@ -147,7 +149,7 @@ function normalize(r: RawProduct): Product {
   const compare = variants.map((v) => v.compareAt ?? 0);
   const maxCompare = Math.max(...compare);
 
-  const options = r.options
+  let options = r.options
     .filter((op) => !(op.name === "Title" && op.values.length === 1 && op.values[0] === "Default Title"))
     .map((op) => {
       const values = op.values.map(niceValue);
@@ -155,6 +157,13 @@ function normalize(r: RawProduct): Product {
     });
   // One-size pieces carry Shopify's placeholder "Default Title" option; drop it.
   for (const v of variants) v.options = options.length ? v.options.map(niceValue) : [];
+  // Colour is always chosen first, whatever order the options were entered in Shopify.
+  const colorFirst = options.findIndex((op) => /colou?r/i.test(op.name));
+  if (colorFirst > 0) {
+    const order = [colorFirst, ...options.map((_, i) => i).filter((i) => i !== colorFirst)];
+    options = order.map((i) => options[i]);
+    for (const v of variants) v.options = order.map((i) => v.options[i]);
+  }
 
   const { sections, shipping } = parseDescription(r.body_html, r.title);
   const alt = `${name}${color ? `, ${color.toLowerCase()}` : ""}`;
@@ -169,6 +178,7 @@ function normalize(r: RawProduct): Product {
     alt: img.alt?.trim() || label,
     fit: frame?.fit ?? "contain",
     ...(frame?.backdrop && { backdrop: frame.backdrop }),
+    ...(frame?.whiten && { whiten: frame.whiten }),
   });
   const kept = pictures.filter((p) => !charts.has(p.i) && p.frame);
   // Never leave a product without a photo, even if its only one is landscape.
@@ -219,24 +229,31 @@ const EDGES = edges as Record<string, Edges>;
 /**
  * How a photo fills a 3:4 frame, or null when it can't without losing what it shows.
  * - Near 3:4: cropped to fill.
- * - A packshot (flat backdrop, or a cut-out on transparent): shown whole, with its own backdrop
- *   colour filling the rest of the frame, so there's never a box of a different white around it.
+ * - A packshot on an off-white backdrop: shown whole, its backdrop lifted to pure white (a slight
+ *   brightness filter) so it disappears into the page instead of reading as a grey box.
+ * - A packshot on any other flat backdrop: shown whole, that colour filling the rest of the frame.
+ * - A cut-out on transparent: shown whole on the page's white.
  * - Any other photograph: cropped to fill, unless it's landscape (a crop would lose the subject).
  * Edge colours come from scripts/build-image-fit.mjs; photos added later fall back on proportions.
  */
-function frameOf(img: RawImage): { fit: "cover" | "contain"; backdrop?: string } | null {
+type Frame = { fit: "cover" | "contain"; backdrop?: string; whiten?: number };
+
+function frameOf(img: RawImage): Frame | null {
   const ratio = img.width / img.height;
-  if (ratio >= 0.66 && ratio <= 0.8) return { fit: "cover" };
   const e = EDGES[decodeURIComponent(new URL(img.src).pathname.split("/").pop() ?? "")];
+  const solid = e ? [e.t, e.b, e.l, e.r].filter((c): c is string => !!c) : [];
+  const darkest = solid.length >= 2 ? Math.min(...solid.flatMap((c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)))) : 0;
+  const whiten = darkest >= 240 && darkest < 255 ? Math.round((255 / darkest) * 1000) / 1000 : undefined;
+
+  if (ratio >= 0.66 && ratio <= 0.8) return { fit: "cover", ...(whiten && { whiten }) };
   if (!e) return ratio <= 0.88 ? { fit: "cover" } : { fit: "contain" };
   if (e.cutout) return { fit: "contain" };
-  const solid = [e.t, e.b, e.l, e.r].filter((c): c is string => !!c);
   if (solid.length >= 2) {
+    if (darkest >= 240) return { fit: "contain", ...(whiten && { whiten }) };
     const count = (c: string) => solid.filter((x) => x === c).length;
     const common = solid.reduce((best, c) => (count(c) > count(best) ? c : best));
     const [a, b, dir] = ratio > 0.8 ? [e.t ?? common, e.b ?? common, "to bottom"] : [e.l ?? common, e.r ?? common, "to right"];
-    const backdrop = a === b ? a : `linear-gradient(${dir}, ${a} 50%, ${b} 50%)`;
-    return { fit: "contain", ...(backdrop !== "#ffffff" && { backdrop }) };
+    return { fit: "contain", backdrop: a === b ? a : `linear-gradient(${dir}, ${a} 50%, ${b} 50%)` };
   }
   return ratio >= 0.5 && ratio <= 1.1 ? { fit: "cover" } : null;
 }
@@ -259,6 +276,7 @@ function niceValue(v: string) {
 
 function niceOptionName(n: string) {
   if (/^sizes?$/i.test(n)) return "Size";
+  if (/^colou?rs?$/i.test(n)) return "Color";
   return n.toLowerCase() === "title" ? "Option" : titleCase(n);
 }
 
@@ -343,7 +361,7 @@ const POLICY = [
 const HEADINGS: [RegExp, string][] = [
   [/^(product )?details:?$/i, "Details"],
   [/^size guide:?$/i, "Size guide"],
-  [/^(care|care instructions|hand wash):?$/i, "Care"],
+  [/^(care|care instructions):?$/i, "Care"],
   [/^fit:?$/i, "Fit"],
 ];
 
@@ -389,8 +407,14 @@ function parseDescription(html: string, title: string) {
   });
 
   const sections: DescriptionSection[] = [{ paragraphs: [], bullets: [] }];
+  // "Hand wash" is an instruction, not a heading: gather such lines into a Care section at the end.
+  const care: string[] = [];
   for (let line of lines) {
     const body = line.replace(/^[•-]\s*/, "");
+    if (/^(hand|machine) wash\b/i.test(body)) {
+      care.push(body.charAt(0).toUpperCase() + body.slice(1).toLowerCase());
+      continue;
+    }
     const heading = HEADINGS.find(([re]) => re.test(body));
     if (heading) {
       sections.push({ heading: heading[1], paragraphs: [], bullets: [] });
@@ -413,6 +437,7 @@ function parseDescription(html: string, title: string) {
     else if (line.length <= 34 && !/[.!?]$/.test(line)) current.bullets.push(line);
     else current.paragraphs.push(line);
   }
+  if (care.length) sections.push({ heading: "Care", paragraphs: care, bullets: [] });
   return {
     sections: sections.filter((s) => s.paragraphs.length || s.bullets.length),
     shipping,

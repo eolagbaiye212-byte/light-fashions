@@ -21,8 +21,7 @@ export default async function ShopPage() {
 
   return (
     <PageTransition>
-      <div className="pt-6 md:pt-10">
-        <h1 className="t-label px-edge pb-3">Shop</h1>
+      <div className="pt-3 md:pt-6">
         <ShopBrowser products={products} />
       </div>
     </PageTransition>

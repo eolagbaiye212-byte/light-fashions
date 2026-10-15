@@ -18,7 +18,7 @@ function start(v: HTMLVideoElement) {
   return v.play();
 }
 
-export function HeroFilm({ caption }: { caption: string }) {
+export function HeroFilm({ title, detail }: { title: string; detail: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
 
@@ -75,7 +75,8 @@ export function HeroFilm({ caption }: { caption: string }) {
       </div>
       <div className="px-edge grid min-h-12 grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 border-b border-ink py-2 md:grid-cols-[1fr_auto_auto] md:gap-x-8">
         <h1 id="hero-title" className="t-label col-span-2 md:col-span-1">
-          {caption}
+          {title}
+          <span className="hidden sm:inline"> — {detail}</span>
         </h1>
         <button type="button" onClick={toggle} className="t-meta -my-2 justify-self-start py-2 text-grey hover:text-ink md:order-none" aria-label={playing ? "Pause the runway film" : "Play the runway film"}>
           {playing ? "Pause" : "Play"}

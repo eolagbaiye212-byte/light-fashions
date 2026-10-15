@@ -17,8 +17,9 @@ export type Override = {
   /** Runway look numbers this piece walked in. */
   looks?: number[];
   /**
-   * Which photo shows each colour (Shopify image index, 0-based), for products whose variants
-   * aren't linked to photos in Shopify. Keys match the colour names shown on the site.
+   * Which photo shows each colour (Shopify image index, 0-based, in Shopify's order), for products
+   * whose variants aren't linked to photos in Shopify. Keys match the colour names shown on the site.
+   * Re-check this and `charts` if photos are reordered or replaced in Shopify.
    */
   colorImages?: Record<string, number>;
   /** Shopify image indexes that are size charts: shown under Size & fit, not in the gallery. */

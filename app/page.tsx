@@ -3,7 +3,7 @@ import { HeroFilm } from "@/components/HeroFilm";
 import { Carousel } from "@/components/Carousel";
 import { ProductCell } from "@/components/ProductCell";
 import { PageTransition } from "@/components/PageTransition";
-import { IgImage, SectionBar, pad } from "@/components/bits";
+import { IgImage, SectionBar } from "@/components/bits";
 import { LOOKS, SHOW } from "@/lib/looks";
 import { INSTAGRAM } from "@/lib/media";
 import { getProducts } from "@/lib/shopify";
@@ -104,7 +104,7 @@ export default async function Home() {
   return (
     <PageTransition>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <HeroFilm caption={`${SHOW.name} — ${SHOW.city}, ${SHOW.date}`} />
+      <HeroFilm title={SHOW.name} detail={`${SHOW.city}, ${SHOW.date}`} />
 
       {TILES.map((tile) => (
         <section key={tile.id} id={tile.id} aria-labelledby={`tile-${tile.id}`}>
@@ -116,7 +116,7 @@ export default async function Home() {
               const product = byId.get(img.product);
               if (!product) return null;
               return (
-                <li key={img.id} className={i > 0 ? "hidden md:block md:border-l md:border-ink" : ""}>
+                <li key={img.id} className={i > 0 ? "relative hidden before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-px before:bg-ink md:block" : ""}>
                   <Link href={productHref(product, img.color)} transitionTypes={["nav-forward"]} className="group block">
                     <div className="relative aspect-[4/5] overflow-hidden">
                       <IgImage id={img.id} alt={img.alt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" style={{ objectPosition: img.position }} />
@@ -162,10 +162,7 @@ export default async function Home() {
                       className="object-cover transition-opacity duration-300 can-hover:group-hover:opacity-80"
                     />
                   </div>
-                  <span className="block px-2 pt-2 pb-3 md:px-3">
-                    <span className="t-meta block text-grey">Look {pad(look.n)}</span>
-                    <span className="t-label mt-0.5 line-clamp-2 group-hover:underline">{product.name}</span>
-                  </span>
+                  <span className="t-label block px-2 pt-2 pb-3 group-hover:underline md:px-3">{product.name}</span>
                 </Link>
               </li>
             ))}

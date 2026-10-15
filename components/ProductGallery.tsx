@@ -76,6 +76,7 @@ export function ProductGallery({ productId, images: all, name }: { productId: nu
                   preload={i === 0}
                   quality={80}
                   className="object-cover object-[50%_30%] md:object-center"
+                  style={img.whiten ? { filter: `brightness(${img.whiten})` } : undefined}
                 />
               </div>
             );

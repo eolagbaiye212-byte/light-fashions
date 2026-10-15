@@ -46,12 +46,17 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
     return () => io.disconnect();
   }, []);
 
-  // Preselect any option with a single value, and the only in-stock variant when there is just one.
+  const colorAt = product.options.findIndex((o) => /colou?r/i.test(o.name));
+
+  // Preselect any option with a single value, the colour the first photo shows (so what you see is
+  // what's selected), and the only in-stock variant when there is just one.
   const [selected, setSelected] = useState<Selection>(() => {
     const s: Selection = {};
     product.options.forEach((o) => {
       if (o.values.length === 1) s[o.name] = o.values[0];
     });
+    const shown = colorAt >= 0 && product.variants.find((v) => v.available && v.image && v.image === product.images[0]?.src);
+    if (shown) s[product.options[colorAt].name] = shown.options[colorAt];
     const inStock = product.variants.filter((v) => v.available);
     if (inStock.length === 1) product.options.forEach((o, i) => (s[o.name] = inStock[0].options[i]));
     return s;
@@ -60,7 +65,6 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
 
   // Colour: the gallery leads with the chosen colour's photo, and the URL remembers it (?color=…).
   const { setLead } = useStage();
-  const colorAt = product.options.findIndex((o) => /colou?r/i.test(o.name));
   const photoOf = (value: string) => product.variants.find((v) => v.options[colorAt] === value && v.image)?.image ?? null;
   const pickColor = (value: string, remember: boolean) => {
     setLead(photoOf(value));
@@ -149,8 +153,10 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
     <div ref={pickerRef}>
       {product.options.map((option, oi) => {
         const groupId = `${id}-${oi}`;
-        const isMissing = status === "missing" && !selected[option.name];
+        const isMissing = status === "missing" && product.options.find((o) => !selected[o.name])?.name === option.name;
         const isSize = /size/i.test(option.name);
+        // Long names (colourways like "Off White Tee & Pink Chrome") sit in two even columns.
+        const long = option.values.some((v) => v.length > 12);
         return (
           <fieldset key={option.name} className="mt-6 first:mt-0" aria-describedby={isMissing ? `${groupId}-err` : undefined}>
             <div className="flex items-baseline justify-between">
@@ -164,14 +170,16 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
                 </a>
               )}
             </div>
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <div className={long ? "mt-3 grid grid-cols-2 gap-1.5" : "mt-3 flex flex-wrap gap-1.5"}>
               {option.values.map((value, vi) => {
-                const ok = isPossible(oi, value);
+                // Once a colour is chosen, other options that don't exist in it are sold out for this colour.
+                const inColor = oi === colorAt || colorAt < 0 || !selected[product.options[colorAt].name] || isAvailable(oi, value);
+                const ok = isPossible(oi, value) && inColor;
                 const fits = isAvailable(oi, value);
                 const checked = selected[option.name] === value;
                 const inputId = `${groupId}-${vi}`;
                 return (
-                  <span key={value}>
+                  <span key={value} className={long ? "block" : undefined}>
                     <input
                       ref={isMissing && vi === option.values.findIndex((v) => isPossible(oi, v)) ? firstMissing : undefined}
                       id={inputId}
@@ -190,7 +198,8 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
                     <label
                       htmlFor={inputId}
                       className={[
-                        "t-meta grid min-h-12 min-w-12 place-items-center border px-3",
+                        "t-meta min-h-12 min-w-12 border px-3",
+                        long ? "flex w-full items-center py-2 text-left" : "grid place-items-center",
                         "peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ink",
                         checked
                           ? "border-ink bg-ink text-paper"
@@ -202,7 +211,11 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
                       ].join(" ")}
                     >
                       {value}
-                      {!ok ? <span className="sr-only">, sold out</span> : !fits && <span className="sr-only">, not available in your other choice</span>}
+                      {!ok ? (
+                        <span className="sr-only">{inColor ? ", sold out" : ", not in this color"}</span>
+                      ) : (
+                        !fits && <span className="sr-only">, not available in your other choice</span>
+                      )}
                     </label>
                   </span>
                 );
@@ -243,7 +256,7 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
       >
         <div className="min-w-0 flex-1">
           <p className="t-label truncate">{product.name}</p>
-          <p className="t-meta text-grey">
+          <p className="t-meta truncate text-grey">
             {money(variant?.price ?? product.price)}
             {product.options.map((o) => selected[o.name]).filter(Boolean).length > 0 &&
               `, ${product.options.map((o) => selected[o.name]).filter(Boolean).join(" / ")}`}

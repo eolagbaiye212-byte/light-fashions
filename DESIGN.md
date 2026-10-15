@@ -94,21 +94,25 @@ product has several (`?color=`). Nothing on the home page links to Story or Runw
    with its own caption bar naming its piece.
 3. **From the show**: a tight carousel of the show drop.
 4. **Shop the looks**: the twelve looks whose main piece is in the shop (3 columns on phones, 6 on
-   desktop), each LOOK 01 in `t-meta` over the piece's name, linking to it. Looks 4, 6 and 13 aren't in
+   desktop), each captioned with the piece's name and linking to it. Looks 4, 6 and 13 aren't in
    the shop; look 10 repeats the Women's Light Tank from look 3.
 5. **Closing line**, the page's one enormous moment: WALK AS CHILDREN OF LIGHT in `t-giant`,
    EPHESIANS 5:8 in `t-meta`.
 
 ### Shop `/shop`
-Title row (SHOP, count). A sticky filter bar under the header: category tabs (Everything, the
-categories in `lib/catalog.ts`, One of one), then SIZE, IN STOCK, SORT, VIEW, and the count. On phones,
-size, stock and sort live in a FILTER sheet. Every filter is a URL parameter: `category`,
+One row: SHOP left, CLEAR FILTERS and the count right. Category tabs (Everything, the categories in
+`lib/catalog.ts`, One of one) wrap in their own row below large screens; from 1024px they sit in the
+sticky bar. The sticky bar (overlapping the header's rule, so there's never a double line) holds SIZE
+(letter sizes and waist sizes listed apart), IN STOCK, SORT and VIEW (phones 1 / 2, larger screens
+2 / 4 columns). On phones, size and stock live in a FILTER sheet. Every filter is a URL parameter: `category`,
 `only=one-of-one`, `stock=1`, `size`, `sort`.
 
 ### Product `/shop/[slug]`
 Desktop: images stacked on the left (7 of 12 columns), a sticky info column on the right: breadcrumb,
 name, price, colour, tag, short description, COLOUR (when the same piece in another colour is a
-separate Shopify product, its colours are links), the options, ADD TO BAG, then accordions DETAILS,
+separate Shopify product, its colours are links), the options (colour always first and preselected
+to the colour the first photo shows; sizes that don't exist in the chosen colour are struck through),
+ADD TO BAG, then accordions DETAILS,
 SIZE & FIT (with any size-chart images), SHIPPING & RETURNS and WORN IN LOOK N. Choosing a colour puts
 its photo first and writes `?color=` to the URL; arriving with `?color=` starts on that colour. Phone: swipeable gallery with counter, the same column below,
 and a sticky ADD TO BAG bar once the main button scrolls away. One missing-size message only:

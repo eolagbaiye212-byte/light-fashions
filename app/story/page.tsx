@@ -36,7 +36,7 @@ export default async function StoryPage() {
           About LIGHT
         </h2>
         <div className="md:col-span-7 md:col-start-6">
-          <div className="t-body max-w-[56ch] space-y-4 text-[1rem] leading-[1.6]">
+          <div className="t-body max-w-[56ch] space-y-4">
             <p>
               LIGHT is a faith-led streetwear label designed by Myron. The clothes carry scripture openly: Jesus Lives, Jesus Wept, All Hail
               Yeshua, Find God. The name is scripture&apos;s too: “that ye may be the children of light,” John 12:36.
