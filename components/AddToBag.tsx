@@ -2,10 +2,22 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { bag, useBag } from "@/lib/bag";
-import { lineFor, type ProductLite } from "@/lib/product-lite";
+import { colorSlug, lineFor, type ProductLite } from "@/lib/product-lite";
 import { money } from "@/lib/shop-config";
+import { useStage } from "./ProductStage";
 
 type Selection = Record<string, string>;
+
+/** Picking `value` for option `oi` clears any other choice it can't be bought with, so no combination locks a shopper out. */
+function choose(product: ProductLite, s: Selection, oi: number, value: string): Selection {
+  const next: Selection = { ...s, [product.options[oi].name]: value };
+  product.options.forEach((o, j) => {
+    if (j === oi || !next[o.name]) return;
+    const exists = product.variants.some((v) => v.available && v.options[oi] === value && v.options[j] === next[o.name]);
+    if (!exists) delete next[o.name];
+  });
+  return next;
+}
 
 export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGuide?: boolean }) {
   const id = useId();
@@ -45,6 +57,32 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
     return s;
   });
   const [status, setStatus] = useState<"idle" | "missing" | "added">("idle");
+
+  // Colour: the gallery leads with the chosen colour's photo, and the URL remembers it (?color=…).
+  const { setLead } = useStage();
+  const colorAt = product.options.findIndex((o) => /colou?r/i.test(o.name));
+  const photoOf = (value: string) => product.variants.find((v) => v.options[colorAt] === value && v.image)?.image ?? null;
+  const pickColor = (value: string, remember: boolean) => {
+    setLead(photoOf(value));
+    if (!remember) return;
+    const url = new URL(window.location.href);
+    url.searchParams.set("color", colorSlug(value));
+    window.history.replaceState(null, "", url);
+  };
+
+  // Arriving on a colour link (…?color=black-tee-and-silver-chrome): start on that colour.
+  useEffect(() => {
+    if (colorAt < 0) return;
+    const wanted = new URLSearchParams(window.location.search).get("color");
+    const value = wanted && product.options[colorAt].values.find((v) => colorSlug(v) === wanted);
+    if (!value || !product.variants.some((v) => v.available && v.options[colorAt] === value)) return;
+    // The URL is outside React and only readable after hydration, so this one sync happens here.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setSelected((s) => choose(product, s, colorAt, value));
+    pickColor(value, false);
+    // Runs once on arrival; the colour after that is the shopper's.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   // Counts attempts to add without a size, so every attempt (not just the first) leads back to the picker.
   const [attempt, setAttempt] = useState(0);
 
@@ -143,17 +181,8 @@ export function AddToBag({ product, sizeGuide }: { product: ProductLite; sizeGui
                       checked={checked}
                       disabled={!ok}
                       onChange={() => {
-                        // Picking a value that doesn't exist with the other choice clears that choice,
-                        // so no combination of picks can lock a shopper out.
-                        setSelected((s) => {
-                          const next: Selection = { ...s, [option.name]: value };
-                          product.options.forEach((o, j) => {
-                            if (j === oi || !next[o.name]) return;
-                            const exists = product.variants.some((v) => v.available && v.options[oi] === value && v.options[j] === next[o.name]);
-                            if (!exists) delete next[o.name];
-                          });
-                          return next;
-                        });
+                        setSelected((s) => choose(product, s, oi, value));
+                        if (oi === colorAt) pickColor(value, true);
                         if (status === "missing") setStatus("idle");
                       }}
                       className="peer sr-only"

@@ -1,10 +1,15 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import Link from "next/link";
 import { media } from "@/lib/media";
 import { money } from "@/lib/shop-config";
 import { SCARCITY_LABEL, type Scarcity } from "@/lib/catalog";
 
-/** An Instagram photo from the generated media set, with its blur placeholder. */
+/**
+ * An Instagram photo from the generated media set. A plain server-rendered <img> (no client
+ * component to hydrate, which matters on pages with dozens of photos); its tiny blur sits behind it
+ * as a background until the photo paints over it.
+ */
 export function IgImage({
   id,
   alt,
@@ -21,18 +26,21 @@ export function IgImage({
   style?: React.CSSProperties;
 }) {
   const m = media(id);
+  const { props } = getImageProps({ src: m.src, alt, fill: true, sizes, quality: 80, preload: priority });
+  if (priority) preload(props.src, { as: "image", imageSrcSet: props.srcSet, imageSizes: props.sizes, fetchPriority: "high" });
   return (
-    <Image
-      src={m.src}
+    // eslint-disable-next-line @next/next/no-img-element -- next/image's own props, rendered without its client wrapper
+    <img
+      {...props}
       alt={alt}
-      fill
-      sizes={sizes}
-      placeholder="blur"
-      blurDataURL={m.blur}
-      preload={priority}
-      quality={80}
       className={className}
-      style={style}
+      style={{
+        ...props.style,
+        backgroundImage: `url("${m.blur}")`,
+        backgroundSize: "cover",
+        backgroundPosition: style?.objectPosition ?? "50% 50%",
+        ...style,
+      }}
     />
   );
 }

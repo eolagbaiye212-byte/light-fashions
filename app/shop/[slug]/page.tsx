@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToBag } from "@/components/AddToBag";
 import { ProductGallery } from "@/components/ProductGallery";
 import { ProductCell } from "@/components/ProductCell";
+import { ProductStage } from "@/components/ProductStage";
 import { PageTransition } from "@/components/PageTransition";
 import { IgImage, Price, SectionBar, Tag, Verse, pad } from "@/components/bits";
 import { CATEGORY_LABEL, DROP_LABEL } from "@/lib/catalog";
@@ -46,6 +48,8 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
   const intro = sections.find((s) => !s.heading);
   const rest = sections.filter((s) => s.heading);
   const name = product.color ? `${product.name}, ${product.color}` : product.name;
+  // The same piece in other colours is a separate Shopify product; link them as one colour choice.
+  const colors = product.color ? all.filter((p) => p.name === product.name && p.color).sort((a, b) => a.id - b.id) : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -80,117 +84,151 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
   return (
     <PageTransition>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-      <div className="md:grid md:grid-cols-12">
-        <div className="md:col-span-7 md:border-r md:border-grey">
-          <ProductGallery productId={product.id} images={product.images} name={name} />
-        </div>
+      <ProductStage>
+        <div className="md:grid md:grid-cols-12">
+          <div className="md:col-span-7 md:border-r md:border-grey">
+            <ProductGallery productId={product.id} images={product.images} name={name} />
+          </div>
 
-        <div className="md:col-span-5">
-          <div className="px-edge pt-5 pb-12 md:sticky md:top-header md:px-8 md:pt-8 lg:px-12">
-            <nav aria-label="Breadcrumb" className="t-meta text-grey">
-              <Link href="/shop" transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
-                Shop
-              </Link>
-              <span aria-hidden="true"> / </span>
-              <Link href={`/shop?category=${product.category}`} transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
-                {CATEGORY_LABEL[product.category]}
-              </Link>
-            </nav>
+          <div className="md:col-span-5">
+            <div className="px-edge pt-5 pb-12 md:sticky md:top-header md:px-8 md:pt-8 lg:px-12">
+              <nav aria-label="Breadcrumb" className="t-meta text-grey">
+                <Link href="/shop" transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
+                  Shop
+                </Link>
+                <span aria-hidden="true"> / </span>
+                <Link href={`/shop?category=${product.category}`} transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
+                  {CATEGORY_LABEL[product.category]}
+                </Link>
+              </nav>
 
-            <h1 className="t-label mt-6 text-[0.875rem]">{product.name}</h1>
-            {product.color && <p className="t-meta mt-1 text-grey">{product.color}</p>}
-            <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-2 block text-[0.875rem]" />
-            <Tag scarcity={product.scarcity} available={product.available} className="mt-2 block" />
+              <h1 className="t-label mt-6 text-[0.875rem]">{product.name}</h1>
+              {product.color && <p className="t-meta mt-1 text-grey">{product.color}</p>}
+              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-2 block text-[0.875rem]" />
+              <Tag scarcity={product.scarcity} available={product.available} className="mt-2 block" />
 
-            {(product.lede || intro?.paragraphs.length) && (
-              <div className="t-body mt-5 max-w-[52ch] space-y-3">
-                {product.lede ? <p>{product.lede}</p> : intro?.paragraphs.map((t) => <p key={t}>{t}</p>)}
-              </div>
-            )}
+              {(product.lede || intro?.paragraphs.length) && (
+                <div className="t-body mt-5 max-w-[52ch] space-y-3">
+                  {product.lede ? <p>{product.lede}</p> : intro?.paragraphs.map((t) => <p key={t}>{t}</p>)}
+                </div>
+              )}
 
-            <div className="mt-8">
-              <AddToBag product={toLite(product, 1)} sizeGuide />
-            </div>
-
-            <div className="mt-10 border-b border-grey">
-              <Accordion title="Details" open>
-                {(intro?.bullets.length ?? 0) > 0 && (
-                  <ul className="list-disc space-y-1 pl-4">
-                    {intro!.bullets.map((b) => (
-                      <li key={b}>{b}</li>
-                    ))}
-                  </ul>
+              <div className="mt-8">
+                {colors.length > 1 && (
+                  <nav aria-label="Colour" className="mb-6">
+                    <p className="t-meta">
+                      Colour<span className="text-grey">: {product.color}</span>
+                    </p>
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {colors.map((c) => (
+                        <li key={c.id}>
+                          <Link
+                            href={`/shop/${c.slug}`}
+                            scroll={false}
+                            aria-current={c.id === product.id ? "page" : undefined}
+                            className={[
+                              "t-meta grid min-h-12 min-w-12 place-items-center border px-3",
+                              c.id === product.id
+                                ? "border-ink bg-ink text-paper"
+                                : c.available
+                                  ? "border-grey hover:border-ink"
+                                  : "border-grey text-grey line-through hover:border-ink",
+                            ].join(" ")}
+                          >
+                            {c.color}
+                            {!c.available && <span className="sr-only">, sold out</span>}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
                 )}
-                {rest.map((s, i) => (
-                  <div key={`${s.heading}-${i}`} className="mt-4 first:mt-0">
-                    {s.heading !== "Details" && <h3 className="t-meta text-grey">{s.heading}</h3>}
-                    {s.paragraphs.map((t) => (
-                      <p key={t} className="mt-1">
-                        {t}
-                      </p>
-                    ))}
-                    {s.bullets.length > 0 && (
-                      <ul className="mt-1 list-disc space-y-1 pl-4">
-                        {s.bullets.map((b) => (
-                          <li key={b}>{b}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                ))}
-                <p className="t-meta mt-4 text-grey">From {DROP_LABEL[product.drop]}</p>
-              </Accordion>
-              <Accordion title="Size & fit" id="size-guide">
-                {sizeGuide ? (
-                  <>
-                    <ul className="t-meta space-y-1">
-                      {sizeGuide.bullets.map((b) => (
+                <AddToBag product={toLite(product, 1)} sizeGuide />
+              </div>
+
+              <div className="mt-10 border-b border-grey">
+                <Accordion title="Details" open>
+                  {(intro?.bullets.length ?? 0) > 0 && (
+                    <ul className="list-disc space-y-1 pl-4">
+                      {intro!.bullets.map((b) => (
                         <li key={b}>{b}</li>
                       ))}
                     </ul>
-                    {sizeGuide.paragraphs.map((t) => (
-                      <p key={t} className="mt-2">
-                        {t}
-                      </p>
-                    ))}
-                  </>
-                ) : (
+                  )}
+                  {rest.map((s, i) => (
+                    <div key={`${s.heading}-${i}`} className="mt-4 first:mt-0">
+                      {s.heading !== "Details" && <h3 className="t-meta text-grey">{s.heading}</h3>}
+                      {s.paragraphs.map((t) => (
+                        <p key={t} className="mt-1">
+                          {t}
+                        </p>
+                      ))}
+                      {s.bullets.length > 0 && (
+                        <ul className="mt-1 list-disc space-y-1 pl-4">
+                          {s.bullets.map((b) => (
+                            <li key={b}>{b}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  ))}
+                  <p className="t-meta mt-4 text-grey">From {DROP_LABEL[product.drop]}</p>
+                </Accordion>
+                <Accordion title="Size & fit" id="size-guide">
+                  {sizeGuide ? (
+                    <>
+                      <ul className="t-meta space-y-1">
+                        {sizeGuide.bullets.map((b) => (
+                          <li key={b}>{b}</li>
+                        ))}
+                      </ul>
+                      {sizeGuide.paragraphs.map((t) => (
+                        <p key={t} className="mt-2">
+                          {t}
+                        </p>
+                      ))}
+                    </>
+                  ) : (
+                    <p>
+                      Most LIGHT pieces are cut oversized. Take your usual size for a relaxed fit, or size down for a closer one.{" "}
+                      <Link href="/info#sizing" className="link">
+                        Full size guide
+                      </Link>
+                    </p>
+                  )}
+                  {product.charts.map((c) => (
+                    <Image key={c.src} src={c.src} width={c.width} height={c.height} alt={c.alt} sizes="(min-width: 768px) 36vw, 100vw" quality={80} className="mt-4 h-auto w-full" />
+                  ))}
+                </Accordion>
+                <Accordion title="Shipping & returns">
                   <p>
-                    Most LIGHT pieces are cut oversized. Take your usual size for a relaxed fit, or size down for a closer one.{" "}
-                    <Link href="/info#sizing" className="link">
-                      Full size guide
+                    {product.shipping ? `${product.shipping}. ` : ""}Shipping and tax are shown at checkout. All sales are final: no returns or
+                    exchanges, so please check your size and address before you pay.{" "}
+                    <Link href="/info#shipping" className="link">
+                      More on shipping
                     </Link>
                   </p>
-                )}
-              </Accordion>
-              <Accordion title="Shipping & returns">
-                <p>
-                  {product.shipping ? `${product.shipping}. ` : ""}Shipping and tax are shown at checkout. All sales are final: no returns or
-                  exchanges, so please check your size and address before you pay.{" "}
-                  <Link href="/info#shipping" className="link">
-                    More on shipping
-                  </Link>
-                </p>
-              </Accordion>
-              {looks.map((look) => (
-                <Accordion key={look.n} title={`Worn in look ${pad(look.n)}`}>
-                  <div className="grid grid-cols-[5.5rem_1fr] gap-4">
-                    <Link href={`/runway#look-${look.n}`} className="relative block aspect-[3/4] overflow-hidden">
-                      <IgImage id={look.images[0]} alt={`Look ${look.n}. ${look.alt}`} sizes="88px" className="object-cover" />
-                    </Link>
-                    <div>
-                      <Verse line={look.line} cite={look.cite} />
-                      <Link href={`/runway#look-${look.n}`} className="t-label link mt-4 inline-block">
-                        See look {pad(look.n)}
-                      </Link>
-                    </div>
-                  </div>
                 </Accordion>
-              ))}
+                {looks.map((look) => (
+                  <Accordion key={look.n} title={`Worn in look ${pad(look.n)}`}>
+                    <div className="grid grid-cols-[5.5rem_1fr] gap-4">
+                      <Link href={`/runway#look-${look.n}`} className="relative block aspect-[3/4] overflow-hidden">
+                        <IgImage id={look.images[0]} alt={`Look ${look.n}. ${look.alt}`} sizes="88px" className="object-cover" />
+                      </Link>
+                      <div>
+                        <Verse line={look.line} cite={look.cite} />
+                        <Link href={`/runway#look-${look.n}`} className="t-label link mt-4 inline-block">
+                          See look {pad(look.n)}
+                        </Link>
+                      </div>
+                    </div>
+                  </Accordion>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ProductStage>
 
       {siblings.length > 0 && (
         <section aria-labelledby="more-title" className="border-t border-ink pt-2">

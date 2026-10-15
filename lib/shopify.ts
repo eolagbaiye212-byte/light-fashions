@@ -2,7 +2,7 @@ import { cache } from "react";
 import snapshot from "./products.snapshot.json";
 import { SHOPIFY_DOMAIN } from "./shop-config";
 import { OVERRIDES, type Category, type Drop, type Scarcity } from "./catalog";
-
+import edges from "./image-fit.generated.json";
 
 type RawImage = { src: string; width: number; height: number; position: number; alt?: string | null };
 type RawVariant = {
@@ -14,6 +14,7 @@ type RawVariant = {
   price: string;
   compare_at_price: string | null;
   available: boolean;
+  featured_image?: { src: string } | null;
 };
 type RawProduct = {
   id: number;
@@ -29,7 +30,16 @@ type RawProduct = {
   options: { name: string; position: number; values: string[] }[];
 };
 
-export type ProductImage = { src: string; width: number; height: number; alt: string };
+export type ProductImage = {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  /** How the photo fills a 3:4 frame: cropped to fill, or whole with its own backdrop filling the rest. */
+  fit: "cover" | "contain";
+  /** CSS background matching the photo's backdrop, when it isn't plain white. */
+  backdrop?: string;
+};
 export type Variant = {
   id: number;
   title: string;
@@ -37,6 +47,8 @@ export type Variant = {
   price: number;
   compareAt: number | null;
   available: boolean;
+  /** The photo of this variant's colour, when one is known. */
+  image?: string;
 };
 export type ProductOption = { name: string; values: string[] };
 export type DescriptionSection = { heading?: string; paragraphs: string[]; bullets: string[] };
@@ -59,7 +71,10 @@ export type Product = {
   available: boolean;
   /** Only one physical piece (1 of 1 / sample / first piece) — quantity is capped at 1. */
   single: boolean;
+  /** Gallery photos: every one fills a 3:4 frame (see frameOf). */
   images: ProductImage[];
+  /** Size-chart images, shown under Size & fit. */
+  charts: ProductImage[];
   variants: Variant[];
   options: ProductOption[];
   description: DescriptionSection[];
@@ -144,6 +159,33 @@ function normalize(r: RawProduct): Product {
   const { sections, shipping } = parseDescription(r.body_html, r.title);
   const alt = `${name}${color ? `, ${color.toLowerCase()}` : ""}`;
 
+  const raw = [...r.images].sort((a, b) => a.position - b.position);
+  const charts = new Set(o?.charts ?? []);
+  const pictures = raw.map((img, i) => ({ img, i, frame: frameOf(img) }));
+  const toImage = ({ img, frame }: (typeof pictures)[number], label: string): ProductImage => ({
+    src: img.src,
+    width: img.width,
+    height: img.height,
+    alt: img.alt?.trim() || label,
+    fit: frame?.fit ?? "contain",
+    ...(frame?.backdrop && { backdrop: frame.backdrop }),
+  });
+  const kept = pictures.filter((p) => !charts.has(p.i) && p.frame);
+  // Never leave a product without a photo, even if its only one is landscape.
+  const gallery = kept.length ? kept : pictures.filter((p) => !charts.has(p.i)).slice(0, 1);
+  const images = gallery.map((p, k) => toImage(p, k === 0 ? alt : `${alt}, view ${k + 1}`));
+
+  // Each colour's photo: Shopify's own variant link first, then the editorial map.
+  const colorAt = options.findIndex((op) => /colou?r/i.test(op.name));
+  const shown = new Set(images.map((img) => img.src));
+  r.variants.forEach((rv, k) => {
+    const fromShopify = rv.featured_image?.src;
+    const value = colorAt >= 0 ? variants[k].options[colorAt] : undefined;
+    const mapped = value === undefined ? undefined : Object.entries(o?.colorImages ?? {}).find(([c]) => c.toLowerCase() === value.toLowerCase())?.[1];
+    const src = fromShopify ?? (mapped === undefined ? undefined : raw[mapped]?.src);
+    if (src && shown.has(src)) variants[k].image = src;
+  });
+
   return {
     id: r.id,
     slug: slugify(`${name}${color ? ` ${color}` : ""}`),
@@ -161,20 +203,42 @@ function normalize(r: RawProduct): Product {
     compareAt: maxCompare > Math.min(...prices) ? maxCompare : null,
     available: variants.some((v) => v.available),
     single: scarcity === "one-of-one" || scarcity === "sample" || scarcity === "first" || scarcity === "pre-release",
-    images: r.images
-      .sort((a, b) => a.position - b.position)
-      .map((img, i) => ({
-        src: img.src,
-        width: img.width,
-        height: img.height,
-        alt: img.alt?.trim() || (i === 0 ? alt : `${alt}, view ${i + 1}`),
-      })),
+    images,
+    charts: pictures.filter((p) => charts.has(p.i)).map((p, k) => toImage(p, `${name} size chart${k ? ` ${k + 1}` : ""}`)),
     variants,
     options,
     description: sections,
     shipping,
     publishedAt: r.published_at,
   };
+}
+
+type Edges = { t: string | null; b: string | null; l: string | null; r: string | null; cutout?: boolean };
+const EDGES = edges as Record<string, Edges>;
+
+/**
+ * How a photo fills a 3:4 frame, or null when it can't without losing what it shows.
+ * - Near 3:4: cropped to fill.
+ * - A packshot (flat backdrop, or a cut-out on transparent): shown whole, with its own backdrop
+ *   colour filling the rest of the frame, so there's never a box of a different white around it.
+ * - Any other photograph: cropped to fill, unless it's landscape (a crop would lose the subject).
+ * Edge colours come from scripts/build-image-fit.mjs; photos added later fall back on proportions.
+ */
+function frameOf(img: RawImage): { fit: "cover" | "contain"; backdrop?: string } | null {
+  const ratio = img.width / img.height;
+  if (ratio >= 0.66 && ratio <= 0.8) return { fit: "cover" };
+  const e = EDGES[decodeURIComponent(new URL(img.src).pathname.split("/").pop() ?? "")];
+  if (!e) return ratio <= 0.88 ? { fit: "cover" } : { fit: "contain" };
+  if (e.cutout) return { fit: "contain" };
+  const solid = [e.t, e.b, e.l, e.r].filter((c): c is string => !!c);
+  if (solid.length >= 2) {
+    const count = (c: string) => solid.filter((x) => x === c).length;
+    const common = solid.reduce((best, c) => (count(c) > count(best) ? c : best));
+    const [a, b, dir] = ratio > 0.8 ? [e.t ?? common, e.b ?? common, "to bottom"] : [e.l ?? common, e.r ?? common, "to right"];
+    const backdrop = a === b ? a : `linear-gradient(${dir}, ${a} 50%, ${b} 50%)`;
+    return { fit: "contain", ...(backdrop !== "#ffffff" && { backdrop }) };
+  }
+  return ratio >= 0.5 && ratio <= 1.1 ? { fit: "cover" } : null;
 }
 
 const SIZE_WORDS: Record<string, string> = {

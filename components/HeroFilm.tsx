@@ -7,10 +7,17 @@ import { VIDEO } from "@/lib/media";
 
 /**
  * The runway film, filling the first screen under the header, with a caption bar below it rather
- * than text on the film. The poster is a real (prioritised) image so it paints first; the film fades
- * in over it once playing. Muted and looping, paused off screen, never autoplayed for reduced motion,
+ * than text on the film. The poster is a real (prioritised) image so it paints first; the film only
+ * starts downloading once the page has loaded, so it never competes with the poster, and fades in
+ * over it once playing. Muted and looping, paused off screen, never autoplayed for reduced motion,
  * and always pausable (WCAG 2.2.2).
  */
+/** Gives the film its source the first time it's needed, then plays it. */
+function start(v: HTMLVideoElement) {
+  if (!v.getAttribute("src")) v.src = VIDEO.runway.src;
+  return v.play();
+}
+
 export function HeroFilm({ caption }: { caption: string }) {
   const ref = useRef<HTMLVideoElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -18,13 +25,24 @@ export function HeroFilm({ caption }: { caption: string }) {
   useEffect(() => {
     const v = ref.current;
     if (!v || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    v.play().catch(() => setPlaying(false));
-    const io = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) v.pause();
-      else if (v.dataset.userPaused !== "1") v.play().catch(() => {});
-    });
-    io.observe(v);
-    return () => io.disconnect();
+    let io: IntersectionObserver | undefined;
+    let timer: number | undefined;
+    const begin = () => {
+      start(v).catch(() => setPlaying(false));
+      io = new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) v.pause();
+        else if (v.dataset.userPaused !== "1") v.play().catch(() => {});
+      });
+      io.observe(v);
+    };
+    const onLoad = () => (timer = window.setTimeout(begin, 250));
+    if (document.readyState === "complete") onLoad();
+    else window.addEventListener("load", onLoad, { once: true });
+    return () => {
+      window.removeEventListener("load", onLoad);
+      window.clearTimeout(timer);
+      io?.disconnect();
+    };
   }, []);
 
   const toggle = () => {
@@ -32,7 +50,7 @@ export function HeroFilm({ caption }: { caption: string }) {
     if (!v) return;
     if (v.paused) {
       v.dataset.userPaused = "0";
-      v.play().catch(() => {});
+      start(v).catch(() => {});
     } else {
       v.dataset.userPaused = "1";
       v.pause();
@@ -46,11 +64,10 @@ export function HeroFilm({ caption }: { caption: string }) {
         <video
           ref={ref}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${playing ? "opacity-100" : "opacity-0"}`}
-          src={VIDEO.runway.src}
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           aria-label="Runway film from the Light Fashion Experience"
           onPlaying={() => setPlaying(true)}
           onPause={() => setPlaying(false)}

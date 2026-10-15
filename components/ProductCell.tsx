@@ -1,12 +1,52 @@
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ViewTransition } from "react";
+import { preload } from "react-dom";
 import type { ProductLite } from "@/lib/product-lite";
-import { CELL_SIZES, fit } from "@/lib/tile";
+import type { ProductImage } from "@/lib/shopify";
+import { CELL_SIZES, frame } from "@/lib/tile";
 import { Price, Tag } from "./bits";
-import { FadeImage } from "./FadeImage";
 
 /**
- * One product in a grid or strip: a 3:4 image (the second image on hover, pointer devices only),
+ * A plain <img> with next/image's sources: grids hold dozens of these, and a plain element costs
+ * nothing to hydrate. Filled per frame() (cropped, or whole on its own backdrop).
+ */
+function CellPhoto({
+  img,
+  alt,
+  sizes,
+  priority,
+  hoverOnly,
+  className = "",
+}: {
+  img: ProductImage;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  /** The hover photo: only downloaded on devices that can hover. */
+  hoverOnly?: boolean;
+  className?: string;
+}) {
+  const { props } = getImageProps({ src: img.src, alt, fill: true, sizes, quality: 80, preload: priority });
+  if (priority) preload(props.src, { as: "image", imageSrcSet: props.srcSet, imageSizes: props.sizes, fetchPriority: "high" });
+  const fill = frame(img);
+  const style = { ...props.style, ...fill.style };
+  if (hoverOnly) {
+    return (
+      <picture>
+        <source media="(hover: hover) and (pointer: fine)" srcSet={props.srcSet} sizes={props.sizes} />
+        <img src={BLANK} alt={alt} loading="lazy" decoding="async" className={`${fill.className} ${className}`} style={style} />
+      </picture>
+    );
+  }
+  // eslint-disable-next-line @next/next/no-img-element -- next/image's own props, rendered without its client wrapper
+  return <img {...props} alt={alt} className={`${fill.className} ${className}`} style={style} />;
+}
+
+const BLANK = "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==";
+
+/**
+ * One product in a grid or strip: a 3:4 photo that fills its frame (the second photo on hover, pointer devices only),
  * then name, price and a mono tag for scarcity or stock. The whole cell is the link.
  */
 export function ProductCell({
@@ -25,26 +65,15 @@ export function ProductCell({
   const photo = (
     <div className={`relative aspect-[3/4] overflow-hidden ${product.available ? "" : "opacity-50"}`}>
       {first && (
-        <FadeImage
-          src={first.src}
+        <CellPhoto
+          img={first}
           alt={first.alt || product.name}
-          fill
           sizes={sizes}
-          preload={priority}
-          quality={80}
-          className={`${fit(first)} ${second ? "transition-opacity duration-300 can-hover:group-hover:!opacity-0" : ""}`}
+          priority={priority}
+          className={second ? "transition-opacity duration-300 can-hover:group-hover:opacity-0" : ""}
         />
       )}
-      {second && (
-        <FadeImage
-          src={second.src}
-          alt=""
-          fill
-          sizes={sizes}
-          quality={80}
-          className={`${fit(second)} !opacity-0 transition-opacity duration-300 can-hover:group-hover:!opacity-100`}
-        />
-      )}
+      {second && <CellPhoto img={second} alt="" sizes={sizes} hoverOnly className="opacity-0 transition-opacity duration-300 can-hover:group-hover:opacity-100" />}
     </div>
   );
 

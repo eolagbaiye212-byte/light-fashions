@@ -126,16 +126,6 @@ export default async function RunwayPage() {
           </section>
         );
       })}
-
-      <section aria-labelledby="runway-close" className="px-edge py-16 md:py-24">
-        <p id="runway-close" className="t-body">
-          <span aria-hidden="true">“</span>Let your light shine.<span aria-hidden="true">”</span>
-        </p>
-        <p className="t-meta mt-2 text-grey">Matthew 5:16</p>
-        <Link href="/shop" className="btn btn-ink mt-8">
-          Shop the collection
-        </Link>
-      </section>
     </PageTransition>
   );
 }

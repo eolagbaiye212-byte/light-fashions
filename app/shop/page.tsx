@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import { connection } from "next/server";
 import { PageTransition } from "@/components/PageTransition";
 import { ShopBrowser } from "@/components/ShopBrowser";
 import { getProducts } from "@/lib/shopify";
@@ -14,15 +14,16 @@ export const metadata: Metadata = {
 };
 
 export default async function ShopPage() {
-  const products = await getProducts();
+  // Rendered per request so the filters in the URL (?category=…, ?only=…) are in the first paint:
+  // a static page could only apply them after loading, rebuilding the grid on screen.
+  await connection();
+  const products = (await getProducts()).map((p) => toLite(p));
 
   return (
     <PageTransition>
       <div className="pt-6 md:pt-10">
         <h1 className="t-label px-edge pb-3">Shop</h1>
-        <Suspense fallback={<div className="h-[60vh]" />}>
-          <ShopBrowser products={products.map((p) => toLite(p))} />
-        </Suspense>
+        <ShopBrowser products={products} />
       </div>
     </PageTransition>
   );

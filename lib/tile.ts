@@ -1,3 +1,6 @@
+import type { CSSProperties } from "react";
+import type { ProductImage } from "./shopify";
+
 /** `sizes` for a product cell at each grid density (columns on phones / desktop). */
 export function cellSizes(cols: { mobile: 1 | 2; desktop: 2 | 4 }) {
   const desk = cols.desktop === 4 ? "25vw" : "50vw";
@@ -9,8 +12,11 @@ export function cellSizes(cols: { mobile: 1 | 2; desktop: 2 | 4 }) {
 export const CELL_SIZES = cellSizes({ mobile: 2, desktop: 4 });
 
 /**
- * Square packshots on white sit inside the 3:4 cell with breathing room; portrait photographs fill it.
+ * Every photo fills its 3:4 frame: portraits are cropped to it; packshots are shown whole and their
+ * own backdrop colour fills the rest, so no photo ever sits in a box of different white.
  */
-export function fit(img: { width: number; height: number }) {
-  return img.width / img.height <= 0.88 ? "object-cover" : "object-contain p-[9%]";
+export function frame(img: Pick<ProductImage, "fit" | "backdrop">): { className: string; style?: CSSProperties } {
+  return img.fit === "cover"
+    ? { className: "object-cover" }
+    : { className: "object-contain", style: img.backdrop ? { background: img.backdrop } : undefined };
 }
