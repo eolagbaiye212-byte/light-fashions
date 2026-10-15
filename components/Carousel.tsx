@@ -21,7 +21,7 @@ export function Carousel({
   /** Vertical centre of the images, as a CSS length (the items' image height ÷ 2). */
   arrowTop: string;
 }) {
-  const track = useRef<HTMLUListElement>(null);
+  const track = useRef<HTMLDivElement>(null);
   const [edge, setEdge] = useState({ start: true, end: false });
 
   const measure = useCallback(() => {
@@ -48,7 +48,7 @@ export function Carousel({
   const page = (dir: 1 | -1) => {
     const el = track.current;
     if (!el) return;
-    const items = [...el.children] as HTMLElement[];
+    const items = [...(el.firstElementChild?.children ?? [])] as HTMLElement[];
     if (!items.length) return;
     const origin = items[0].offsetLeft;
     const stops = items.map((i) => i.offsetLeft - origin);
@@ -66,19 +66,15 @@ export function Carousel({
 
   return (
     <div className="relative">
-      <ul
-        ref={track}
-        role="region"
-        aria-label={label}
-        tabIndex={0}
-        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto border-y border-grey"
-      >
-        {children.map((child, i) => (
-          <li key={i} className={`shrink-0 snap-start border-r border-grey last:border-r-0 ${itemClass}`}>
-            {child}
-          </li>
-        ))}
-      </ul>
+      <div ref={track} role="region" aria-label={label} tabIndex={0} className="no-scrollbar snap-x snap-mandatory overflow-x-auto border-y border-grey">
+        <ul className="flex">
+          {children.map((child, i) => (
+            <li key={i} className={`shrink-0 snap-start border-r border-grey last:border-r-0 ${itemClass}`}>
+              {child}
+            </li>
+          ))}
+        </ul>
+      </div>
       <button
         type="button"
         tabIndex={-1}

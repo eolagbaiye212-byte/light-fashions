@@ -74,25 +74,28 @@ Myron's own lines are set the same way, with no attribution, as he asked.
 | Tabs | `t-label` words; the active one underlined 2px. Wrap on phones, never clip |
 | Size box | 48×48 min, 1px grey hairline, `t-meta`. Selected: black fill, white text. Sold out: grey text, struck through, disabled |
 | Accordion | Native `<details>`, hairline above each, `t-label` summary with + / − at the right |
-| Product cell | Image 3:4 (contain for packshots on white, cover for photographs), hover shows the second image (pointer devices). Below: name `t-label`, price `t-price`, tag `t-meta` ("1 OF 1", "ONLY 2 EXIST", "UNRELEASED SAMPLE", "PRE-RELEASE", "SOLD OUT"). Sold out keeps its cell, image at 50% opacity |
+| Product cell | Image 3:4 that always fills its frame (see Imagery), hover shows the second image (pointer devices only; it isn't downloaded on touch screens). Below: name `t-label`, price `t-price`, tag `t-meta` ("1 OF 1", "ONLY 2 EXIST", "UNRELEASED SAMPLE", "PRE-RELEASE", "SOLD OUT"). Sold out keeps its cell, image at 50% opacity |
 | Product grid | Hairline-ruled cells, edge to edge. Density toggle: phones 1 / 2 columns (default 2), desktop 2 / 4 (default 4) |
 | Carousel | Native horizontal scroll with snap; ← → buttons on the left and right edges of the images on pointer devices |
-| Gallery | Phone: swipeable full-bleed strip with a `1/4` counter. Desktop product page: vertical stack |
+| Gallery | Phone: swipeable full-bleed strip with a `1/4` counter, one frame shape for the strip (the first photo's, between 3:4 and square), every photo cropped to fill it. Desktop product page: vertical stack, each frame in its photo's own proportions. Choosing a colour moves that colour's photo to the front |
 | Bag drawer | Right-side white `<dialog>`, 100% wide on phones, 420px on desktop. Lines, quantity stepper, subtotal, CHECKOUT, Shopify note |
-| Caption bar | The strip under a campaign image: label left, link right, `t-label`, 48px tall, hairline below |
+| Caption bar | The strip under a campaign image: campaign `t-meta` grey over the product name `t-label` on the left, SHOP NOW on the right, 56px tall, hairline below. The image and its bar are one link |
 
 ## Pages
 ### Home `/`
+**Every photograph on the home page links to the product being worn**, opened on that colour where the
+product has several (`?color=`). Nothing on the home page links to Story or Runway.
+
 1. **Hero.** The runway film fills the viewport under the header, minus a 48px caption bar
    below it: "LIGHT FASHION EXPERIENCE — NEW YORK, SEPTEMBER 13, 2026" left, SHOP THE COLLECTION right,
    PAUSE / PLAY between. Muted, autoplay, loop, playsinline, poster frame. No text on the film.
-2. **Campaign tiles**, stacked edge to edge, each an image row plus a caption bar:
-   THE SHOW (SHOP NOW → /shop), MADE ONCE (SHOP NOW → /shop?only=one-of-one),
-   JESUS LIVES (SHOP NOW → the tee), LIGHT RESURGENCE (SHOP NOW → the scarf tee),
-   LIGHT4EVA SUMMER (DISCOVER → /story#summer). Phone: one portrait image. Desktop: two portraits side by side.
+2. **Campaign tiles**, stacked edge to edge: THE SHOW COLLECTION, MADE ONCE, JESUS LIVES, LIGHT
+   RESURGENCE, LIGHT4EVA SUMMER. Phone: one portrait image. Desktop: two portraits side by side, each
+   with its own caption bar naming its piece.
 3. **From the show**: a tight carousel of the show drop.
-4. **The looks**: all 16 as a dense grid (4 columns on phones, 8 on desktop), each `t-meta` LOOK 01–16,
-   linking to /runway#look-N.
+4. **Shop the looks**: the twelve looks whose main piece is in the shop (3 columns on phones, 6 on
+   desktop), each LOOK 01 in `t-meta` over the piece's name, linking to it. Looks 4, 6 and 13 aren't in
+   the shop; look 10 repeats the Women's Light Tank from look 3.
 5. **Closing line**, the page's one enormous moment: WALK AS CHILDREN OF LIGHT in `t-giant`,
    EPHESIANS 5:8 in `t-meta`.
 
@@ -104,19 +107,21 @@ size, stock and sort live in a FILTER sheet. Every filter is a URL parameter: `c
 
 ### Product `/shop/[slug]`
 Desktop: images stacked on the left (7 of 12 columns), a sticky info column on the right: breadcrumb,
-name, price, colour, tag, short description, sizes, ADD TO BAG, then accordions DETAILS, SIZE & FIT,
-SHIPPING & RETURNS and WORN IN LOOK N. Phone: swipeable gallery with counter, the same column below,
+name, price, colour, tag, short description, COLOUR (when the same piece in another colour is a
+separate Shopify product, its colours are links), the options, ADD TO BAG, then accordions DETAILS,
+SIZE & FIT (with any size-chart images), SHIPPING & RETURNS and WORN IN LOOK N. Choosing a colour puts
+its photo first and writes `?color=` to the URL; arriving with `?color=` starts on that colour. Phone: swipeable gallery with counter, the same column below,
 and a sticky ADD TO BAG bar once the main button scrolls away. One missing-size message only:
 SELECT A SIZE, in red under the sizes, announced, with focus returned to the sizes. Below: WEAR IT WITH.
 
 ### Runway `/runway`
 A short intro (LIGHT FASHION EXPERIENCE, date, credits, a 01–16 index), then one look per screen:
 LOOK 01 in mono, the photograph (all angles, swipeable), the line and its reference, WORN: links.
-Anchors `#look-1` … `#look-16` unchanged.
+Anchors `#look-1` … `#look-16` unchanged. The page ends on look 16; the footer follows.
 
 ### Story `/story`
-Big-type editorial from existing content only: "LIGHT IS WHAT I CALL A GOD VISION." in `t-giant`,
-the brand story, the five campaign stories with anchors, the 2026 timeline, the show credits.
+Words only, no photographs: "LIGHT IS WHAT I CALL A GOD VISION." in `t-giant`, ABOUT LIGHT (what it
+is, where the name comes from, the first tee, אור), then 2026 SO FAR as a ruled list of dates.
 
 ### Info `/info`
 Plain anchored sections: `#shipping`, `#returns`, `#sizing`, `#payment`, `#contact`.
@@ -130,5 +135,28 @@ CHECKOUT, CLEAR, SHOW 13 ITEMS. Descriptions and story text stay sentence case. 
 facts, prices, sizes, stock, scripture or quotes.
 
 ## Imagery
-Placements, crops and focal points come from the image audit (see "Image placements" below). Images
-under ~1600px on the long edge are never used full-bleed on desktop.
+Every photograph fills the space it is given: no box of white (or of a different white) around a
+photo, ever. How, in `lib/shopify.ts` (`frameOf`) and `lib/tile.ts` (`frame`):
+- Close to 3:4: cropped to fill (`object-cover`).
+- A packshot (a flat backdrop, or a cut-out on transparent): shown whole, and its own backdrop colour
+  fills the rest of the frame, so off-white and grey backdrops never show as boxes. Edge colours come
+  from `scripts/build-image-fit.mjs`; re-run it when photos are added in Shopify.
+- Any other photograph: cropped to fill, unless it's landscape, in which case it's left out of the
+  gallery (a crop would lose its subject).
+- Size charts (listed per product in `lib/catalog.ts`, `charts`) never sit in a gallery; they show
+  under SIZE & FIT at their own proportions.
+- Each colour's photo comes from Shopify's variant images, else from `colorImages` in `lib/catalog.ts`.
+
+Images under ~1600px on the long edge are never used full-bleed on desktop.
+
+### Image placements
+| Where | Photos | Focal point | Links to |
+|---|---|---|---|
+| Home hero | `runway.mp4`, poster `runway-first-frame.webp` (1280×724) | centre | — |
+| The show collection | `DdXhh9lGzsf-2` (look 2), `Ddg9ywokdFD-2` (look 12) | 50% 25%, 45% 18% | Forgiven Jacket (black), Women's Red Cross Garment |
+| Made once | `Ddh1xvnG7AR-0` (look 16), `DdedB0Kkfih-1` (look 7) | 50% 22% | Light Rhinestone Jacket, Purple Flower Denim Set |
+| Jesus Lives | `DcZ3A7_kdYU-1`, `-3` | 50% 30%, 50% 40% | Jesus Lives Tee, off-white tee & pink chrome |
+| Light Resurgence | `DaHD4q5jWT--2`, `-3` | 45% 25%, 50% 20% | Jesus Wept Scarf Tee, white |
+| Light4eva summer | `DaJvqbyEe0Y-2`, `-3` | 45% 30%, 50% 55% | Light4eva Women's Tee (white), Light4eva Bag (yellow) |
+| Shop the looks | each look's lead photo (`lib/looks.ts`) | 50% 50% | the look's main piece |
+| Runway | every angle of each look | 50% 25% | — |

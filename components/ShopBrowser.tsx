@@ -226,6 +226,7 @@ export function ShopBrowser({ products }: { products: ProductLite[] }) {
         </div>
       ) : (
         <div className="overflow-hidden border-t border-grey">
+          <h2 className="sr-only">Products</h2>
           <ul className={`-mr-px grid ${mobileCols} ${desktopCols}`}>
             {visible.map((p, i) => (
               <ViewTransition key={p.id} enter="cell-in" exit="cell-out" update="cell-move" default="none">

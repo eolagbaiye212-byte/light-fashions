@@ -8,7 +8,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
  * image. The frames themselves are server-rendered and passed in.
  */
 export function Frames({ label, frames, className = "" }: { label: string; frames: ReactNode[]; className?: string }) {
-  const strip = useRef<HTMLUListElement>(null);
+  const strip = useRef<HTMLDivElement>(null);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
@@ -32,13 +32,15 @@ export function Frames({ label, frames, className = "" }: { label: string; frame
 
   return (
     <div className={`relative ${className}`}>
-      <ul ref={strip} role="region" aria-label={label} tabIndex={0} className="no-scrollbar flex h-full snap-x snap-mandatory overflow-x-auto">
-        {frames.map((frame, i) => (
-          <li key={i} className="relative h-full w-full shrink-0 snap-center" aria-hidden={i !== index || undefined}>
-            {frame}
-          </li>
-        ))}
-      </ul>
+      <div ref={strip} role="region" aria-label={label} tabIndex={0} className="no-scrollbar h-full snap-x snap-mandatory overflow-x-auto">
+        <ul className="flex h-full">
+          {frames.map((frame, i) => (
+            <li key={i} className="relative h-full w-full shrink-0 snap-center" aria-hidden={i !== index || undefined}>
+              {frame}
+            </li>
+          ))}
+        </ul>
+      </div>
       {frames.length > 1 && (
         <>
           <p className="t-meta pointer-events-none absolute bottom-3 left-[var(--edge)] bg-paper px-1.5" aria-hidden="true">

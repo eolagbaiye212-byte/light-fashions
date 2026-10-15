@@ -139,7 +139,7 @@ export default async function Home() {
       <section aria-labelledby="show-title" className="pt-12 md:pt-24">
         <SectionBar id="show-title" title="From the show" href="/shop" action={`Shop all ${products.length}`} />
         <div className="[--cw:50vw] sm:[--cw:33.333vw] lg:[--cw:25vw]">
-          <Carousel label="The show collection" itemClass="w-[var(--cw)]" arrowTop="calc(var(--cw) * 0.6667)">
+          <Carousel label="From the show, pieces" itemClass="w-[var(--cw)]" arrowTop="calc(var(--cw) * 0.6667)">
             {show.map((p) => (
               <ProductCell key={p.id} product={toLite(p)} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw" />
             ))}
