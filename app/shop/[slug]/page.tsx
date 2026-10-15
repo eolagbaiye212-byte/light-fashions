@@ -1,17 +1,21 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToBag } from "@/components/AddToBag";
 import { ProductGallery } from "@/components/ProductGallery";
-import { ProductTile } from "@/components/ProductTile";
+import { ProductCell } from "@/components/ProductCell";
+import { ProductStage } from "@/components/ProductStage";
 import { PageTransition } from "@/components/PageTransition";
-import { IgImage, Price, Status, Verse, pad } from "@/components/bits";
+import { IgImage, Price, SectionBar, Tag, Verse, pad } from "@/components/bits";
 import { CATEGORY_LABEL, DROP_LABEL } from "@/lib/catalog";
 import { lookFor } from "@/lib/looks";
 import { getProduct, getProducts, type Product } from "@/lib/shopify";
 import { toLite } from "@/lib/product-lite";
 
 export const revalidate = 300;
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lightfashions.com";
 
 export async function generateStaticParams() {
   const products = await getProducts();
@@ -27,7 +31,8 @@ export async function generateMetadata(props: PageProps<"/shop/[slug]">): Promis
   return {
     title,
     description,
-    openGraph: { title, description, images: p.images[0] ? [{ url: p.images[0].src, width: p.images[0].width, height: p.images[0].height }] : [] },
+    alternates: { canonical: `/shop/${p.slug}` },
+    openGraph: { title, description, images: p.images[0] ? [{ url: p.images[0].src, width: p.images[0].width, height: p.images[0].height, alt: title }] : [] },
   };
 }
 
@@ -42,91 +47,141 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
   const sections = product.description.filter((s) => s.heading !== "Size guide");
   const intro = sections.find((s) => !s.heading);
   const rest = sections.filter((s) => s.heading);
+  const name = product.color ? `${product.name}, ${product.color}` : product.name;
+  // The same piece in other colours is a separate Shopify product; link them as one colour choice.
+  const colors = product.color ? all.filter((p) => p.name === product.name && p.color).sort((a, b) => a.id - b.id) : [];
 
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "Product",
-    name: product.color ? `${product.name}, ${product.color}` : product.name,
-    image: product.images.map((i) => i.src),
-    description: product.lede ?? intro?.paragraphs.join(" "),
-    brand: { "@type": "Brand", name: "LIGHT" },
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "USD",
-      lowPrice: product.price,
-      highPrice: product.priceMax,
-      availability: product.available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
-    },
+    "@graph": [
+      {
+        "@type": "Product",
+        name,
+        url: `${SITE}/shop/${product.slug}`,
+        image: product.images.map((i) => i.src),
+        description: product.lede ?? intro?.paragraphs.join(" "),
+        brand: { "@type": "Brand", name: "LIGHT" },
+        offers: {
+          "@type": "AggregateOffer",
+          priceCurrency: "USD",
+          lowPrice: product.price,
+          highPrice: product.priceMax,
+          offerCount: product.variants.length,
+          availability: product.available ? "https://schema.org/InStock" : "https://schema.org/SoldOut",
+        },
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Shop", item: `${SITE}/shop` },
+          { "@type": "ListItem", position: 2, name: CATEGORY_LABEL[product.category], item: `${SITE}/shop?category=${product.category}` },
+          { "@type": "ListItem", position: 3, name },
+        ],
+      },
+    ],
   };
 
   return (
     <PageTransition>
-      <div data-surface="day" className="pt-[var(--header-h)] lg:pt-[calc(var(--header-h)+var(--space-md))]">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
-        <div className="lg:container-x lg:grid lg:grid-cols-12 lg:gap-10">
-          <div className="lg:col-span-7">
-            <ProductGallery productId={product.id} images={product.images} name={product.name} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <ProductStage>
+        <div className="md:grid md:grid-cols-12">
+          <div className="md:col-span-7 md:border-r md:border-grey">
+            <ProductGallery productId={product.id} images={product.images} name={name} />
           </div>
 
-          <div className="container-x pt-[var(--space-md)] pb-[var(--space-xl)] lg:col-span-5 lg:px-0 lg:pt-0">
-            <div className="lg:sticky lg:top-[calc(var(--header-h)+var(--space-md))]">
-              <nav aria-label="Breadcrumb" className="muted text-fine">
-                <Link href="/shop" transitionTypes={["nav-back"]} className="hover:underline">
+          <div className="md:col-span-5">
+            <div className="px-edge pt-5 pb-12 md:sticky md:top-header md:px-8 md:pt-8 lg:px-12">
+              <nav aria-label="Breadcrumb" className="t-meta text-grey">
+                <Link href="/shop" transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
                   Shop
                 </Link>
                 <span aria-hidden="true"> / </span>
-                <Link href={`/shop?category=${product.category}`} transitionTypes={["nav-back"]} className="hover:underline">
+                <Link href={`/shop?category=${product.category}`} transitionTypes={["nav-back"]} className="hover:text-ink hover:underline">
                   {CATEGORY_LABEL[product.category]}
                 </Link>
               </nav>
 
-              <Status scarcity={product.scarcity} available={product.available} onSale={!!product.compareAt} className="mt-5 block text-ui" />
-              <h1 className="type-h2 mt-2 max-w-[16ch]">{product.name}</h1>
-              {product.color && <p className="mt-2 text-lead">{product.color}</p>}
-              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-3 block text-lead font-semibold" />
+              <h1 className="t-label mt-6 text-[0.8125rem]">{product.name}</h1>
+              {product.color && <p className="t-meta mt-1 text-grey">{product.color}</p>}
+              <Price price={product.price} priceMax={product.priceMax} compareAt={product.compareAt} className="mt-2 block text-[0.8125rem]" />
+              <Tag scarcity={product.scarcity} available={product.available} className="mt-2 block" />
 
-              {(product.lede || intro) && (
-                <div className="mt-5 max-w-[52ch] space-y-3">
+              {(product.lede || intro?.paragraphs.length) && (
+                <div className="t-body mt-5 max-w-[52ch] space-y-3">
                   {product.lede ? <p>{product.lede}</p> : intro?.paragraphs.map((t) => <p key={t}>{t}</p>)}
                 </div>
               )}
 
-              <div className="mt-[var(--space-lg)]">
+              <div className="mt-8">
+                {colors.length > 1 && (
+                  <nav aria-label="Color" className="mb-6">
+                    <p className="t-meta">
+                      Color<span className="text-grey">: {product.color}</span>
+                    </p>
+                    <ul className="mt-3 flex flex-wrap gap-1.5">
+                      {colors.map((c) => (
+                        <li key={c.id}>
+                          <Link
+                            href={`/shop/${c.slug}`}
+                            scroll={false}
+                            aria-current={c.id === product.id ? "page" : undefined}
+                            className={[
+                              "t-meta grid min-h-12 min-w-12 place-items-center border px-3",
+                              c.id === product.id
+                                ? "border-ink bg-ink text-paper"
+                                : c.available
+                                  ? "border-grey hover:border-ink"
+                                  : "border-grey text-grey line-through hover:border-ink",
+                            ].join(" ")}
+                          >
+                            {c.color}
+                            {!c.available && <span className="sr-only">, sold out</span>}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </nav>
+                )}
                 <AddToBag product={toLite(product, 1)} sizeGuide />
               </div>
 
-              <div className="mt-[var(--space-lg)] divide-y divide-day-line border-y border-day-line">
-                {(intro?.bullets.length ?? 0) > 0 && (
-                  <Disclosure title="Details" open>
-                    <ul className="list-disc space-y-1 pl-5">
-                      {intro!.bullets.map((b) => (
-                        <li key={b}>{b}</li>
-                      ))}
-                    </ul>
-                  </Disclosure>
-                )}
-                {rest.map((s, i) => (
-                  <Disclosure key={`${s.heading}-${i}`} title={s.heading!} open={s.heading === "Details" && !intro?.bullets.length}>
-                    {s.paragraphs.map((t) => (
-                      <p key={t}>{t}</p>
-                    ))}
-                    {s.bullets.length > 0 && (
-                      <ul className="mt-2 list-disc space-y-1 pl-5">
-                        {s.bullets.map((b) => (
+              <div className="mt-10 border-b border-grey">
+                {((intro?.bullets.length ?? 0) > 0 || rest.length > 0) && (
+                  <Accordion title="Details" open>
+                    {(intro?.bullets.length ?? 0) > 0 && (
+                      <ul className="list-disc space-y-1 pl-4">
+                        {intro!.bullets.map((b) => (
                           <li key={b}>{b}</li>
                         ))}
                       </ul>
                     )}
-                  </Disclosure>
-                ))}
-                <Disclosure title="Size guide" id="size-guide">
+                    {rest.map((s, i) => (
+                      <div key={`${s.heading}-${i}`} className="mt-4 first:mt-0">
+                        {s.heading !== "Details" && <h3 className="t-meta text-grey">{s.heading}</h3>}
+                        {s.paragraphs.map((t) => (
+                          <p key={t} className="mt-1">
+                            {t}
+                          </p>
+                        ))}
+                        {s.bullets.length > 0 && (
+                          <ul className="mt-1 list-disc space-y-1 pl-4">
+                            {s.bullets.map((b) => (
+                              <li key={b}>{b}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                    <p className="t-meta mt-4 text-grey">From {DROP_LABEL[product.drop]}</p>
+                  </Accordion>
+                )}
+                <Accordion title="Size & fit" id="size-guide">
                   {sizeGuide ? (
                     <>
-                      <ul className="space-y-1">
+                      <ul className="t-meta space-y-1">
                         {sizeGuide.bullets.map((b) => (
-                          <li key={b} className="tabular">
-                            {b}
-                          </li>
+                          <li key={b}>{b}</li>
                         ))}
                       </ul>
                       {sizeGuide.paragraphs.map((t) => (
@@ -143,56 +198,48 @@ export default async function ProductPage(props: PageProps<"/shop/[slug]">) {
                       </Link>
                     </p>
                   )}
-                </Disclosure>
-                <Disclosure title="Shipping and returns">
+                  {product.charts.map((c) => (
+                    <Image key={c.src} src={c.src} width={c.width} height={c.height} alt={c.alt} sizes="(min-width: 768px) 36vw, 100vw" quality={80} className="mt-4 h-auto w-full" />
+                  ))}
+                </Accordion>
+                <Accordion title="Shipping & returns">
                   <p>
-                    {product.shipping ? `${product.shipping}. ` : ""}Shipping and tax are shown at checkout. All sales are final: no returns
-                    or exchanges, so please check your size and address before you pay.{" "}
-                    <Link href="/info" className="link">
+                    {product.shipping ? `${product.shipping}. ` : ""}Shipping and tax are shown at checkout. All sales are final: no returns or
+                    exchanges, so please check your size and address before you pay.{" "}
+                    <Link href="/info#shipping" className="link">
                       More on shipping
                     </Link>
                   </p>
-                </Disclosure>
+                </Accordion>
+                {looks.map((look) => (
+                  <Accordion key={look.n} title={`Worn in look ${pad(look.n)}`}>
+                    <div className="grid grid-cols-[5.5rem_1fr] gap-4">
+                      <Link href={`/runway#look-${look.n}`} className="relative block aspect-[3/4] overflow-hidden">
+                        <IgImage id={look.images[0]} alt={`Look ${look.n}. ${look.alt}`} sizes="88px" className="object-cover" />
+                      </Link>
+                      <div>
+                        <Verse line={look.line} cite={look.cite} />
+                        <Link href={`/runway#look-${look.n}`} className="t-label link mt-4 inline-block">
+                          See look {pad(look.n)}
+                        </Link>
+                      </div>
+                    </div>
+                  </Accordion>
+                ))}
               </div>
-              <p className="muted mt-5 text-fine">From {DROP_LABEL[product.drop]}.</p>
             </div>
           </div>
         </div>
-      </div>
-
-      {looks.map((look) => (
-        <section key={look.n} data-surface="night" aria-labelledby={`walked-${look.n}`} className="overflow-hidden">
-          <div className="grid lg:grid-cols-2">
-            <div className="drift relative aspect-[4/5] overflow-hidden lg:aspect-auto lg:min-h-[44rem]">
-              <IgImage id={look.images[0]} alt={`Look ${look.n}. ${look.alt}`} fill sizes="(min-width: 1024px) 50vw, 100vw" className="object-cover" />
-            </div>
-            <div className="container-x band-y flex flex-col justify-center gap-6 lg:max-w-[40rem] lg:px-14">
-              <p id={`walked-${look.n}`} className="text-ui">
-                Walked as look {look.n} at the Light Fashion Experience, New York, September&nbsp;13,&nbsp;2026.
-              </p>
-              <span className="type-num text-night-muted" aria-hidden="true">
-                {pad(look.n)}
-              </span>
-              <Verse line={look.line} cite={look.cite} size="lg" />
-              <Link href={`/runway#look-${look.n}`} className="btn btn-ghost self-start">
-                See every angle of look {look.n}
-              </Link>
-            </div>
-          </div>
-        </section>
-      ))}
+      </ProductStage>
 
       {siblings.length > 0 && (
-        // A hairline only when it follows the white product area; after the black runway band the edge is enough.
-        <section data-surface="day" aria-labelledby="more-title" className={`section-y ${looks.length ? "" : "border-t border-day-line"}`}>
-          <div className="container-x">
-            <h2 id="more-title" className="type-h3">
-              {looks.length ? "Wear it with" : `More from ${DROP_LABEL[product.drop]}`}
-            </h2>
-            <ul className="head-gap grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-4">
+        <section aria-labelledby="more-title" className="border-t border-ink pt-2">
+          <SectionBar id="more-title" title={looks.length ? "Wear it with" : `More from ${DROP_LABEL[product.drop]}`} />
+          <div className="overflow-hidden border-t border-grey">
+            <ul className="-mr-px grid grid-cols-2 md:grid-cols-4">
               {siblings.map((p) => (
-                <li key={p.id}>
-                  <ProductTile product={toLite(p)} />
+                <li key={p.id} className="border-r border-b border-grey">
+                  <ProductCell product={toLite(p)} />
                 </li>
               ))}
             </ul>
@@ -212,16 +259,17 @@ function related(product: Product, all: Product[]) {
   return [...fromLook, ...sameDrop, ...sameCategory].slice(0, 4);
 }
 
-function Disclosure({ title, children, open, id }: { title: string; children: React.ReactNode; open?: boolean; id?: string }) {
+function Accordion({ title, children, open, id }: { title: string; children: React.ReactNode; open?: boolean; id?: string }) {
   return (
-    <details id={id} open={open} className="group scroll-mt-24 py-1">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+    <details id={id} open={open} className="group scroll-mt-20 border-t border-grey">
+      <summary className="t-label flex min-h-12 list-none items-center justify-between gap-4">
         {title}
-        <span aria-hidden="true" className="text-lead font-normal transition-transform duration-200 ease-quint group-open:rotate-45">
-          +
+        <span aria-hidden="true" className="t-meta text-[0.875rem]">
+          <span className="group-open:hidden">+</span>
+          <span className="hidden group-open:inline">−</span>
         </span>
       </summary>
-      <div className="pb-5 text-ui leading-relaxed">{children}</div>
+      <div className="t-body pb-5">{children}</div>
     </details>
   );
 }

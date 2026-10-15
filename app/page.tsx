@@ -1,200 +1,181 @@
-import Image from "next/image";
 import Link from "next/link";
-import { HeroRunway } from "@/components/HeroRunway";
-import { RunwayRail } from "@/components/RunwayRail";
-import { LightTransition } from "@/components/LightTransition";
-import { ProductTile } from "@/components/ProductTile";
-import { StoryBand } from "@/components/StoryBand";
-import { LoopVideo } from "@/components/LoopVideo";
+import { HeroFilm } from "@/components/HeroFilm";
+import { Carousel } from "@/components/Carousel";
+import { ProductCell } from "@/components/ProductCell";
 import { PageTransition } from "@/components/PageTransition";
-import { IgImage, Price, SectionHead, Verse } from "@/components/bits";
-import { LOOKS } from "@/lib/looks";
-import { STORIES } from "@/lib/stories";
-import { VIDEO, media } from "@/lib/media";
-import { getProducts, type Product } from "@/lib/shopify";
-import { toLite } from "@/lib/product-lite";
+import { IgImage, SectionBar } from "@/components/bits";
+import { LOOKS, SHOW } from "@/lib/looks";
+import { INSTAGRAM } from "@/lib/media";
+import { getProducts } from "@/lib/shopify";
+import { productHref, toLite } from "@/lib/product-lite";
 
 export const revalidate = 300;
 
-const FORGIVEN = [10566276710540, 10566318129292];
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lightfashions.com";
+
+/**
+ * Campaign tiles: one portrait on phones, two side by side on desktop. Every photograph links to
+ * the piece being worn (on that colour, where the product comes in several), with a caption bar
+ * below it (never text on the photo). Image choices and focal points: DESIGN.md, Image placements.
+ */
+type Shot = { id: string; alt: string; position?: string; product: number; color?: string };
+
+const TILES: { id: string; label: string; images: Shot[] }[] = [
+  {
+    id: "show",
+    label: "The show collection",
+    images: [
+      // The jacket walked in oxblood; the shop sells the Forgiven Jacket in black and navy.
+      { id: "DdXhh9lGzsf-2", alt: "Look 2 from the Light Fashion Experience: a Forgiven leather jacket with a red scarf pulled over the face", position: "50% 25%", product: 10566276710540 },
+      { id: "Ddg9ywokdFD-2", alt: "Look 12: the white Women's Red Cross Garment with flared sleeves and a long black skirt", position: "45% 18%", product: 10564044259468 },
+    ],
+  },
+  {
+    id: "once",
+    label: "Made once",
+    images: [
+      { id: "Ddh1xvnG7AR-0", alt: "Look 16: the one-of-one Light Rhinestone Jacket, Light of the World script on the trousers", position: "50% 22%", product: 10565178097804 },
+      { id: "DdedB0Kkfih-1", alt: "Look 7: the one-of-one purple flower denim jacket over an olive cross tee", position: "50% 22%", product: 8387385819276 },
+    ],
+  },
+  {
+    id: "jesus-lives",
+    label: "Jesus Lives",
+    images: [
+      { id: "DcZ3A7_kdYU-1", alt: "The Jesus Lives tee, off-white with the pink chrome star, photographed by the lake", position: "50% 30%", product: 9107472154764, color: "Off White Tee & Pink Chrome" },
+      { id: "DcZ3A7_kdYU-3", alt: "The Jesus Lives tee, off-white with the pink chrome star, photographed by the lake", position: "50% 40%", product: 9107472154764, color: "Off White Tee & Pink Chrome" },
+    ],
+  },
+  {
+    id: "light-resurgence",
+    label: "Light Resurgence",
+    images: [
+      { id: "DaHD4q5jWT--2", alt: "The white Jesus Wept scarf tee, the scarf pulled over the nose", position: "45% 25%", product: 7861896413324, color: "White" },
+      { id: "DaHD4q5jWT--3", alt: "The white Jesus Wept scarf tee, worn with a knit cap, the scarf draped", position: "50% 20%", product: 7861896413324, color: "White" },
+    ],
+  },
+  {
+    id: "summer",
+    label: "Light4eva summer",
+    images: [
+      { id: "DaJvqbyEe0Y-2", alt: "The white Light4eva reflective women's tee on a tennis court", position: "45% 30%", product: 9535087739020, color: "White" },
+      { id: "DaJvqbyEe0Y-3", alt: "The yellow Light4eva reflective bag on a tennis court", position: "50% 55%", product: 9535045107852, color: "Yellow" },
+    ],
+  },
+];
+
+/**
+ * The looks on the home page, each linked to the main piece it shows. Looks 4, 6 and 13 aren't in the
+ * shop; look 10 is the Women's Light Tank again (it leads look 3).
+ */
+const LOOK_PIECES: Record<number, { product: number; color?: string }> = {
+  1: { product: 10564685824140 },
+  2: { product: 10566276710540 },
+  3: { product: 10564038590604, color: "White" },
+  5: { product: 10565502697612 },
+  7: { product: 8387385819276 },
+  8: { product: 8120992235660 },
+  9: { product: 10564169695372 },
+  11: { product: 9107472154764, color: "Black Tee & Silver Chrome" },
+  12: { product: 10564044259468 },
+  14: { product: 10565033230476 },
+  15: { product: 9535087739020, color: "White" },
+  16: { product: 10565178097804 },
+};
 
 export default async function Home() {
   const products = await getProducts();
   const byId = new Map(products.map((p) => [p.id, p]));
-  const pick = (ids: number[]) => ids.map((id) => byId.get(id)).filter((p): p is Product => !!p);
+  const show = products.filter((p) => p.drop === "show");
+  const looks = LOOKS.flatMap((look) => {
+    const piece = LOOK_PIECES[look.n];
+    const product = piece && byId.get(piece.product);
+    return product ? [{ look, product, href: productHref(product, piece.color) }] : [];
+  });
 
-  const forgiven = pick(FORGIVEN);
-  const show = products.filter((p) => p.drop === "show" && !FORGIVEN.includes(p.id)).slice(0, 8);
-  const once = products
-    .filter((p) => p.scarcity && p.scarcity !== "pre-release")
-    .sort((a, b) => Number(b.available) - Number(a.available));
-
-  const rail = LOOKS.map((look) => ({
-    n: look.n,
-    image: (
-      <IgImage
-        id={look.images[0]}
-        alt={`Look ${look.n}. ${look.alt}`}
-        fill
-        sizes="(min-width: 1280px) 24vw, (min-width: 1024px) 30vw, (min-width: 640px) 44vw, 80vw"
-        className="object-cover"
-      />
-    ),
-    verse: <Verse line={look.line} cite={look.cite} size="sm" inline />,
-    pieces: pick(look.products).map((p) => ({
-      slug: p.slug,
-      name: p.color ? `${p.name} (${p.color.toLowerCase()})` : p.name,
-    })),
-  }));
-
-  const shown = new Set([...FORGIVEN, ...show.map((p) => p.id)]);
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "Organization", name: "LIGHT", alternateName: "Children of the Light", url: SITE, logo: `${SITE}/brand/light-mark-black.png`, sameAs: [INSTAGRAM] },
+      { "@type": "WebSite", name: "LIGHT", url: SITE },
+    ],
+  };
 
   return (
     <PageTransition>
-      <HeroRunway count={products.length} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }} />
+      <HeroFilm title={SHOW.name} detail={`${SHOW.city}, ${SHOW.date}`} />
 
-      <section id="looks" data-surface="night" aria-labelledby="looks-title" className="section-t scroll-mt-16 pb-[var(--space-band)]">
-        <div className="container-x">
-          <SectionHead
-            id="looks-title"
-            title="Sixteen looks, sixteen lines"
-            intro={<>Every look walked with a line beside it: scripture, or a few of Myron&apos;s own words. Open one to see every angle and shop what was worn.</>}
-          />
-        </div>
-        <div className="head-gap">
-          <RunwayRail looks={rail} />
-        </div>
-      </section>
-
-      <LightTransition />
-
-      <section data-surface="day" aria-labelledby="show-title" className="after-light section-b relative z-10 pt-[var(--space-md)]">
-        <div className="container-x">
-          <SectionHead
-            id="show-title"
-            title="From the show"
-            intro="Released September 20, a week after the runway. Small runs, and a few pieces that exist once."
-            action={
-              <Link href="/shop" className="link text-ui font-medium">
-                Shop all {products.length} pieces
-              </Link>
-            }
-          />
-
-          <div className="head-gap grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-5 lg:grid-cols-12">
-            {forgiven.length > 0 && <ForgivenFeature jackets={forgiven} />}
-            {show.map((p, i) => (
-              <div key={p.id} className="lg:col-span-3">
-                <ProductTile product={toLite(p)} priority={i < 2} />
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {once.length > 0 && (
-        <section data-surface="day" aria-labelledby="once-title" className="band-y border-t border-day-line">
-          <div className="container-x">
-            <SectionHead
-              id="once-title"
-              title="Made once"
-              intro={<>Runway garments, hand-painted denim, unreleased samples and the first tee LIGHT ever made. Each one exists once. When it sells, it&apos;s gone.</>}
-              action={
-                <Link href="/shop?only=one-of-one" className="link text-ui font-medium">
-                  See every one-of-one
-                </Link>
-              }
-            />
-          </div>
-          <ul className="rail-fade no-scrollbar head-gap relative flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-px-[var(--gutter)] px-[var(--gutter)] sm:gap-5">
-            {once.map((p) => (
-              <li key={p.id} className="w-[64vw] shrink-0 snap-start xs:w-[46vw] sm:w-[34vw] lg:w-[22vw] xl:w-[18vw]">
-                <ProductTile product={toLite(p)} morph={!shown.has(p.id)} />
-              </li>
-            ))}
-            <li aria-hidden="true" className="w-px shrink-0" />
+      {TILES.map((tile) => (
+        <section key={tile.id} id={tile.id} aria-labelledby={`tile-${tile.id}`}>
+          <h2 id={`tile-${tile.id}`} className="sr-only">
+            {tile.label}
+          </h2>
+          <ul className="grid md:grid-cols-2">
+            {tile.images.map((img, i) => {
+              const product = byId.get(img.product);
+              if (!product) return null;
+              return (
+                <li key={img.id} className={i > 0 ? "relative hidden before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-px before:bg-ink md:block" : ""}>
+                  <Link href={productHref(product, img.color)} transitionTypes={["nav-forward"]} className="group block">
+                    <div className="relative aspect-[4/5] overflow-hidden">
+                      <IgImage id={img.id} alt={img.alt} sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" style={{ objectPosition: img.position }} />
+                    </div>
+                    <div className="px-edge flex min-h-14 items-center justify-between gap-6 border-b border-ink py-2">
+                      <span className="min-w-0">
+                        <span className="t-meta block text-grey">{tile.label}</span>
+                        <span className="t-label block truncate group-hover:underline">{product.name}</span>
+                      </span>
+                      <span className="t-label link shrink-0">Shop now</span>
+                    </div>
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </section>
-      )}
-
-      {STORIES.slice(0, 3).map((story, i) => (
-        <StoryBand key={story.id} story={story} products={pick(story.products)} flip={i % 2 === 1} />
       ))}
 
-      <section data-surface="day" aria-labelledby="founder-title" className="border-t border-day-line py-[var(--space-xl)]">
-        {/* Two equal halves, each centred: the poster on one side, the words on the other (words first on
-            phones), so the section balances on its centre line. */}
-        <div className="container-x grid items-center gap-[var(--space-xl)] lg:grid-cols-2 lg:gap-8">
-          <figure className="flex flex-col items-center text-center lg:order-2">
-            <blockquote id="founder-title" className="quote-xl max-w-[16ch]">
-              <span aria-hidden="true">“</span>Light is what I call a God vision.<span aria-hidden="true">”</span>
-            </blockquote>
-            <figcaption className="mt-5 text-lead">
-              <span className="block">“More than just fashion.”</span>
-              <span className="muted mt-1 block text-ui">Myron, founder and designer, March 2026</span>
-            </figcaption>
-            <Link href="/story" className="btn btn-ink mt-[var(--space-lg)]">
-              Read the story
-            </Link>
-          </figure>
-          <div className="flex justify-center lg:order-1">
-            <div className="relative aspect-[4/5] w-full max-w-[18rem] overflow-hidden bg-tile sm:max-w-[22rem]">
-              <Image
-                src={media("Dclxg2wRFYs-0").src}
-                alt="Poster for the Light Fashion Experience: September 13, 2026, 7 PM, New York City, LIGHT × NYFW"
-                fill
-                sizes="(min-width: 640px) 352px, 288px"
-                className="object-cover"
-              />
-            </div>
-          </div>
+      <section aria-labelledby="show-title" className="pt-12 md:pt-24">
+        <SectionBar id="show-title" title="From the show" href="/shop" action={`Shop all ${products.length}`} />
+        <div className="[--cw:50vw] sm:[--cw:33.333vw] lg:[--cw:25vw]">
+          <Carousel label="From the show, pieces" itemClass="w-[var(--cw)]" arrowTop="calc(var(--cw) * 0.6667)">
+            {show.map((p) => (
+              <ProductCell key={p.id} product={toLite(p)} sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw" />
+            ))}
+          </Carousel>
         </div>
       </section>
-    </PageTransition>
-  );
-}
 
-function ForgivenFeature({ jackets }: { jackets: Product[] }) {
-  const [lead] = jackets;
-  return (
-    <article className="relative col-span-2 lg:col-span-6 lg:row-span-2">
-      <div data-surface="night" className="relative aspect-[4/5] overflow-hidden lg:aspect-auto lg:h-full">
-        <LoopVideo
-          src={VIDEO.forgiven.src}
-          poster={VIDEO.forgiven.poster}
-          label="film of the Forgiven Jacket being put on"
-          className="absolute inset-0 h-full w-full object-cover"
-          controlClassName="absolute top-4 right-4 z-20 bg-night/70 text-night-ink hover:bg-night/90"
-        />
-        {/* Deep enough under the copy that the red stock line and the name hold up over the bright sky. */}
-        <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-3/4 bg-[linear-gradient(to_top,var(--color-night)_0%,oklch(0.138_0.006_245/0.88)_38%,oklch(0.138_0.006_245/0.5)_66%,transparent)]" />
-        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-8">
-          <p className="signal text-ui font-semibold">Pre-release. Released one at a time.</p>
-          <h3 className="type-h2 mt-2">
-            <Link href={`/shop/${lead.slug}`} className="after:absolute after:inset-0 after:content-['']">
-              Forgiven Jacket
-            </Link>
-          </h3>
-          <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-ui">
-            <Price price={lead.price} className="text-lead font-semibold" />
-            {jackets.map((j) => (
-              <Link
-                key={j.id}
-                href={`/shop/${j.slug}`}
-                className="relative z-10 inline-flex min-h-10 items-center gap-2 rounded-full px-3 font-medium shadow-[inset_0_0_0_1px_currentColor] hover:shadow-[inset_0_0_0_2px_currentColor]"
-              >
-                <span
-                  aria-hidden="true"
-                  className="size-3 rounded-full ring-1 ring-night-ink/50"
-                  style={{ background: j.color === "Navy" ? "oklch(0.32 0.08 262)" : "oklch(0.16 0 0)" }}
-                />
-                {j.color}
-                {!j.available && <span className="muted">, sold</span>}
-              </Link>
+      <section aria-labelledby="looks-title" className="pt-12 md:pt-24">
+        <SectionBar id="looks-title" title="Shop the looks" />
+        <div className="overflow-hidden border-t border-grey">
+          <ol className="-mr-px grid grid-cols-3 md:grid-cols-6">
+            {looks.map(({ look, product, href }) => (
+              <li key={look.n} className="border-r border-b border-grey">
+                <Link href={href} transitionTypes={["nav-forward"]} className="group block">
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <IgImage
+                      id={look.images[0]}
+                      alt={`Look ${look.n}. ${look.alt}`}
+                      sizes="(min-width: 768px) 16.7vw, 33vw"
+                      className="object-cover transition-opacity duration-300 can-hover:group-hover:opacity-80"
+                    />
+                  </div>
+                  <span className="t-label block px-2 pt-2 pb-3 group-hover:underline md:px-3">{product.name}</span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ol>
         </div>
-      </div>
-    </article>
+      </section>
+
+      <section aria-labelledby="closing" className="px-edge py-16 md:py-28">
+        <h2 id="closing" className="t-giant">
+          Walk as children of light
+        </h2>
+        <p className="t-meta mt-4 md:mt-6">Ephesians 5:8</p>
+      </section>
+    </PageTransition>
   );
 }

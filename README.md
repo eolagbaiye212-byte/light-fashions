@@ -18,15 +18,15 @@ The site is **headless on the existing Shopify store**. No API keys or app insta
 | `/shop` | Full catalog with category, one-of-one and in-stock filters (state lives in the URL) |
 | `/shop/[slug]` | Product page: gallery, size picker, size guide, the runway look it walked in |
 | `/runway` | All 16 looks in running order, each with its scripture line and shoppable pieces |
-| `/story` | The brand, Myron's words, and a 2026 timeline |
+| `/story` | Myron's words on LIGHT, the brand, and a 2026 timeline (words only) |
 | `/info` | Shipping, returns (all sales final), sizing, payment, contact |
 
 ## Design
 
 - `PRODUCT.md` covers who it's for, brand personality and principles.
-- `DESIGN.md` covers color tokens (sampled from the show photography), type (Hanken Grotesk for everything, Frank Ruhl Libre for scripture and Myron's words; both OFL and self-hosted in `app/fonts`), layout and the motion system.
+- `DESIGN.md` is the design system: a white site in black, one grey and one red (sale prices and errors only); Geist and Geist Mono (OFL, self-hosted in `app/fonts`); 1px hairlines, no rounded corners, shadows or icons; how every photo fills its frame; and what each page holds.
 
-Motion is built to stay smooth: Lenis wheel smoothing, React view transitions between pages (the product photo carries from grid to product page), CSS scroll-driven animations for the light transition, and full `prefers-reduced-motion` support.
+Motion is minimal: React view transitions between pages (the product photo carries from grid to product page), fades on the bag and menu, and full `prefers-reduced-motion` support.
 
 ## Run it
 
@@ -54,6 +54,8 @@ npm start
 ## Media
 
 Photos and video in `public/media` come from @children_ofthelight posts published after February 13, 2026. `scripts/build-media.mjs` converts the raw pull (`_source/`, not committed) into WebP images, blur placeholders (`lib/media.generated.json`) and trimmed, muted video loops.
+
+Product photos come from Shopify. `scripts/build-image-fit.mjs` samples the edges of each one into `lib/image-fit.generated.json`, so packshots fill their frames on their own backdrop colour. Re-run it (`node scripts/build-image-fit.mjs`) after adding photos in Shopify; new photos work without it, just with plainer framing.
 
 ## Deploy
 

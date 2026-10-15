@@ -1,0 +1,978 @@
+{
+ "6F7D92FD-834D-424A-927E-E2482893731A.png": {
+  "t": "#fcfdfd",
+  "b": "#fcfdfd",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd"
+ },
+ "2C980FAF-4458-4295-9933-29E77A8E0BCC.png": {
+  "t": "#fdfdfd",
+  "b": "#fdfdfd",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd"
+ },
+ "E9885599-F1AF-4533-B4BA-B6EDA11097FC.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "8F611F53-8BF1-4C4A-B0A6-7E739F69BB8C.png": {
+  "t": "#fdfdfd",
+  "b": "#fdfdfd",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd"
+ },
+ "9B1793B0-BF9D-4262-A414-0A5A2ED2E691.png": {
+  "t": "#fdfdfd",
+  "b": "#fdfdfd",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd"
+ },
+ "5879708C-EDF7-4EBB-A019-11D8BB92A6FC.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "784E1FEE-9919-4FC0-A986-D574E8251889.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "316B26D2-BF7A-4325-BA87-E2638A426C54.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "093ED135-186E-4C5F-9C44-CB1C649841F5.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "B927611C-B6F9-4F1B-967C-88A7FACE6B8F.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "0FE35B2B-7879-42D3-A10C-7C553206D5D4.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "E504D762-B2B5-4357-B716-55F852590CCF.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "76BF94EB-613A-4528-822E-6CFB60B6F181.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "FC9C420B-2C32-47CB-88C2-89B44FE99CD1.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "58940FFB-EDCF-431C-830C-598B2784F213.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "4A49F354-199B-4108-8221-7ACEA9FC8302.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "BB30E7D5-6EE2-4D7B-9685-1378BC504A8A.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "6674BC95-E65C-4D14-9479-18EC0117D098.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "0E7F18C6-D481-46F0-B2AE-75D2285B7584.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "5D2F5A58-D0C7-4752-B15E-97BE8F7815A3.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "IMG-0185.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "BD9F52B8-8DFD-4CA9-9947-2105F30060D9.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "065E4649-7D1A-448F-AAED-A0C27BA9543E.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "042E87DB-7D47-423D-9E05-E0D5DB23AC5F.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "ABB74A73-9DA7-4BE0-9380-C321755D0CAA.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "3A37F783-28D1-472E-B8D6-8176376DA68F.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "513BA420-9BA0-4C3A-B2E5-EC9C05404EDB.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "FE5CE1D5-1A1A-4A4A-8D87-607616EF3419.png": {
+  "t": null,
+  "b": "#f6f6f6",
+  "l": "#f7f7f6",
+  "r": null
+ },
+ "B9500A62-9401-4DBF-8717-8B38AF00F3C9.png": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "3B805F43-8701-468A-9582-AC180572054D.png": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "87CE6AB1-4CB2-4158-B546-8EF5A5335004.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "0979D936-508E-45A1-9EE8-B53E3483F325.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "804823CA-4384-4C39-8D5B-D1330595C6FA.png": {
+  "t": "#fefefe",
+  "b": "#fefefe",
+  "l": "#fefefe",
+  "r": "#fefefe"
+ },
+ "16270BAF-5906-43D6-815C-93196DA1FB00.png": {
+  "t": "#fefefe",
+  "b": "#fefefe",
+  "l": "#fefefe",
+  "r": "#fefefe"
+ },
+ "92809A6A-2837-4F21-A093-32D1D57A6F2F.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "273144B8-3264-402E-A8EE-F83B83B10D66.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "0B8D039C-EFB6-4DA4-8B5D-D83424D2FBB1.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "1CC7B604-03B7-4C58-8F93-6F3BF40A5493.png": {
+  "t": "#fefefe",
+  "b": "#fefefe",
+  "l": "#fefefe",
+  "r": "#fefefe"
+ },
+ "IMG-8357.png": {
+  "t": "#fefdfe",
+  "b": "#fefdfe",
+  "l": "#fefdfe",
+  "r": "#fefefe"
+ },
+ "31926F61-B9D4-4FDA-9204-90B8B115A5B4.png": {
+  "t": "#fdfdfd",
+  "b": "#fdfdfd",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd"
+ },
+ "9BE8E2C2-0ECA-43F6-B3B7-025A6569462A.jpg": {
+  "t": "#2b2b2b",
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "5628A0A4-2761-4192-B18B-CE4B99A0C041.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "hf_20260214_042807_6b220eb0-e10f-49c4-a33d-e673040c914e.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "hf_20260421_044250_4b65ce4c-5df4-49eb-954f-257c335294d4.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "hf_20260402_201854_c4950bf6-b87f-4f57-aebb-062875a31210.png": {
+  "t": "#fdfdfb",
+  "b": "#fcfdfb",
+  "l": "#fcfdfb",
+  "r": "#fcfdfc"
+ },
+ "hf_20260402_204357_9964a28d-9ff8-4972-b0bd-d825079ccc66.png": {
+  "t": "#fcfdfb",
+  "b": "#fcfdfb",
+  "l": "#fcfdfb",
+  "r": "#fcfdfc"
+ },
+ "hf_20260402_204638_12665635-1ba2-426f-92aa-e831a8e7ee0c.png": {
+  "t": "#fcfdfa",
+  "b": "#fcfdfa",
+  "l": "#fcfdfa",
+  "r": "#fcfdfc"
+ },
+ "hf_20260402_214137_f518b762-8f8a-4a56-b5ae-8431b6858ad0.png": {
+  "t": "#fdfefb",
+  "b": "#fdfefc",
+  "l": "#fdfefb",
+  "r": "#fefefd"
+ },
+ "hf_20260402_215047_db37c3e7-d20d-4896-a36e-742b220ccdba.png": {
+  "t": "#fcfdfb",
+  "b": "#fcfdfb",
+  "l": "#fcfdfa",
+  "r": "#fdfdfc"
+ },
+ "hf_20260402_215104_e521f703-ca55-4ef9-87a1-9726d5389bc4.png": {
+  "t": "#fcfdfa",
+  "b": "#fcfdfb",
+  "l": "#fcfdfb",
+  "r": "#fcfdfc"
+ },
+ "31745D89-3CB8-4F58-B7C1-16703D7C8C1B.png": {
+  "t": null,
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "99FAF673-F292-44D8-AF12-545C9A5337CE.png": {
+  "t": null,
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "5BE41A8F-E7DC-4C0F-977B-126471C29D0E.png": {
+  "t": null,
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "EE317274-D664-41B9-A612-5A022D277E86.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "BE2FB7C0-D3CC-469F-8A78-1C562EE0A35C.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG-4364.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG-4389.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG-4390.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "1AF3FFFC-5EB1-4802-8C0C-7E945FA03466.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "BDECD6DE-7464-443A-AFA2-37961F432639.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "97632A49-F897-4F5A-A3C9-66DDA97D8A51.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "4202C9E2-F226-4331-8803-4A7F5457A0D1.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "659E1572-D0B7-4AB2-99F2-BAA7447F9428.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "8E3AF6D6-E6D1-4497-9DB7-E7BAF3AD08A0.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "FBCFA19A-0AFD-4BA3-AB27-2B316440AA58.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "E805DF03-7E39-4541-BEB2-4C2623883D42.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "9A6A12B3-3293-40E8-890A-59E49132C57B.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "D77AAD2B-88A0-4925-A801-2E02E37C4BC6.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "886430E4-23FF-4297-9F09-0B110BA7D75C.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "b9bd0f6b-47df-4645-9c8b-34840a835d8a.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Image.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "IMG_6011.png": {
+  "t": null,
+  "b": "#ffffff",
+  "l": null,
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "IMG_5979.heic": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "IMG_5988.heic": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "crewneck.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_3877.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "3ef453c3-29ac-4eee-a3d4-7e96de2b3b372.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_1742_ca9460c1-2a90-4a52-b1de-ea8bdcf47fdb.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_1708.jpg": {
+  "t": null,
+  "b": null,
+  "l": "#f9f5f4",
+  "r": null
+ },
+ "IMG_1756.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_1755.jpg": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_1736.jpg": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_1719.jpg": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "purple.png": {
+  "t": "#fdfdfd",
+  "b": null,
+  "l": "#fdfdfd",
+  "r": "#fdfcfb"
+ },
+ "backpurple.png": {
+  "t": "#fcfdf9",
+  "b": null,
+  "l": "#fdfdfa",
+  "r": null
+ },
+ "bce56517-4fd4-4dd1-814d-a9adb3d6aa41_4c3b8bd0-eedd-4c5a-a444-7446fdb7985e.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "135eaf5c-2abd-457f-a47e-c0afb942388d.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "flowershirt.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "back.png": {
+  "t": null,
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "purplehoodie..png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "1.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "40176DD4-2EC8-4D2B-8496-E3ECA2FAF011.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "AE5E6549-C11A-4EAD-9E2F-F380EE7ECBB2.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "5C544283-97CC-432B-837F-F1868E03177C.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Photo_Jun_20_2024_3_42_41_PM.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "Photo_Jun_20_2024_3_39_11_PM.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "Photo_Jun_20_2024_3_15_02_PM.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "48FEDAE8-05F1-4E19-B35C-4DE9AEB504E9.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "4A28FC6D-5E13-4F8A-90D6-86686771E449.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "3B3E7CD7-478B-42ED-B0A8-A909E47935FF.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "55C4DA17-74D7-4091-8685-43AB36E3D25E.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "61A23AFC-A641-486B-ABA2-BDBFF1E5045C.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "0A0F6FE0-82B4-4C42-8DA8-B492F641FED9.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": null
+ },
+ "22079402-512A-41DC-9B58-2A739588E004.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "20AB9DE1-5FC6-46BA-9C8B-917814CB6845.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": null
+ },
+ "pants_front.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "back3.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "pantsbottomshot.png": {
+  "t": null,
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "jadenfullfront2_5c7634c4-ae08-47c3-bda5-2014ff7112f2.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "jadenfullfront.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Product_Shot_Front_3_807b2e2c-fa02-4d36-900c-f95419ebf7a4.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Product_Sht_Back.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "jadenfullfront3.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "REEDIT1.png": {
+  "t": null,
+  "b": null,
+  "l": "#dddddd",
+  "r": "#dddddd"
+ },
+ "jadenfullfront2.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "jadenback.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "6.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "EED44F28-77DC-457C-9A3D-EB3C05C9F746.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "1DE8E7D8-5A86-4746-9334-E5712773992E.png": {
+  "t": "#ffffff",
+  "b": "#fbfbfb",
+  "l": "#fdfdfd",
+  "r": "#fdfdfd",
+  "cutout": true
+ },
+ "FullSizeRender_89d26a45-e04b-4979-afe8-21f521ae49f2.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "27f939b6-d1f9-4b1a-8578-d1cdb1d596b8.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "4.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "4561D301-9153-49CA-9A8D-4BC4A412141A.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "Photo_Jun_20_2024_2_46_46_PM.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "05DBA1A5-FCEB-4693-BBC5-2D514662545A.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "449EB997-F9D2-4D94-A4F7-7CC3B23C9781.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "E3E9555B-91B3-491B-B9B4-1CF533F463AA.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": null,
+  "cutout": true
+ },
+ "871052D8-BDE8-44D5-B8CC-3560176D8F97.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "929AA288-53B0-47AD-810C-B5E59B5D3CF4.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "16B2E783-29A0-4D89-9C64-B7BE12E696A5.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "30805B18-9EF7-40BE-96A9-91252192404F.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "E1FBC739-DD0E-4CC7-A556-26B233969D66.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "f0bb276e-c776-43f7-9538-e2c8b335535b.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "IMG_4127.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "96656261-9F6D-4973-97C6-6153FD83BD5B.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "FCDE9732-A488-44F9-A372-02086C0C2803.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "3881308D-56A1-448F-AE07-19703F071FD5.jpg": {
+  "t": null,
+  "b": null,
+  "l": "#ffffff",
+  "r": null
+ },
+ "E2FF046A-CB30-442B-B48E-D24418A4CA02.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "7d8c98d7-5a86-44cd-a614-67c75d6b2d27.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "1398076e-4866-44ab-a39a-2d941a49637f.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "3CB14ACC-312D-49EF-A605-EC3E849A84AD.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "C79CA215-E59A-48B9-B30A-E9441E2C48DC.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "E127360A-4A7A-4EA9-A2C2-A489D603C2B8.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "FD0BB4D4-2EF5-498B-B538-CD7657A7933D.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "87CCA9AF-C6D7-4E0A-95A8-2F732492F2CF.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "82B4F16B-FB9F-4DBE-ABD7-25F58A69D27B.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ },
+ "538217BD-0C52-413B-9128-13B10EDE3515.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "D8F8FB63-1C47-46CA-A880-664D3BD73F20.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "45A3753B-A365-4830-9956-A24CBBD7266E.jpg": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Photo_Jun_20_2024_2_50_54_PM.jpg": {
+  "t": null,
+  "b": null,
+  "l": null,
+  "r": null
+ },
+ "2418e26c-443f-43ec-8cf6-ab17cfda8e04.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "1082ab37-a620-45ec-80fe-727cb126df15.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "be8cf3fd-5b39-4811-a732-fe082ff2f164.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "f08173de-a594-4053-9cee-410968228aee.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff"
+ },
+ "Photoroom_20250225_030752.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "Photoroom_20250225_030837.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "Photoroom_20250225_030956.png": {
+  "t": "#ffffff",
+  "b": null,
+  "l": null,
+  "r": null,
+  "cutout": true
+ },
+ "Photoroom_20250225_030718.png": {
+  "t": "#ffffff",
+  "b": "#ffffff",
+  "l": "#ffffff",
+  "r": "#ffffff",
+  "cutout": true
+ }
+}

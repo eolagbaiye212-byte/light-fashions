@@ -16,6 +16,14 @@ export type Override = {
   lede?: string;
   /** Runway look numbers this piece walked in. */
   looks?: number[];
+  /**
+   * Which photo shows each colour (Shopify image index, 0-based, in Shopify's order), for products
+   * whose variants aren't linked to photos in Shopify. Keys match the colour names shown on the site.
+   * Re-check this and `charts` if photos are reordered or replaced in Shopify.
+   */
+  colorImages?: Record<string, number>;
+  /** Shopify image indexes that are size charts: shown under Size & fit, not in the gallery. */
+  charts?: number[];
 };
 
 export const CATEGORY_LABEL: Record<Category, string> = {
@@ -75,14 +83,27 @@ export const OVERRIDES: Record<number, Override> = {
   10564169695372: { name: "Light Striped Tee", category: "tops", drop: "show", looks: [9] },
   10564044259468: { name: "Women's Red Cross Garment", category: "tops", drop: "show", looks: [12] },
   10564038590604: { name: "Women's Light Tank", category: "tops", drop: "show", looks: [3, 10] },
-  9535087739020: { name: "Light4eva Reflective Women's Tee", category: "tops", drop: "summer", looks: [15] },
-  9535045107852: { name: "Light4eva Reflective Bag", category: "accessories", drop: "summer", looks: [3, 5] },
+  9535087739020: {
+    name: "Light4eva Reflective Women's Tee",
+    category: "tops",
+    drop: "summer",
+    looks: [15],
+    colorImages: { Black: 0, White: 1 },
+  },
+  9535045107852: {
+    name: "Light4eva Reflective Bag",
+    category: "accessories",
+    drop: "summer",
+    looks: [3, 5],
+    colorImages: { Black: 0, Grey: 1, Yellow: 2 },
+  },
   9162324377740: {
     name: "Light Skull Cap",
     category: "accessories",
     drop: "summer",
     lede: "Knit skull cap with the LIGHT wordmark in reflective thread. It throws back light under flash and headlights.",
     looks: [5],
+    colorImages: { "Black & Silver": 0, "White & Silver": 1 },
   },
   9107472154764: {
     name: "Jesus Lives Tee",
@@ -90,6 +111,14 @@ export const OVERRIDES: Record<number, Override> = {
     drop: "jesus-lives",
     lede: "Oversized tee with the chrome-printed JESUS LIVES star. First released on Good Friday 2026.",
     looks: [11],
+    colorImages: {
+      "Black Tee & Silver Chrome": 0,
+      "White Tee & Silver Chrome": 1,
+      "Off White Tee & White Chrome": 2,
+      "Off White Tee & Pink Chrome": 3,
+      "Black Tee & Pink Chrome": 4,
+      "White Tee & Pink Chrome": 5,
+    },
   },
   8686660223116: { name: "Messiah Made Pants", category: "bottoms", drop: "messiah-made" },
   8686381793420: { name: "Messiah Made Zip-Up", category: "hoodies", drop: "messiah-made" },
@@ -106,6 +135,7 @@ export const OVERRIDES: Record<number, Override> = {
     category: "hoodies",
     drop: "archive",
     lede: "Scarf hood with tonal FIND GOD embroidery and Proverbs 8:17 down the sleeve: those who seek me diligently find me.",
+    charts: [5],
   },
   7547151777932: {
     name: "Find God Hoodie",
@@ -113,6 +143,7 @@ export const OVERRIDES: Record<number, Override> = {
     category: "hoodies",
     drop: "archive",
     lede: "Scarf hood with reflective FIND GOD embroidery and Proverbs 8:17 down the sleeve: those who seek me diligently find me.",
+    charts: [4],
   },
   7257809092748: {
     name: "The Light Crewneck",
@@ -169,6 +200,8 @@ export const OVERRIDES: Record<number, Override> = {
     category: "tops",
     drop: "archive",
     lede: "300+ GSM heavyweight tee with an attached scarf hood and reflective JESUS WEPT embroidery. John 11:35 on the scarf.",
+    colorImages: { Beige: 7, Black: 0, Gray: 6, White: 5, Pink: 4 },
+    charts: [8, 9, 10, 11],
   },
   8120874107020: { name: "Light × P.G Denim Pants", category: "bottoms", drop: "archive" },
   8120992235660: { name: "Light × P.G Denim Jacket", category: "outerwear", drop: "archive", looks: [8] },
@@ -178,12 +211,14 @@ export const OVERRIDES: Record<number, Override> = {
     category: "hoodies",
     drop: "archive",
     lede: "Oversized scarf-hood pullover with a screen-printed crucifix.",
+    charts: [3],
   },
   7831257448588: {
     name: "All Hail Yeshua Tee",
     category: "tops",
     drop: "archive",
     lede: "300+ GSM heavyweight tee with reflective ALL HAIL YESHUA embroidery and three crosses on the back.",
+    charts: [10],
   },
   7004827779212: {
     name: "Crown of Thorns Tee",
@@ -197,6 +232,7 @@ export const OVERRIDES: Record<number, Override> = {
     category: "tops",
     drop: "archive",
     lede: "300+ GSM heavyweight tee with reflective Hebrew embroidery: “I love Yeshua.”",
+    charts: [10],
   },
   8089712951436: {
     name: "All Hail Runway Garment",

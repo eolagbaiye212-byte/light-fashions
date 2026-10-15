@@ -1,93 +1,63 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
+import { preload } from "react-dom";
+import Link from "next/link";
 import { media } from "@/lib/media";
 import { money } from "@/lib/shop-config";
 import { SCARCITY_LABEL, type Scarcity } from "@/lib/catalog";
 
-/** An Instagram photo from the generated media set, with its blur placeholder. */
+/**
+ * An Instagram photo from the generated media set. A plain server-rendered <img> (no client
+ * component to hydrate, which matters on pages with dozens of photos); its tiny blur sits behind it
+ * as a background until the photo paints over it.
+ */
 export function IgImage({
   id,
   alt,
   sizes,
   className,
   priority,
-  fill,
+  style,
 }: {
   id: string;
   alt: string;
   sizes: string;
   className?: string;
   priority?: boolean;
-  fill?: boolean;
+  style?: React.CSSProperties;
 }) {
   const m = media(id);
-  return fill ? (
-    <Image
-      src={m.src}
+  const { props } = getImageProps({ src: m.src, alt, fill: true, sizes, quality: 80, preload: priority });
+  if (priority) preload(props.src, { as: "image", imageSrcSet: props.srcSet, imageSizes: props.sizes, fetchPriority: "high" });
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- next/image's own props, rendered without its client wrapper
+    <img
+      {...props}
       alt={alt}
-      fill
-      sizes={sizes}
-      placeholder="blur"
-      blurDataURL={m.blur}
-      priority={priority}
-      quality={80}
       className={className}
-    />
-  ) : (
-    <Image
-      src={m.src}
-      alt={alt}
-      width={m.w}
-      height={m.h}
-      sizes={sizes}
-      placeholder="blur"
-      blurDataURL={m.blur}
-      priority={priority}
-      quality={80}
-      className={className}
+      style={{
+        ...props.style,
+        backgroundImage: `url("${m.blur}")`,
+        backgroundSize: "cover",
+        backgroundPosition: style?.objectPosition ?? "50% 50%",
+        ...style,
+      }}
     />
   );
 }
 
 /**
- * The line a look was built around: scripture, or Myron's own words. Both are quotations, so both
- * are set in the serif; the citation says whose words they are.
+ * A look's line: scripture, or Myron's own words (which stand unattributed). Set small and quiet in
+ * the same face as everything else; scripture's reference follows in mono.
  */
-export function Verse({
-  line,
-  cite,
-  size = "md",
-  inline = false,
-  className = "",
-}: {
-  line: string;
-  cite?: string;
-  size?: "sm" | "md" | "lg";
-  /** Run the reference on after the words, in parentheses, instead of on its own line below. */
-  inline?: boolean;
-  className?: string;
-}) {
-  const s = { sm: "quote-sm", md: "quote-md", lg: "quote-lg" }[size];
-  if (inline) {
-    // Balanced, so a reference that doesn't fit wraps with words beside it rather than alone on a line.
-    return (
-      <figure className={`${s} ${className}`} style={{ textWrap: "balance" }}>
-        <blockquote className="inline">
-          <span aria-hidden="true">“</span>
-          {line}
-          <span aria-hidden="true">”</span>
-        </blockquote>{" "}
-        <figcaption className="muted inline">({cite ?? "Myron"})</figcaption>
-      </figure>
-    );
-  }
+export function Verse({ line, cite, className = "" }: { line: string; cite?: string; className?: string }) {
   return (
     <figure className={className}>
-      <blockquote className={s}>
+      <blockquote className="t-body">
         <span aria-hidden="true">“</span>
         {line}
         <span aria-hidden="true">”</span>
       </blockquote>
-      <figcaption className="muted mt-3 text-ui">{cite ?? "Myron"}</figcaption>
+      {cite && <figcaption className="t-meta mt-2 text-grey">{cite}</figcaption>}
     </figure>
   );
 }
@@ -104,12 +74,12 @@ export function Price({
   className?: string;
 }) {
   return (
-    <span className={`tabular ${className}`}>
+    <span className={`t-price ${className}`}>
       {compareAt ? (
         <>
           <span className="sr-only">Sale price </span>
-          {money(price)}{" "}
-          <s className="muted font-normal">
+          <span className="text-alert">{money(price)}</span>{" "}
+          <s className="text-grey">
             <span className="sr-only">was </span>
             {money(compareAt)}
           </s>
@@ -123,50 +93,45 @@ export function Price({
   );
 }
 
-/** Scarcity and stock facts. Red is reserved for these. */
-export function Status({
-  scarcity,
-  available,
-  onSale,
-  className = "",
-}: {
-  scarcity?: Scarcity;
-  available: boolean;
-  onSale?: boolean;
-  className?: string;
-}) {
-  const label = !available ? "Sold out" : scarcity ? SCARCITY_LABEL[scarcity] : onSale ? "On sale" : null;
+/** Scarcity and stock facts, in mono. Plain statements, never banners. */
+export function Tag({ scarcity, available, className = "" }: { scarcity?: Scarcity; available: boolean; className?: string }) {
+  const label = !available ? "Sold out" : scarcity ? SCARCITY_LABEL[scarcity] : null;
   if (!label) return null;
-  return <span className={`text-fine font-semibold ${available ? "signal" : "muted"} ${className}`}>{label}</span>;
+  return <span className={`t-meta ${available ? "" : "text-grey"} ${className}`}>{label}</span>;
 }
 
 export function pad(n: number) {
   return String(n).padStart(2, "0");
 }
 
-/** The one way a section opens: a title, a short muted intro, an optional action on the right. */
-export function SectionHead({
+/** A section's opening line: a small label on the left, an optional link or count on the right. */
+export function SectionBar({
   id,
   title,
-  intro,
+  href,
   action,
-  as: Tag = "h2",
+  as: Heading = "h2",
+  className = "",
 }: {
-  id: string;
+  id?: string;
   title: React.ReactNode;
-  intro?: React.ReactNode;
+  href?: string;
   action?: React.ReactNode;
   as?: "h1" | "h2";
+  className?: string;
 }) {
   return (
-    <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
-      <div className="max-w-3xl">
-        <Tag id={id} className={Tag === "h1" ? "type-h1" : "type-h2"}>
-          {title}
-        </Tag>
-        {intro && <p className="muted mt-3 max-w-[52ch] text-lead sm:mt-4">{intro}</p>}
-      </div>
-      {action && <div className="shrink-0 pb-1.5">{action}</div>}
+    <div className={`px-edge flex min-h-12 items-center justify-between gap-6 ${className}`}>
+      <Heading id={id} className="t-label">
+        {title}
+      </Heading>
+      {href && action ? (
+        <Link href={href} className="t-label link shrink-0">
+          {action}
+        </Link>
+      ) : (
+        action
+      )}
     </div>
   );
 }

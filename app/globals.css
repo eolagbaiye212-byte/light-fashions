@@ -1,618 +1,240 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------ tokens
-   Sampled from the Light Fashion Experience photographs and the LIGHT × NYFW poster.
-   See DESIGN.md. */
+/* ------------------------------------------------------------------ tokens (see DESIGN.md) */
 @theme {
-  --color-night: oklch(0.138 0.006 245);
-  --color-night-2: oklch(0.189 0.01 248);
-  --color-night-3: oklch(0.25 0.012 248);
-  --color-night-ink: oklch(0.943 0.008 92);
-  --color-night-muted: oklch(0.706 0.013 248);
-  --color-night-line: oklch(0.32 0.012 248);
-  --color-day: oklch(1 0 0);
-  --color-day-ink: oklch(0.162 0.008 248);
-  --color-day-muted: oklch(0.496 0.016 248);
-  --color-day-line: oklch(0.921 0.005 258);
-  --color-day-edge: oklch(0.84 0.006 258);
-  --color-tile: oklch(0.97 0.002 248);
-  --color-rod: oklch(0.792 0.121 78);
-  --color-rod-hot: oklch(0.93 0.06 88);
-  --color-signal: oklch(0.535 0.217 29);
-  --color-signal-night: oklch(0.68 0.19 29);
+  --color-paper: #ffffff;
+  --color-ink: #000000;
+  --color-grey: #767676;
+  --color-alert: #d0021b;
 
-  /* UI text (nav, product names, prices, controls) at 16px and fine print at 14px: product details
-     read comfortably on a phone without competing with body copy. */
-  --text-fine: 0.875rem;
-  --text-fine--line-height: 1.45;
-  --text-ui: 1rem;
-  --text-ui--line-height: 1.4;
-  /* Header links and controls. */
-  --text-nav: 1.125rem;
-  --text-nav--line-height: 1.35;
-  --text-body: 1.0625rem;
-  --text-body--line-height: 1.55;
-  /* Lead copy scales with the viewport so it never crowds body text on phones. */
-  --text-lead: clamp(1.0625rem, 0.97rem + 0.42vw, 1.25rem);
-  --text-lead--line-height: 1.5;
-
-  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: cubic-bezier(0.2, 0, 0, 1);
 
   --breakpoint-xs: 26rem;
 }
 
-@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
-
 @theme inline {
-  --font-sans: var(--font-hanken), "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
-  --font-serif: var(--font-frank), var(--font-frank-hebrew), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-geist), "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, Menlo, Consolas, monospace;
 }
 
+@custom-variant can-hover (@media (hover: hover) and (pointer: fine));
+
 :root {
-  --gutter: clamp(1rem, 0.6rem + 2vw, 2.5rem);
-  --header-h: 4rem;
-  color-scheme: dark;
-
-  /* Spacing scale (4px base). Tight inside a group, generous between groups.
-     --space-lg   heading block → its content
-     --space-xl   between blocks inside one section
-     --space-band padding for stacked, related bands (stories, looks)
-     --space-section padding for a section that stands alone */
-  --space-2xs: 0.5rem;
-  --space-xs: 0.75rem;
-  --space-sm: 1rem;
-  --space-md: 1.5rem;
-  --space-lg: clamp(1.75rem, 1.45rem + 1.2vw, 2.5rem);
-  --space-xl: clamp(2.5rem, 1.95rem + 2.3vw, 3.75rem);
-  --space-band: clamp(3rem, 2.4rem + 2.8vw, 4.5rem);
-  --space-section: clamp(3.5rem, 2.65rem + 3.9vw, 6rem);
-
-  /* The largest quote size, shared by quote-xl and the light's landing (which is measured off it). */
-  --quote-xl-size: clamp(1.875rem, 1.25rem + 2.6vw, 3.25rem);
+  --edge: 1rem;
+  --header: 3rem;
+  color-scheme: light;
+}
+@media (min-width: 48rem) {
+  :root { --edge: 1.5rem; }
 }
 
 /* ------------------------------------------------------------------ base */
 @layer base {
   html {
-    background: var(--color-night);
+    background: var(--color-paper);
     -webkit-text-size-adjust: 100%;
+    scroll-padding-top: var(--header);
   }
   body {
-    background: var(--color-night);
-    color: var(--color-night-ink);
+    background: var(--color-paper);
+    color: var(--color-ink);
     font-family: var(--font-sans);
-    font-size: var(--text-body);
-    line-height: 1.62;
+    font-size: 0.875rem;
+    line-height: 1.5714;
     font-kerning: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  h1, h2, h3, h4 { font-weight: 500; text-wrap: balance; }
+  h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; text-wrap: balance; }
   p { text-wrap: pretty; }
-  ::selection { background: var(--color-rod); color: var(--color-night); }
+  ::selection { background: var(--color-ink); color: var(--color-paper); }
 
   :focus-visible {
-    outline: 2px solid var(--color-rod);
-    outline-offset: 3px;
-    border-radius: 2px;
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
-  [data-surface="day"] :focus-visible { outline-color: var(--color-day-ink); }
 
-  button:not(:disabled), [role="button"] { cursor: pointer; }
+  button:not(:disabled), [role="button"], summary { cursor: pointer; }
   button:disabled { cursor: not-allowed; }
-
-  /* Taps respond immediately (no double-tap-zoom delay); pressed states come from our own styles. */
   a, button, label, summary, select, [role="button"] {
     touch-action: manipulation;
     -webkit-tap-highlight-color: transparent;
   }
   dialog { overscroll-behavior: contain; }
+  summary::-webkit-details-marker { display: none; }
 }
 
-/* Surfaces. Night is the page default; day sections carry their own colors. */
-[data-surface="day"] {
-  background: var(--color-day);
-  color: var(--color-day-ink);
-  line-height: 1.55;
-  color-scheme: light;
-}
-[data-surface="night"] {
-  background: var(--color-night);
-  color: var(--color-night-ink);
-  color-scheme: dark;
-}
-
-/* ------------------------------------------------------------------ type
-   Hanken Grotesk, sentence case, medium weight. Hierarchy comes from size and space, not caps
-   or heaviness. Larger steps tighten their tracking and leading; smaller steps relax them.
-   Weights: 400 reading, 500 headings and labels, 600 prices, buttons and stock facts. */
-@utility type-hero {
+/* ------------------------------------------------------------------ type */
+/* UI labels: nav, buttons, tabs, product names, section labels. */
+@utility t-label {
+  font-family: var(--font-sans);
   font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+/* Metadata: counts, sizes, tags, references, dates, look numbers. */
+@utility t-meta {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+@utility t-body {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+@utility t-price {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+/* The one enormous line a page may have. */
+@utility t-giant {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: clamp(3.5rem, 10.5vw, 12rem);
+  line-height: 0.86;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
   text-wrap: balance;
-  font-size: clamp(2.625rem, 1.75rem + 3.6vw, 4.5rem);
-  line-height: 1.02;
+}
+@utility t-menu {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 2.5rem;
+  line-height: 1;
   letter-spacing: -0.03em;
-}
-@utility type-h1 {
-  font-weight: 500;
-  text-wrap: balance;
-  font-size: clamp(2.25rem, 1.55rem + 2.8vw, 3.75rem);
-  line-height: 1.04;
-  letter-spacing: -0.028em;
-}
-@utility type-h2 {
-  font-weight: 500;
-  text-wrap: balance;
-  font-size: clamp(1.75rem, 1.3rem + 1.9vw, 2.75rem);
-  line-height: 1.08;
-  letter-spacing: -0.022em;
-}
-@utility type-h3 {
-  font-weight: 500;
-  text-wrap: balance;
-  font-size: clamp(1.375rem, 1.15rem + 0.9vw, 1.875rem);
-  line-height: 1.16;
-  letter-spacing: -0.016em;
-}
-@utility type-h4 {
-  font-weight: 500;
-  text-wrap: balance;
-  font-size: clamp(1.125rem, 1.03rem + 0.35vw, 1.375rem);
-  line-height: 1.28;
-  letter-spacing: -0.01em;
-}
-/* Look numbers: the running order, set large, light and quiet. */
-@utility type-num {
-  font-weight: 300;
-  font-variant-numeric: tabular-nums;
-  font-size: clamp(2.75rem, 2rem + 3vw, 4.5rem);
-  line-height: 0.9;
-  letter-spacing: -0.035em;
+  text-transform: uppercase;
 }
 
-/* Quoted words, scripture or Myron's, are the only thing set in Frank Ruhl Libre. */
-@utility quote-xl {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  text-wrap: balance;
-  font-size: var(--quote-xl-size);
-  line-height: 1.14;
-  letter-spacing: -0.012em;
-}
-@utility quote-lg {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  text-wrap: balance;
-  font-size: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);
-  line-height: 1.22;
-  letter-spacing: -0.008em;
-}
-@utility quote-md {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  text-wrap: pretty;
-  font-size: clamp(1.3125rem, 1.15rem + 0.7vw, 1.75rem);
-  line-height: 1.28;
-  letter-spacing: -0.005em;
-}
-@utility quote-sm {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  text-wrap: pretty;
-  font-size: 1.1875rem;
-  line-height: 1.38;
-}
-
-/* ------------------------------------------------------------------ spacing utilities */
-@utility section-y { padding-block: var(--space-section); }
-@utility section-t { padding-top: var(--space-section); }
-@utility section-b { padding-bottom: var(--space-section); }
-@utility band-y { padding-block: var(--space-band); }
-/* First block on a page: clears the fixed header, then breathes. */
-@utility page-top { padding-top: calc(var(--header-h) + var(--space-xl)); }
-@utility head-gap { margin-top: var(--space-lg); }
-@utility block-gap { margin-top: var(--space-xl); }
-@utility scripture {
-  font-family: var(--font-serif);
-  font-weight: 400;
-  line-height: 1.3;
-  letter-spacing: -0.005em;
-}
-@utility tabular {
-  font-variant-numeric: tabular-nums;
-}
-@utility muted {
-  color: var(--color-night-muted);
-  [data-surface="day"] & {
-    color: var(--color-day-muted);
-  }
-}
-/* Scarcity red: the poster red on day, lifted on night so it keeps 4.5:1. */
-@utility signal {
-  color: var(--color-signal-night);
-  [data-surface="day"] & {
-    color: var(--color-signal);
-  }
-}
-@utility hairline {
-  border-color: var(--color-night-line);
-  [data-surface="day"] & {
-    border-color: var(--color-day-line);
-  }
-}
-@utility container-x {
-  padding-inline: var(--gutter);
-  margin-inline: auto;
-  max-width: 96rem;
-  width: 100%;
-}
+/* ------------------------------------------------------------------ layout */
+@utility px-edge { padding-inline: var(--edge); }
+@utility mx-edge { margin-inline: var(--edge); }
+@utility pt-header { padding-top: var(--header); }
+@utility top-header { top: var(--header); }
+@utility hairline { border-color: var(--color-grey); }
 @utility no-scrollbar {
   scrollbar-width: none;
   &::-webkit-scrollbar { display: none; }
 }
-/* Text links: underline that thickens, never color-only. */
+
+/* ------------------------------------------------------------------ controls */
+/* Text links: underlined, thicker on hover. */
 @utility link {
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
-  transition: text-decoration-thickness 160ms var(--ease-quint);
+  text-underline-offset: 3px;
   &:hover { text-decoration-thickness: 2px; }
 }
-
-/* ------------------------------------------------------------------ buttons */
 @utility btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.6em;
+  gap: 0.5rem;
   min-height: 3rem;
-  padding: 0 1.5rem;
-  font-size: var(--text-ui);
-  font-weight: 600;
-  letter-spacing: 0.004em;
-  border-radius: 999px;
-  transition: background-color 160ms var(--ease-quint), color 160ms var(--ease-quint), transform 160ms var(--ease-quint), box-shadow 200ms var(--ease-quint);
-  &:active:not(:disabled) { transform: scale(0.98); }
-}
-/* Primary on night: the light itself. */
-@utility btn-light {
-  background: var(--color-night-ink);
-  color: var(--color-night);
-  &:hover { background: white; box-shadow: 0 0 0 4px oklch(0.792 0.121 78 / 0.4); }
-}
-@utility btn-ghost {
-  box-shadow: inset 0 0 0 1px currentColor;
-  &:hover { box-shadow: inset 0 0 0 2px currentColor; }
+  padding-inline: 1.25rem;
+  border: 1px solid transparent;
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: background-color 150ms var(--ease-out), color 150ms var(--ease-out);
 }
 @utility btn-ink {
-  background: var(--color-day-ink);
-  color: var(--color-day);
-  &:hover:not(:disabled) { background: oklch(0.3 0.01 248); }
-  &:disabled { background: var(--color-day-line); color: var(--color-day-muted); }
+  background: var(--color-ink);
+  color: var(--color-paper);
+  &:hover:not(:disabled) { background: #262626; }
+  &:disabled { background: var(--color-paper); color: var(--color-grey); border-color: var(--color-grey); }
+}
+@utility btn-line {
+  border-color: var(--color-ink);
+  &:hover:not(:disabled) { background: var(--color-ink); color: var(--color-paper); }
 }
 
-/* ------------------------------------------------------------------ the rod
-   The amber light bar from the runway set. Used twice: opening the hero, opening the shop. */
-.rod {
-  background: linear-gradient(90deg, transparent, var(--color-rod) 28%, var(--color-rod-hot) 50%, var(--color-rod) 72%, transparent);
-  box-shadow: 0 0 18px 2px oklch(0.792 0.121 78 / 0.55), 0 0 60px 10px oklch(0.792 0.121 78 / 0.18);
+/* ------------------------------------------------------------------ dialogs (bag, menu, sheets) */
+dialog.drawer,
+dialog.sheet,
+dialog.menu {
+  padding: 0;
+  border: 0;
+  max-width: 100vw;
+  max-height: 100dvh;
+  background: var(--color-paper);
+  color: var(--color-ink);
 }
-
-.hero-open .hero-rod {
-  transform-origin: top;
-  animation: rod-draw 900ms var(--ease-expo) 150ms both, rod-fade 700ms var(--ease-quint) 1500ms both;
-}
-.hero-open .hero-reveal {
-  animation: reveal-from-rod 1400ms var(--ease-expo) 650ms both;
-}
-.hero-open .hero-copy > * {
-  animation: rise 900ms var(--ease-expo) both;
-}
-.hero-open .hero-copy > *:nth-child(1) { animation-delay: 1250ms; }
-.hero-open .hero-copy > *:nth-child(2) { animation-delay: 1350ms; }
-.hero-open .hero-copy > *:nth-child(3) { animation-delay: 1450ms; }
-.hero-open .hero-copy > *:nth-child(4) { animation-delay: 1550ms; }
-
-/* Already seen this session (set by an inline script in HeroRunway before paint). */
-.opened .hero-open .hero-reveal,
-.opened .hero-open .hero-copy > * { animation: none; }
-.opened .hero-rod { display: none; }
-
-@keyframes rod-draw { from { transform: scaleY(0); } to { transform: scaleY(1); } }
-@keyframes rod-fade { to { opacity: 0; } }
-@keyframes reveal-from-rod {
-  from { clip-path: inset(0 49.85% 0 49.85%); }
-  to { clip-path: inset(0 0 0 0); }
-}
-@keyframes rise {
-  from { opacity: 0; transform: translateY(14px); }
-  to { opacity: 1; transform: none; }
-}
-@keyframes bump {
-  0% { transform: scale(1); }
-  40% { transform: scale(1.3); }
-  100% { transform: scale(1); }
-}
-.bump { animation: bump 460ms var(--ease-expo); }
-
-/* ------------------------------------------------------------------ dialogs */
 dialog.drawer {
   margin: 0 0 0 auto;
+  width: min(26.25rem, 100vw);
   height: 100dvh;
-  max-height: 100dvh;
-  width: min(30rem, 100vw);
-  max-width: 100vw;
-  padding: 0;
-  border: 0;
-  background: var(--color-day);
-  color: var(--color-day-ink);
-  translate: 100% 0;
-  transition: translate 380ms var(--ease-expo), overlay 380ms allow-discrete, display 380ms allow-discrete;
 }
-dialog.drawer[open] { translate: 0 0; }
-@starting-style {
-  dialog.drawer[open] { translate: 100% 0; }
-}
-dialog.drawer::backdrop {
-  background: oklch(0.138 0.006 245 / 0);
-  transition: background 380ms var(--ease-quint), overlay 380ms allow-discrete, display 380ms allow-discrete;
-}
-dialog.drawer[open]::backdrop { background: oklch(0.138 0.006 245 / 0.62); }
-@starting-style {
-  dialog.drawer[open]::backdrop { background: oklch(0.138 0.006 245 / 0); }
-}
-
-dialog.menu {
-  margin: 0;
-  width: 100vw;
-  max-width: 100vw;
-  height: 100dvh;
-  max-height: 100dvh;
-  padding: 0;
-  border: 0;
-  background: var(--color-night);
-  color: var(--color-night-ink);
-  opacity: 0;
-  transition: opacity 260ms var(--ease-quint), overlay 260ms allow-discrete, display 260ms allow-discrete;
-}
-dialog.menu[open] { opacity: 1; }
-@starting-style {
-  dialog.menu[open] { opacity: 0; }
-}
-
-/* Exits run faster than entrances. */
-dialog.drawer:not([open]) {
-  transition-duration: 280ms;
-  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
-}
-dialog.drawer[open] { transition-duration: 460ms; }
-
-/* Phone filter sheet: rises from the bottom edge. */
 dialog.sheet {
   margin: auto 0 0;
   width: 100vw;
-  max-width: 100vw;
-  padding: 0;
-  border: 0;
-  border-radius: 1rem 1rem 0 0;
-  background: var(--color-day);
-  color: var(--color-day-ink);
-  translate: 0 100%;
-  transition: translate 420ms var(--ease-expo), overlay 420ms allow-discrete, display 420ms allow-discrete;
 }
-dialog.sheet[open] { translate: 0 0; }
-@starting-style {
-  dialog.sheet[open] { translate: 0 100%; }
+dialog.menu {
+  margin: 0;
+  width: 100vw;
+  height: 100dvh;
 }
-dialog.sheet:not([open]) {
-  transition-duration: 260ms;
-  transition-timing-function: cubic-bezier(0.5, 0, 0.75, 0);
-}
+dialog.drawer::backdrop,
+dialog.sheet::backdrop { background: rgb(0 0 0 / 0.4); }
+
+/* Open and close by fading; nothing slides. */
+dialog.drawer,
+dialog.sheet,
+dialog.menu,
+dialog.drawer::backdrop,
 dialog.sheet::backdrop {
-  background: oklch(0.138 0.006 245 / 0);
-  transition: background 380ms var(--ease-quint), overlay 380ms allow-discrete, display 380ms allow-discrete;
-}
-dialog.sheet[open]::backdrop { background: oklch(0.138 0.006 245 / 0.5); }
-@starting-style {
-  dialog.sheet[open]::backdrop { background: oklch(0.138 0.006 245 / 0); }
-}
-
-/* Menu links arrive one after another when the menu opens. */
-dialog.menu[open] .menu-item {
-  animation: rise 700ms var(--ease-expo) both;
-  animation-delay: calc(80ms + var(--i, 0) * 55ms);
-}
-
-/* Surface-aware brand mark: chrome on night, gunmetal on day. */
-.logo-day { display: none; }
-[data-surface="day"] .logo-day { display: block; }
-[data-surface="day"] .logo-night { display: none; }
-
-/* Packshots are shot on white; multiplying lets them sit in the tile color. */
-.packshot { mix-blend-mode: multiply; }
-
-/* Remote images settle in instead of popping. (Shown immediately without JS.) */
-img[data-fade] {
   opacity: 0;
-  transition: opacity 700ms var(--ease-quint);
+  transition: opacity 200ms var(--ease-out), overlay 200ms allow-discrete, display 200ms allow-discrete;
 }
+dialog[open].drawer,
+dialog[open].sheet,
+dialog[open].menu,
+dialog[open].drawer::backdrop,
+dialog[open].sheet::backdrop { opacity: 1; transition-duration: 300ms; }
+@starting-style {
+  dialog[open].drawer,
+  dialog[open].sheet,
+  dialog[open].menu,
+  dialog[open].drawer::backdrop,
+  dialog[open].sheet::backdrop { opacity: 0; }
+}
+
+/* ------------------------------------------------------------------ images */
+/* Remote images fade in when they arrive (shown at once without JS). */
+img[data-fade] { opacity: 0; transition: opacity 300ms var(--ease-out); }
 img[data-fade][data-loaded="true"] { opacity: 1; }
 
-/* Shop category tabs (below lg): the edge with more tabs behind it fades out. The fade widths are
-   registered so they ease in and out as you reach either end. */
-@property --fade-start { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@property --fade-end { syntax: "<length>"; inherits: false; initial-value: 0px; }
-@media (max-width: 1023.98px) {
-  .tab-rail {
-    mask-image: linear-gradient(to right, transparent, #000 var(--fade-start), #000 calc(100% - var(--fade-end)), transparent);
-    transition: --fade-start 200ms var(--ease-quint), --fade-end 200ms var(--ease-quint);
-  }
-  .tab-rail[data-more-start] { --fade-start: 4.5rem; }
-  .tab-rail[data-more-end] { --fade-end: 4.5rem; }
-}
-
-/* Horizontal rails fade at the edge so it's clear there's more to drag to. */
-.rail-fade {
-  mask-image: linear-gradient(to right, #000 calc(100% - 7rem), transparent);
-}
-@media (max-width: 640px) {
-  .rail-fade { mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent); }
-}
-
-/* ------------------------------------------------------------------ the light (scroll-driven)
-   Runs on the compositor where supported; LightTransition.tsx writes --beam / --white otherwise. */
-.light {
-  view-timeline: --light block;
-  --beam: 0;
-  --white: 0;
-}
-.light-beam { transform: scaleX(var(--beam)); will-change: transform; }
-.light-white { opacity: var(--white); }
-.light-amber { opacity: calc(1 - var(--white)); }
-.light-rod, .light-halo { opacity: calc(1 - var(--white)); }
-
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .light-beam,
-    .light-white,
-    .light-amber,
-    .light-rod,
-    .light-halo {
-      animation-timing-function: linear;
-      animation-fill-mode: both;
-      animation-timeline: --light;
-      animation-range: contain 0% contain 100%;
-    }
-    .light-beam { animation-name: light-beam; }
-    .light-white { animation-name: light-white; }
-    .light-amber { animation-name: light-amber; }
-    .light-rod, .light-halo { animation-name: light-rod; }
-  }
-}
-@keyframes light-beam {
-  0%, 10% { transform: scaleX(0); animation-timing-function: cubic-bezier(0.7, 0, 0.3, 1); }
-  76%, 100% { transform: scaleX(1); }
-}
-@keyframes light-white {
-  0%, 34% { opacity: 0; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
-  70%, 100% { opacity: 1; }
-}
-@keyframes light-amber {
-  0%, 40% { opacity: 1; }
-  72%, 100% { opacity: 0; }
-}
-@keyframes light-rod {
-  0%, 18% { opacity: 1; }
-  40%, 100% { opacity: 0; }
-}
-
-/* The store rises into the light's white landing rather than waiting half a screen below it: the
-   section after the transition slides up over the (already white) lower half of the sticky frame.
-   The verse is centred there and always sets in about four lines of quote-xl (its width is in ch),
-   so its lower half is ~2.3x the quote size; pulling up by half the frame minus that, minus one
-   section gap, leaves the verse and the first shop heading one section gap apart at any screen
-   height. Only while the transition runs; the reduced-motion version is a normal static block. */
-@media (prefers-reduced-motion: no-preference) {
-  .after-light {
-    margin-top: min(0px, calc(-50svh + 2.3 * var(--quote-xl-size) + var(--space-section)));
-  }
-}
-
-/* ------------------------------------------------------------------ scroll-linked motion
-   One secondary layer only: large editorial photographs drift slightly slower than the page.
-   Product grids, lists and headings stay still. Compositor-only, tied to scroll position, and
-   absent for reduced motion or browsers without scroll timelines. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .drift > * {
-      scale: 1.06;
-      animation: drift linear both;
-      animation-timeline: view();
-      animation-range: cover 0% cover 100%;
-    }
-  }
-}
-@keyframes drift {
-  from { translate: 0 -2.5%; }
-  to { translate: 0 2.5%; }
-}
-
-/* ------------------------------------------------------------------ page transitions
-   React <ViewTransition> + next/link transitionTypes. Recipes adapted from
-   vercel-labs/agent-skills · react-view-transitions. */
-:root {
-  --duration-exit: 160ms;
-  --duration-enter: 280ms;
-  --duration-move: 440ms;
-}
-::view-transition { pointer-events: none; }
-
-/* Keep the root live so the header, bag and hover states never freeze mid-transition. */
+/* ------------------------------------------------------------------ view transitions
+   React <ViewTransition>: the product photo carries from grid to product page; other page changes
+   fade. The header never moves. */
 ::view-transition-old(root) { display: none; }
 ::view-transition-new(root) { animation: none; }
-
-/* The header is an anchor: it never moves with the page. */
 ::view-transition-group(site-header) { animation: none; z-index: 100; }
 ::view-transition-old(site-header) { display: none; }
 ::view-transition-new(site-header) { animation: none; }
 
 @keyframes vt-fade { from { opacity: 0; } to { opacity: 1; } }
-@keyframes vt-slide { from { translate: var(--slide-offset) 0; } to { translate: 0 0; } }
-@keyframes vt-rise { from { translate: 0 var(--rise, 8px); } to { translate: 0 0; } }
-
-/* Lateral moves (Shop ⇄ Runway ⇄ Story): a short crossfade with a slight lift. Kept small so the
-   light transition stays the one big movement on the site. */
-::view-transition-old(.page-out) {
-  animation: var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse;
-}
-::view-transition-new(.page-in) {
-  animation:
-    var(--duration-enter) var(--ease-quint) calc(var(--duration-exit) * 0.6) both vt-fade,
-    var(--duration-move) var(--ease-expo) both vt-rise;
-}
-
-/* Going deeper (grid → product) and coming back. */
-::view-transition-old(.nav-forward) {
-  --slide-offset: -24px;
-  animation:
-    var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
-    var(--duration-move) var(--ease-expo) both vt-slide reverse;
-}
-::view-transition-new(.nav-forward) {
-  --slide-offset: 24px;
-  animation:
-    var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
-    var(--duration-move) var(--ease-expo) both vt-slide;
-}
-::view-transition-old(.nav-back) {
-  --slide-offset: 24px;
-  animation:
-    var(--duration-exit) cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse,
-    var(--duration-move) var(--ease-expo) both vt-slide reverse;
-}
-::view-transition-new(.nav-back) {
-  --slide-offset: -24px;
-  animation:
-    var(--duration-enter) var(--ease-quint) var(--duration-exit) both vt-fade,
-    var(--duration-move) var(--ease-expo) both vt-slide;
-}
-
-/* The product photo carries over from the tile to the product page. */
-::view-transition-group(.morph) {
-  animation-duration: var(--duration-move);
-  animation-timing-function: var(--ease-expo);
-}
-::view-transition-image-pair(.morph) { animation-name: vt-via-blur; }
-@keyframes vt-via-blur { 35% { filter: blur(2px); } }
-
-/* Shop filters: tiles leave, arrive and slide to their new places. */
-::view-transition-old(.tile-out) { animation: 160ms cubic-bezier(0.4, 0, 1, 1) both vt-fade reverse; }
-::view-transition-new(.tile-in) { animation: 300ms var(--ease-quint) 120ms both vt-fade; }
-::view-transition-group(.tile-move) {
-  animation-duration: 460ms;
-  animation-timing-function: var(--ease-expo);
-}
+::view-transition-old(.page) { animation: 200ms var(--ease-out) both vt-fade reverse; }
+::view-transition-new(.page) { animation: 300ms var(--ease-out) 100ms both vt-fade; }
+::view-transition-group(.morph) { animation-duration: 400ms; animation-timing-function: var(--ease-out); }
+::view-transition-old(.cell-out) { animation: 150ms var(--ease-out) both vt-fade reverse; }
+::view-transition-new(.cell-in) { animation: 250ms var(--ease-out) 100ms both vt-fade; }
+::view-transition-group(.cell-move) { animation-duration: 350ms; animation-timing-function: var(--ease-out); }
 
 /* ------------------------------------------------------------------ reduced motion */
 @media (prefers-reduced-motion: reduce) {
@@ -622,13 +244,10 @@ img[data-fade][data-loaded="true"] { opacity: 1; }
     animation-duration: 0s !important;
     animation-delay: 0s !important;
   }
-}
-@media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
+    transition-duration: 1ms !important;
     animation-duration: 1ms !important;
     animation-delay: 0ms !important;
-    transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
-  .hero-rod { display: none; }
 }

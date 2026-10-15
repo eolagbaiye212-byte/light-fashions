@@ -6,6 +6,7 @@ import { INSTAGRAM } from "@/lib/media";
 export const metadata: Metadata = {
   title: "Shipping, returns and sizing",
   description: "How LIGHT orders ship, the final-sale policy, sizing for oversized fits, and how to reach us.",
+  alternates: { canonical: "/info" },
 };
 
 const HOODIE = [
@@ -27,15 +28,14 @@ const SECTIONS = [
 export default function InfoPage() {
   return (
     <PageTransition>
-    <div data-surface="day" className="page-top section-b">
-      <div className="container-x grid gap-[var(--space-xl)] lg:grid-cols-12 lg:gap-8">
-        <div className="lg:col-span-4">
-          <h1 className="type-h1 max-w-[9ch]">Before you order</h1>
-          <nav aria-label="On this page" className="mt-[var(--space-md)] lg:sticky lg:top-28">
-            <ul className="flex flex-wrap gap-2 lg:flex-col lg:gap-1">
+      <div className="px-edge grid gap-10 pt-8 pb-16 md:grid-cols-12 md:gap-6 md:pt-12 md:pb-24">
+        <div className="md:col-span-4">
+          <h1 className="t-label">Information</h1>
+          <nav aria-label="On this page" className="mt-6 md:sticky md:top-[calc(var(--header)+1.5rem)]">
+            <ul className="flex flex-wrap gap-x-5 gap-y-1 md:flex-col">
               {SECTIONS.map((s) => (
                 <li key={s.id}>
-                  <a href={`#${s.id}`} className="inline-flex min-h-10 items-center rounded-full px-4 text-ui font-medium shadow-[inset_0_0_0_1px_var(--color-day-edge)] hover:shadow-[inset_0_0_0_1px_var(--color-day-ink)] lg:px-0 lg:shadow-none lg:hover:underline lg:hover:shadow-none">
+                  <a href={`#${s.id}`} className="t-label inline-flex min-h-11 items-center hover:underline md:min-h-9">
                     {s.title}
                   </a>
                 </li>
@@ -44,102 +44,81 @@ export default function InfoPage() {
           </nav>
         </div>
 
-        <div className="max-w-[62ch] space-y-[var(--space-xl)] lg:col-span-7 lg:col-start-6">
-          <section id="shipping" aria-labelledby="h-shipping" className="scroll-mt-28">
-            <h2 id="h-shipping" className="type-h3">
-              Shipping
-            </h2>
-            <div className="mt-4 space-y-4">
-              <p>
-                Most pieces are made ahead and ship right away. Pre-release and runway pieces say so on their page and ship as soon
-                as they&apos;re ready. Shipping cost and delivery options for your address are shown at checkout before you pay.
-              </p>
-              <p>You&apos;ll get an order confirmation and tracking by email from Shopify.</p>
-            </div>
-          </section>
+        <div className="max-w-[60ch] md:col-span-7 md:col-start-6">
+          <Block id="shipping" title="Shipping">
+            <p>
+              Most pieces are made ahead and ship right away. Pre-release and runway pieces say so on their page and ship as soon as
+              they&apos;re ready. Shipping cost and delivery options for your address are shown at checkout before you pay.
+            </p>
+            <p>You&apos;ll get an order confirmation and tracking by email from Shopify.</p>
+          </Block>
 
-          <section id="returns" aria-labelledby="h-returns" className="scroll-mt-28">
-            <h2 id="h-returns" className="type-h3">
-              Returns
-            </h2>
-            <div className="mt-4 space-y-4">
-              <p className="text-lead font-semibold">Every sale is final. LIGHT doesn&apos;t accept returns or exchanges.</p>
-              <p>
-                Most runs are small and many pieces are one-of-one, so please check the size guide and your shipping address before
-                you check out. Questions about an order? Message us on Instagram with your order number.
-              </p>
-            </div>
-          </section>
+          <Block id="returns" title="Returns">
+            <p className="font-medium">Every sale is final. LIGHT doesn&apos;t accept returns or exchanges.</p>
+            <p>
+              Most runs are small and many pieces are one-of-one, so please check the size guide and your shipping address before you
+              check out. Questions about an order? Message us on Instagram with your order number.
+            </p>
+          </Block>
 
-          <section id="sizing" aria-labelledby="h-sizing" className="scroll-mt-28">
-            <h2 id="h-sizing" className="type-h3">
-              Sizing
-            </h2>
-            <div className="mt-4 space-y-4">
-              <p>
-                Most LIGHT tees, hoodies and crews are cut oversized. Take your usual size for the intended relaxed fit, size up for
-                more room, or size down for a closer fit. Women&apos;s tanks and tees are fitted.
-              </p>
-              <p>Each product page lists its own measurements when we have them. Here&apos;s the Light Chain Hoodie as a reference:</p>
-            </div>
-            <table className="tabular mt-6 w-full max-w-md text-left text-ui">
-              <caption className="muted mb-3 text-left text-fine">Light Chain Hoodie, measured laid flat</caption>
+          <Block id="sizing" title="Sizing">
+            <p>
+              Most LIGHT tees, hoodies and crews are cut oversized. Take your usual size for the intended relaxed fit, size up for more
+              room, or size down for a closer fit. Women&apos;s tanks and tees are fitted.
+            </p>
+            <p>Each product page lists its own measurements when we have them. Here&apos;s the Light Chain Hoodie as a reference:</p>
+            <table className="mt-2 w-full max-w-sm text-left">
+              <caption className="t-meta mb-3 text-left text-grey">Light Chain Hoodie, measured laid flat</caption>
               <thead>
-                <tr className="border-b border-day-ink">
-                  <th scope="col" className="py-2 font-semibold">
-                    Size
-                  </th>
-                  <th scope="col" className="py-2 font-semibold">
-                    Chest
-                  </th>
-                  <th scope="col" className="py-2 font-semibold">
-                    Length
-                  </th>
+                <tr className="border-b border-ink">
+                  <th scope="col" className="t-meta py-2 font-normal">Size</th>
+                  <th scope="col" className="t-meta py-2 font-normal">Chest</th>
+                  <th scope="col" className="t-meta py-2 font-normal">Length</th>
                 </tr>
               </thead>
               <tbody>
                 {HOODIE.map(([size, chest, length]) => (
-                  <tr key={size} className="border-b border-day-line">
-                    <th scope="row" className="py-2.5 font-semibold">
-                      {size}
-                    </th>
-                    <td className="py-2.5">{chest}</td>
-                    <td className="py-2.5">{length}</td>
+                  <tr key={size} className="border-b border-grey">
+                    <th scope="row" className="t-meta py-2.5 font-normal">{size}</th>
+                    <td className="t-meta py-2.5">{chest}</td>
+                    <td className="t-meta py-2.5">{length}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-          </section>
+          </Block>
 
-          <section id="payment" aria-labelledby="h-payment" className="scroll-mt-28">
-            <h2 id="h-payment" className="type-h3">
-              Payment
-            </h2>
-            <p className="mt-4">
+          <Block id="payment" title="Payment">
+            <p>
               When you check out, your bag moves to LIGHT&apos;s Shopify checkout. Card details never touch this site. Shop Pay works
               there, and you can enter a discount code before you pay.
             </p>
-          </section>
+          </Block>
 
-          <section id="contact" aria-labelledby="h-contact" className="scroll-mt-28">
-            <h2 id="h-contact" className="type-h3">
-              Contact
-            </h2>
-            <p className="mt-4">
-              The fastest way to reach LIGHT is a direct message on Instagram. Include your order number if it&apos;s about an order.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+          <Block id="contact" title="Contact">
+            <p>The fastest way to reach LIGHT is a direct message on Instagram. Include your order number if it&apos;s about an order.</p>
+            <div className="flex flex-wrap gap-2 pt-2">
               <a href={INSTAGRAM} target="_blank" rel="noreferrer" className="btn btn-ink">
                 Message @children_ofthelight
               </a>
-              <Link href="/shop" className="btn btn-ghost">
+              <Link href="/shop" className="btn btn-line">
                 Back to the shop
               </Link>
             </div>
-          </section>
+          </Block>
         </div>
       </div>
-    </div>
     </PageTransition>
+  );
+}
+
+function Block({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+  return (
+    <section id={id} aria-labelledby={`h-${id}`} className="border-t border-ink pt-4 pb-12 first:border-t-0 first:pt-0 md:first:border-t md:first:pt-4">
+      <h2 id={`h-${id}`} className="t-label">
+        {title}
+      </h2>
+      <div className="t-body mt-4 space-y-4">{children}</div>
+    </section>
   );
 }

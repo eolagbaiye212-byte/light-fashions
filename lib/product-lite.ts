@@ -43,6 +43,22 @@ export function toLite(p: Product, imageCount = 2): ProductLite {
   };
 }
 
+/** A colour as it appears in a product URL: …?color=off-white-tee-and-pink-chrome */
+export function colorSlug(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/** A product page link, opened on one colour when the product comes in that colour. */
+export function productHref(p: Pick<ProductLite, "slug" | "options">, color?: string) {
+  const wanted = color && colorSlug(color);
+  const has = wanted && p.options.some((o) => /colou?r/i.test(o.name) && o.values.some((v) => colorSlug(v) === wanted));
+  return has ? `/shop/${p.slug}?color=${wanted}` : `/shop/${p.slug}`;
+}
+
 export function displayName(p: { name: string; color?: string }) {
   return p.color ? `${p.name}, ${p.color}` : p.name;
 }
@@ -57,7 +73,7 @@ export function lineFor(p: ProductLite, variant: ProductLite["variants"][number]
     color: p.color,
     variantLabel: variant.options.join(" / "),
     price: variant.price,
-    image: p.images[0]?.src ?? "",
+    image: variant.image ?? p.images[0]?.src ?? "",
     single: p.single,
   };
 }
